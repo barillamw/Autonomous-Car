@@ -1,0 +1,334 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           25/Apr/2019  15:00:56
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10.1\utilities.c
+#    Command line  =  
+#        -f C:\Users\Michael\AppData\Local\Temp\EWC011.tmp
+#        ("C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10.1\utilities.c" -lC "C:\Users\Michael\Documents\2019\ECE
+#        306\ECE-306_code\Project 10.1\Debug\List" -o
+#        "C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10.1\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10.1\Debug\List\utilities.lst
+#    Object file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10.1\Debug\Obj\utilities.r43
+#
+###############################################################################
+
+C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project 10.1\utilities.c
+      1          //------------------------------------------------------------------------------
+      2          //
+      3          //  Description: This file contains the functions to run the utilities of the 
+      4          //      device.
+      5          //  
+      6          //
+      7          //  Michael Barilla
+      8          //  Apr 2019
+      9          //  Built with IAR Embedded Workbench Version: V4.10A/W32 (7.11.2)
+     10          //------------------------------------------------------------------------------
+     11          #include  "functions.h"
+     12          #include  "msp430.h"
+     13          #include <string.h>
+     14          #include "macros.h"
+     15          
+     16          extern volatile unsigned char display_changed;
+     17          extern char display_line[FOURTH][COUNT_ELEVEN];
+     18          
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     19          unsigned int switchONE;
+   \                     switchONE:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     20          unsigned int switchTWO;
+   \                     switchTWO:
+   \   000000                DS8 2
+     21          extern unsigned int capture;
+     22          extern unsigned int menu_select;
+     23          extern unsigned int menu;
+     24          extern unsigned int setting;
+     25          extern unsigned int action;
+     26          extern unsigned int waiting;
+     27          
+     28          extern unsigned int send;
+     29          extern unsigned int transmit;
+     30          extern unsigned int lineFinished;
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     31          char command;
+   \                     command:
+   \   000000                DS8 1
+     32          extern volatile char USB_Char_Rx[SMALL_RING_SIZE];
+     33          extern char Text[COUNT_ELEVEN];
+     34          extern volatile unsigned int usb_rx_ring_wr;
+     35          
+     36          extern unsigned int follow;
+     37          extern char stateBlackLine;
+     38          
+     39          extern unsigned int freq;
+     40          
+
+   \                                 In  segment CODE, align 2
+     41          void utilities(void){
+   \                     utilities:
+     42            Serial_PC();
+   \   000000   ........     CALLA   #Serial_PC
+     43            switches();
+   \   000004   ........     CALLA   #switches
+     44            Menu_Process();
+   \   000008   ........     CALLA   #Menu_Process
+     45            display_changed = HIGH;
+   \   00000C   D243....     MOV.B   #0x1, &display_changed
+     46            Display_Process();
+   \   000010   ........     BRA     #Display_Process
+     47          }
+     48          
+
+   \                                 In  segment CODE, align 2
+     49          void switches(void){
+   \                     switches:
+     50            if(switchONE){
+   \   000000   8293....     CMP.W   #0x0, &switchONE
+   \   000004   1A24         JEQ     ??switches_0
+     51                  switchONE = LOW;
+   \   000006   8243....     MOV.W   #0x0, &switchONE
+     52                  //strcpy(display_line[THIRD_LINE], " SWITCH 1  ");
+     53                  //display_changed = HIGH;
+     54                  capture = HIGH;
+   \   00000A   9243....     MOV.W   #0x1, &capture
+     55                  if(!menu_select)
+   \   00000E   8293....     CMP.W   #0x0, &menu_select
+   \   000012   0420         JNE     ??switches_1
+     56                    menu_select = menu;
+   \   000014   9242........ MOV.W   &menu, &menu_select
+   \   00001A   0F3C         JMP     ??switches_0
+     57                  else if(menu_select == S1 && !action)
+   \                     ??switches_1:
+   \   00001C   9293....     CMP.W   #0x1, &menu_select
+   \   000020   0720         JNE     ??switches_2
+   \   000022   8293....     CMP.W   #0x0, &action
+   \   000026   0420         JNE     ??switches_2
+     58                      action = setting;
+   \   000028   9242........ MOV.W   &setting, &action
+   \   00002E   053C         JMP     ??switches_0
+     59                  else if(menu_select == S2)
+   \                     ??switches_2:
+   \   000030   A293....     CMP.W   #0x2, &menu_select
+   \   000034   0220         JNE     ??switches_0
+     60                    follow = HIGH;
+   \   000036   9243....     MOV.W   #0x1, &follow
+     61                  
+     62                  
+     63              }
+     64              if(switchTWO){
+   \                     ??switches_0:
+   \   00003A   8293....     CMP.W   #0x0, &switchTWO
+   \   00003E   1D24         JEQ     ??switches_3
+     65                  switchTWO = LOW;
+   \   000040   8243....     MOV.W   #0x0, &switchTWO
+     66                  //strcpy(display_line[THIRD_LINE], " SWITCH 2  ");
+     67                  //display_changed = HIGH;
+     68                  //P5OUT &= ~IR_LED;
+     69                  //Begin_ADC();
+     70                  //testTurn = HIGH  
+     71                  if(action)
+   \   000044   8293....     CMP.W   #0x0, &action
+   \   000048   0324         JEQ     ??switches_4
+     72                    action = RESET;
+   \   00004A   8243....     MOV.W   #0x0, &action
+   \   00004E   1001         RETA
+     73                  else if (stateBlackLine == STOP){
+   \                     ??switches_4:
+   \   000050   F2907300.... CMP.B   #0x73, &stateBlackLine
+   \   000056   0C20         JNE     ??switches_5
+     74                    action = RESET;
+   \   000058   8243....     MOV.W   #0x0, &action
+     75                    menu_select = RESET;
+   \   00005C   8243....     MOV.W   #0x0, &menu_select
+     76                    follow = RESET;
+   \   000060   8243....     MOV.W   #0x0, &follow
+     77                    waiting = HIGH;
+   \   000064   9243....     MOV.W   #0x1, &waiting
+     78                    stateBlackLine = START;
+   \   000068   F2406100.... MOV.B   #0x61, &stateBlackLine
+   \   00006E   1001         RETA
+     79                  }
+     80                  else if (menu_select)
+   \                     ??switches_5:
+   \   000070   8293....     CMP.W   #0x0, &menu_select
+   \   000074   0224         JEQ     ??switches_3
+     81                    menu_select = RESET;
+   \   000076   8243....     MOV.W   #0x0, &menu_select
+     82          
+     83              }
+     84          }
+   \                     ??switches_3:
+   \   00007A   1001         RETA
+     85          
+
+   \                                 In  segment CODE, align 2
+     86          void Serial_PC(void){
+   \                     Serial_PC:
+     87            if(transmit && send){
+   \   000000   8293....     CMP.W   #0x0, &transmit
+   \   000004   4224         JEQ     ??Serial_PC_2
+   \   000006   8293....     CMP.W   #0x0, &send
+   \   00000A   3F24         JEQ     ??Serial_PC_2
+     88          
+     89                send = LOW;
+   \   00000C   8243....     MOV.W   #0x0, &send
+     90                transmit = LOW;
+   \   000010   8243....     MOV.W   #0x0, &transmit
+     91                Store_Text_A1();
+   \   000014   ........     CALLA   #Store_Text_A1
+     92          
+     93          
+     94                if(lineFinished){
+   \   000018   8293....     CMP.W   #0x0, &lineFinished
+   \   00001C   0724         JEQ     ??Serial_PC_3
+     95                  lineFinished = LOW;
+   \   00001E   8243....     MOV.W   #0x0, &lineFinished
+     96                  command = USB_Char_Rx[usb_rx_ring_wr-SECOND];
+   \   000022   1F42....     MOV.W   &usb_rx_ring_wr, R15
+   \   000026   D24F........ MOV.B   LWRD(USB_Char_Rx + 65534)(R15), &command
+     97                }
+     98                  switch(command){
+   \                     ??Serial_PC_3:
+   \   00002C   5E42....     MOV.B   &command, R14
+   \   000030   7E804600     SUB.B   #0x46, R14
+   \   000034   0F24         JEQ     ??Serial_PC_4
+   \   000036   7E800D00     SUB.B   #0xd, R14
+   \   00003A   1724         JEQ     ??Serial_PC_5
+   \   00003C   5E83         SUB.B   #0x1, R14
+   \   00003E   2024         JEQ     ??Serial_PC_6
+   \   000040   7E800A00     SUB.B   #0xa, R14
+   \   000044   2020         JNE     ??Serial_PC_0
+     99                  case '^':
+    100                    strcpy(Text, "I'm Here");
+   \   000046   3D40....     MOV.W   #`?<Constant "I\\'m Here">`, R13
+   \   00004A   3C40....     MOV.W   #Text, R12
+   \   00004E   ........     CALLA   #strcpy
+    101                    break;
+   \   000052   193C         JMP     ??Serial_PC_0
+    102                  case 'F':
+    103                    freq = K115;
+   \                     ??Serial_PC_4:
+   \   000054   8243....     MOV.W   #0x0, &freq
+    104                    Configure_Serial();
+   \   000058   ........     CALLA   #Configure_Serial
+    105                    strcpy(Text, "115,200");
+   \   00005C   3D40....     MOV.W   #`?<Constant "115,200">`, R13
+   \   000060   3C40....     MOV.W   #Text, R12
+   \   000064   ........     CALLA   #strcpy
+    106                    break;
+   \   000068   0E3C         JMP     ??Serial_PC_0
+    107                  case 'S':
+    108                    freq = K96;
+   \                     ??Serial_PC_5:
+   \   00006A   A243....     MOV.W   #0x2, &freq
+    109                    Configure_Serial();
+   \   00006E   ........     CALLA   #Configure_Serial
+    110                    strcpy(Text, "9,600");
+   \   000072   3D40....     MOV.W   #`?<Constant "9,600">`, R13
+   \   000076   3C40....     MOV.W   #Text, R12
+   \   00007A   ........     CALLA   #strcpy
+    111                    break;
+   \   00007E   033C         JMP     ??Serial_PC_0
+    112                  case 'T':
+    113                    transmit ^= transmit;
+   \                     ??Serial_PC_6:
+   \   000080   92E2........ XOR.W   &transmit, &transmit
+    114                    break;
+    115                  default: break;
+    116                }
+    117              Transmit_Text_A1();
+   \                     ??Serial_PC_0:
+   \   000086   ........     CALLA   #Transmit_Text_A1
+    118               }
+    119          }
+   \                     ??Serial_PC_2:
+   \   00008A   1001         RETA
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "I\\'m Here">`:
+   \   000000   49276D204865 DC8 "I'm Here"
+   \            726500      
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "115,200">`:
+   \   000000   3131352C3230 DC8 "115,200"
+   \            3000        
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "9,600">`:
+   \   000000   392C36303000 DC8 "9,600"
+    120          
+    121          
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      4   Serial_PC
+        4   -> Configure_Serial
+        4   -> Store_Text_A1
+        4   -> Transmit_Text_A1
+        4   -> strcpy
+      4   switches
+      4   utilities
+        0   -> Display_Process
+        4   -> Menu_Process
+        4   -> Serial_PC
+        4   -> switches
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       8  ?<Constant "115,200">
+       6  ?<Constant "9,600">
+       9  ?<Constant "I\'m Here">
+     140  Serial_PC
+       1  command
+       2  switchONE
+       2  switchTWO
+     124  switches
+      20  utilities
+
+ 
+ 284 bytes in segment CODE
+  23 bytes in segment DATA16_C
+   5 bytes in segment DATA16_Z
+ 
+ 284 bytes of CODE  memory
+  23 bytes of CONST memory
+   5 bytes of DATA  memory
+
+Errors: none
+Warnings: none

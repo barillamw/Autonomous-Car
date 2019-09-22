@@ -1,0 +1,809 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           22/Feb/2019  13:33:15
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        04\paths.c
+#    Command line  =  
+#        -f C:\Users\Michael\AppData\Local\Temp\EWBF93.tmp
+#        ("C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        04\paths.c" -lC "C:\Users\Michael\Documents\2019\ECE
+#        306\ECE-306_code\Project 04\Debug\List" -o
+#        "C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        04\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        04\Debug\List\paths.lst
+#    Object file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        04\Debug\Obj\paths.r43
+#
+###############################################################################
+
+C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project 04\paths.c
+      1          //------------------------------------------------------------------------------
+      2          //
+      3          //  Description: This file contains the functions to drive the car on a pre-designed 
+      4          //  path.
+      5          //
+      6          //  Michael Barilla
+      7          //  Feb 2018
+      8          //  Built with IAR Embedded Workbench Version: V4.10A/W32 (7.11.2)
+      9          //------------------------------------------------------------------------------
+     10          #include  "functions.h"
+     11          #include  "msp430.h"
+
+   \                                 In  segment DATA16_AN, at 0x242
+   \   union <unnamed> _A_PCOUT_L
+   \                     _A_PCOUT_L:
+   \   000000                DS8 2
+     12          #include "macros.h"
+     13          #include <string.h>
+     14          
+     15          extern char display_line[4][11];
+     16          extern unsigned int cycle_time;
+     17          extern unsigned int time_change;
+     18          extern unsigned char event;
+     19          extern unsigned char state;
+     20          extern unsigned char shape;
+     21          extern volatile unsigned int Time_Sequence;
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     22          unsigned int delay_start;
+   \                     delay_start:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     23          unsigned int left_motor_count;
+   \                     left_motor_count:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     24          unsigned int right_motor_count;
+   \                     right_motor_count:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     25          unsigned int segment_count;
+   \                     segment_count:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     26          unsigned int count;
+   \                     count:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     27          unsigned int myTime;
+   \                     myTime:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     28          unsigned int loop;
+   \                     loop:
+   \   000000                DS8 2
+     29          
+
+   \                                 In  segment CODE, align 2
+     30          void paths(void){
+   \                     paths:
+     31                  
+     32              switch (event) {
+   \   000000   5E42....     MOV.B   &event, R14
+   \   000004   7E804300     SUB.B   #0x43, R14
+   \   000008   1024         JEQ     ??paths_1
+   \   00000A   6E83         SUB.B   #0x2, R14
+   \   00000C   1E24         JEQ     ??paths_2
+   \   00000E   7E800700     SUB.B   #0x7, R14
+   \   000012   0324         JEQ     ??paths_3
+   \   000014   7E82         SUB.B   #0x8, R14
+   \   000016   1124         JEQ     ??paths_4
+   \   000018   1001         RETA
+     33                case STRAIGHT:
+     34                  Straight();
+   \                     ??paths_3:
+   \   00001A   ........     CALLA   #Straight
+     35                  strcpy(display_line[THIRD_LINE], " STRAIGHT  ");
+   \   00001E   3D40....     MOV.W   #`?<Constant " STRAIGHT  ">`, R13
+   \   000022   3C40....     MOV.W   #display_line + 22, R12
+   \   000026   ........     BRA     #strcpy
+     36          
+     37                  break;
+     38                case CIRCLE:
+     39                  Circle();
+   \                     ??paths_1:
+   \   00002A   ........     CALLA   #Circle
+     40                  strcpy(display_line[THIRD_LINE], " CIRCLE  ");
+   \   00002E   3D40....     MOV.W   #`?<Constant " CIRCLE  ">`, R13
+   \   000032   3C40....     MOV.W   #display_line + 22, R12
+   \   000036   ........     BRA     #strcpy
+     41          
+     42                  break;
+     43                case TRIANGLE:
+     44                  Triangle();
+   \                     ??paths_4:
+   \   00003A   ........     CALLA   #Triangle
+     45                  strcpy(display_line[THIRD_LINE], " TRIANGLE  ");
+   \   00003E   3D40....     MOV.W   #`?<Constant " TRIANGLE  ">`, R13
+   \   000042   3C40....     MOV.W   #display_line + 22, R12
+   \   000046   ........     BRA     #strcpy
+     46                  break;
+     47                case FIG_EIGHT:
+     48                  Fig_Eight();
+   \                     ??paths_2:
+   \   00004A   ........     CALLA   #Fig_Eight
+     49                  strcpy(display_line[THIRD_LINE], " FIGURE 8  ");
+   \   00004E   3D40....     MOV.W   #`?<Constant " FIGURE 8  ">`, R13
+   \   000052   3C40....     MOV.W   #display_line + 22, R12
+   \   000056   ........     BRA     #strcpy
+     50                  break;
+     51                default: break;
+     52              }
+     53          }
+     54          
+
+   \                                 In  segment CODE, align 2
+     55          void Straight (){
+   \                     Straight:
+     56            switch(state){
+   \   000000   5E42....     MOV.B   &state, R14
+   \   000004   7E804500     SUB.B   #0x45, R14
+   \   000008   0D24         JEQ     ??Straight_2
+   \   00000A   7E800D00     SUB.B   #0xd, R14
+   \   00000E   0824         JEQ     ??Straight_3
+   \   000010   5E83         SUB.B   #0x1, R14
+   \   000012   0424         JEQ     ??Straight_4
+   \   000014   6E82         SUB.B   #0x4, R14
+   \   000016   0820         JNE     ??Straight_0
+     57              case WAIT:
+     58                wait_case();
+   \   000018   ........     BRA     #wait_case
+     59                break;
+     60              case START:
+     61                start_case();
+   \                     ??Straight_4:
+   \   00001C   ........     BRA     #start_case
+     62                break;
+     63              case RUN:
+     64                run_case_straight();
+   \                     ??Straight_3:
+   \   000020   ........     BRA     #run_case_straight
+     65                break;
+     66              case END:
+     67                end_case();
+   \                     ??Straight_2:
+   \   000024   ........     CALLA   #end_case
+     68                break;
+     69              default: break;  
+     70            }
+     71          }
+   \                     ??Straight_0:
+   \   000028   1001         RETA
+     72          
+
+   \                                 In  segment CODE, align 2
+     73          void Circle (){
+   \                     Circle:
+     74            switch(state){
+   \   000000   5E42....     MOV.B   &state, R14
+   \   000004   7E804500     SUB.B   #0x45, R14
+   \   000008   0D24         JEQ     ??Circle_2
+   \   00000A   7E800D00     SUB.B   #0xd, R14
+   \   00000E   0824         JEQ     ??Circle_3
+   \   000010   5E83         SUB.B   #0x1, R14
+   \   000012   0424         JEQ     ??Circle_4
+   \   000014   6E82         SUB.B   #0x4, R14
+   \   000016   0820         JNE     ??Circle_0
+     75              case WAIT:
+     76                wait_case();
+   \   000018   ........     BRA     #wait_case
+     77                break;
+     78              case START:
+     79                start_case();
+   \                     ??Circle_4:
+   \   00001C   ........     BRA     #start_case
+     80                break;
+     81              case RUN:
+     82                run_case_circle();
+   \                     ??Circle_3:
+   \   000020   ........     BRA     #run_case_circle
+     83                break;
+     84              case END:
+     85                end_case();
+   \                     ??Circle_2:
+   \   000024   ........     CALLA   #end_case
+     86                break;
+     87              default: break;  
+     88            }
+     89          }
+   \                     ??Circle_0:
+   \   000028   1001         RETA
+     90          
+
+   \                                 In  segment CODE, align 2
+     91          void Fig_Eight(){
+   \                     Fig_Eight:
+     92            switch(state){
+   \   000000   5E42....     MOV.B   &state, R14
+   \   000004   7E804500     SUB.B   #0x45, R14
+   \   000008   0D24         JEQ     ??Fig_Eight_2
+   \   00000A   7E800D00     SUB.B   #0xd, R14
+   \   00000E   0824         JEQ     ??Fig_Eight_3
+   \   000010   5E83         SUB.B   #0x1, R14
+   \   000012   0424         JEQ     ??Fig_Eight_4
+   \   000014   6E82         SUB.B   #0x4, R14
+   \   000016   0820         JNE     ??Fig_Eight_0
+     93              case WAIT:
+     94                wait_case();
+   \   000018   ........     BRA     #wait_case
+     95                break;
+     96              case START:
+     97                start_case();
+   \                     ??Fig_Eight_4:
+   \   00001C   ........     BRA     #start_case
+     98                break;
+     99              case RUN:
+    100                run_case_eight();
+   \                     ??Fig_Eight_3:
+   \   000020   ........     BRA     #run_case_eight
+    101                break;
+    102              case END:
+    103                end_case();
+   \                     ??Fig_Eight_2:
+   \   000024   ........     CALLA   #end_case
+    104                break;
+    105              default: break;  
+    106            }
+    107          }
+   \                     ??Fig_Eight_0:
+   \   000028   1001         RETA
+    108          
+
+   \                                 In  segment CODE, align 2
+    109          void Triangle () {
+   \                     Triangle:
+    110            switch(state){
+   \   000000   5E42....     MOV.B   &state, R14
+   \   000004   7E804500     SUB.B   #0x45, R14
+   \   000008   0D24         JEQ     ??Triangle_2
+   \   00000A   7E800D00     SUB.B   #0xd, R14
+   \   00000E   0824         JEQ     ??Triangle_3
+   \   000010   5E83         SUB.B   #0x1, R14
+   \   000012   0424         JEQ     ??Triangle_4
+   \   000014   6E82         SUB.B   #0x4, R14
+   \   000016   0820         JNE     ??Triangle_0
+    111              case WAIT:
+    112                wait_case();
+   \   000018   ........     BRA     #wait_case
+    113                break;
+    114              case START:
+    115                start_case();
+   \                     ??Triangle_4:
+   \   00001C   ........     BRA     #start_case
+    116                break;
+    117              case RUN:
+    118                run_case_triangle();
+   \                     ??Triangle_3:
+   \   000020   ........     BRA     #run_case_triangle
+    119                break;
+    120              case END:
+    121                end_case();
+   \                     ??Triangle_2:
+   \   000024   ........     CALLA   #end_case
+    122                break;
+    123              default: break;  
+    124            }
+    125          }
+   \                     ??Triangle_0:
+   \   000028   1001         RETA
+    126          
+    127          
+
+   \                                 In  segment CODE, align 2
+    128          void wait_case(){
+   \                     wait_case:
+    129            if(time_change){
+   \   000000   8293....     CMP.W   #0x0, &time_change
+   \   000004   1024         JEQ     ??wait_case_0
+    130              time_change = 0;
+   \   000006   8243....     MOV.W   #0x0, &time_change
+    131              if(delay_start++ >= WAITING2START){
+   \   00000A   1F42....     MOV.W   &delay_start, R15
+   \   00000E   0E4F         MOV.W   R15, R14
+   \   000010   1E53         ADD.W   #0x1, R14
+   \   000012   824E....     MOV.W   R14, &delay_start
+   \   000016   3F90DC05     CMP.W   #0x5dc, R15
+   \   00001A   0528         JNC     ??wait_case_0
+    132                delay_start = 0;
+   \   00001C   8243....     MOV.W   #0x0, &delay_start
+    133                state = START;
+   \   000020   F2405300.... MOV.B   #0x53, &state
+    134              }
+    135            }
+    136          }
+   \                     ??wait_case_0:
+   \   000026   1001         RETA
+    137          
+
+   \                                 In  segment CODE, align 2
+    138          void start_case(void){
+   \                     start_case:
+    139            cycle_time = RESET_STATE;
+   \   000000   8243....     MOV.W   #0x0, &cycle_time
+    140            right_motor_count = RESET_STATE;
+   \   000004   8243....     MOV.W   #0x0, &right_motor_count
+    141            left_motor_count = RESET_STATE;
+   \   000008   8243....     MOV.W   #0x0, &left_motor_count
+    142            Forward_On();
+   \   00000C   ........     CALLA   #Forward_On
+    143            segment_count = RESET_STATE;
+   \   000010   8243....     MOV.W   #0x0, &segment_count
+    144            count = RESET_STATE;
+   \   000014   8243....     MOV.W   #0x0, &count
+    145            myTime = RESET_STATE;
+   \   000018   8243....     MOV.W   #0x0, &myTime
+    146            loop = RESET_STATE;
+   \   00001C   8243....     MOV.W   #0x0, &loop
+    147            state = RUN;
+   \   000020   F2405200.... MOV.B   #0x52, &state
+    148          }
+   \   000026   1001         RETA
+    149          
+
+   \                                 In  segment CODE, align 2
+    150          void run_case_straight(void){
+   \                     run_case_straight:
+    151            if(time_change){
+   \   000000   8293....     CMP.W   #0x0, &time_change
+   \   000004   2D24         JEQ     ??run_case_straight_0
+    152              time_change = 0;
+   \   000006   8243....     MOV.W   #0x0, &time_change
+    153              cycle_time++;
+   \   00000A   9253....     ADD.W   #0x1, &cycle_time
+    154              if (segment_count <= TRAVEL_DISTANCE){
+   \   00000E   B2902D01.... CMP.W   #0x12d, &segment_count
+   \   000014   222C         JC      ??run_case_straight_1
+    155                if(right_motor_count++ >= RIGHT_COUNT_TIME){
+   \   000016   1F42....     MOV.W   &right_motor_count, R15
+   \   00001A   0E4F         MOV.W   R15, R14
+   \   00001C   1E53         ADD.W   #0x1, R14
+   \   00001E   824E....     MOV.W   R14, &right_motor_count
+   \   000022   3F92         CMP.W   #0x8, R15
+   \   000024   0228         JNC     ??run_case_straight_2
+    156                  P6OUT &= ~R_FORWARD;
+   \   000026   D2C34302     BIC.B   #0x1, &0x243
+    157                }
+    158                if(left_motor_count++ >= LEFT_COUNT_TIME){
+   \                     ??run_case_straight_2:
+   \   00002A   1F42....     MOV.W   &left_motor_count, R15
+   \   00002E   0E4F         MOV.W   R15, R14
+   \   000030   1E53         ADD.W   #0x1, R14
+   \   000032   824E....     MOV.W   R14, &left_motor_count
+   \   000036   3F92         CMP.W   #0x8, R15
+   \   000038   0228         JNC     ??run_case_straight_3
+    159                  P6OUT &= ~L_FORWARD;
+   \   00003A   E2C34302     BIC.B   #0x2, &0x243
+    160                }
+    161                if(cycle_time >= 10){
+   \                     ??run_case_straight_3:
+   \   00003E   B2900A00.... CMP.W   #0xa, &cycle_time
+   \   000044   0D28         JNC     ??run_case_straight_0
+    162                  cycle_time = 0;
+   \   000046   8243....     MOV.W   #0x0, &cycle_time
+    163                  right_motor_count = 0;
+   \   00004A   8243....     MOV.W   #0x0, &right_motor_count
+    164                  left_motor_count = 0;
+   \   00004E   8243....     MOV.W   #0x0, &left_motor_count
+    165                  segment_count++;
+   \   000052   9253....     ADD.W   #0x1, &segment_count
+    166                  Forward_Move();
+   \   000056   ........     BRA     #Forward_Move
+    167                }
+    168              }else{
+    169                state = END;
+   \                     ??run_case_straight_1:
+   \   00005A   F2404500.... MOV.B   #0x45, &state
+    170              }
+    171            }
+    172          }
+   \                     ??run_case_straight_0:
+   \   000060   1001         RETA
+   \   000062                REQUIRE _A_PCOUT_L
+    173          
+
+   \                                 In  segment CODE, align 2
+    174          void run_case_circle (void){
+   \                     run_case_circle:
+    175            if(time_change){
+   \   000000   8293....     CMP.W   #0x0, &time_change
+   \   000004   1F24         JEQ     ??run_case_circle_1
+    176                time_change = RESET;
+   \   000006   8243....     MOV.W   #0x0, &time_change
+    177                if (myTime > STAGEONE){
+   \   00000A   A293....     CMP.W   #0x2, &myTime
+   \   00000E   0528         JNC     ??run_case_circle_2
+    178                  P6OUT |= L_FORWARD;
+   \   000010   E2D34302     BIS.B   #0x2, &0x243
+    179                  P6OUT &= ~R_FORWARD;
+   \   000014   D2C34302     BIC.B   #0x1, &0x243
+   \   000018   043C         JMP     ??run_case_circle_0
+    180                }
+    181                else{
+    182                  P6OUT |= L_FORWARD;
+   \                     ??run_case_circle_2:
+   \   00001A   E2D34302     BIS.B   #0x2, &0x243
+    183                  P6OUT |= R_FORWARD;
+   \   00001E   D2D34302     BIS.B   #0x1, &0x243
+    184                }
+    185                myTime ++;
+   \                     ??run_case_circle_0:
+   \   000022   9253....     ADD.W   #0x1, &myTime
+    186                
+    187                if (myTime == STAGETWO){
+   \   000026   B2901400.... CMP.W   #0x14, &myTime
+   \   00002C   0420         JNE     ??run_case_circle_3
+    188                  myTime = RESET_STATE;
+   \   00002E   8243....     MOV.W   #0x0, &myTime
+    189                  count ++;
+   \   000032   9253....     ADD.W   #0x1, &count
+    190                }
+    191                
+    192                if (count == TWOLOOP){
+   \                     ??run_case_circle_3:
+   \   000036   B290A000.... CMP.W   #0xa0, &count
+   \   00003C   0320         JNE     ??run_case_circle_1
+    193                  state = END;
+   \   00003E   F2404500.... MOV.B   #0x45, &state
+    194                }
+    195            }
+    196          }
+   \                     ??run_case_circle_1:
+   \   000044   1001         RETA
+   \   000046                REQUIRE _A_PCOUT_L
+    197          
+
+   \                                 In  segment CODE, align 2
+    198          void run_case_eight (void){
+   \                     run_case_eight:
+    199          
+    200            if(time_change){
+   \   000000   8293....     CMP.W   #0x0, &time_change
+   \   000004   3F24         JEQ     ??run_case_eight_3
+    201              time_change = RESET_STATE;
+   \   000006   8243....     MOV.W   #0x0, &time_change
+    202              if (myTime > STAGEONE){
+   \   00000A   A293....     CMP.W   #0x2, &myTime
+   \   00000E   1128         JNC     ??run_case_eight_4
+    203                switch (loop){
+   \   000010   1F42....     MOV.W   &loop, R15
+   \   000014   0F83         SUB.W   #0x0, R15
+   \   000016   0324         JEQ     ??run_case_eight_5
+   \   000018   1F83         SUB.W   #0x1, R15
+   \   00001A   0624         JEQ     ??run_case_eight_6
+   \   00001C   0E3C         JMP     ??run_case_eight_2
+    204                case LOOPONE:
+    205                  P6OUT &= ~R_FORWARD;
+   \                     ??run_case_eight_5:
+   \   00001E   D2C34302     BIC.B   #0x1, &0x243
+    206                  P6OUT |= L_FORWARD;
+   \   000022   E2D34302     BIS.B   #0x2, &0x243
+    207                  break;
+   \   000026   093C         JMP     ??run_case_eight_2
+    208                case LOOPTWO:
+    209                  P6OUT |= R_FORWARD;
+   \                     ??run_case_eight_6:
+   \   000028   D2D34302     BIS.B   #0x1, &0x243
+    210                  P6OUT &= ~L_FORWARD;
+   \   00002C   E2C34302     BIC.B   #0x2, &0x243
+    211                  break;
+   \   000030   043C         JMP     ??run_case_eight_2
+    212                default: break;
+    213                }
+    214              }
+    215              else{
+    216                  P6OUT |= R_FORWARD;
+   \                     ??run_case_eight_4:
+   \   000032   D2D34302     BIS.B   #0x1, &0x243
+    217                  P6OUT |= L_FORWARD;
+   \   000036   E2D34302     BIS.B   #0x2, &0x243
+    218              }
+    219              myTime ++;
+   \                     ??run_case_eight_2:
+   \   00003A   9253....     ADD.W   #0x1, &myTime
+    220              
+    221              if(myTime == STAGETWO){
+   \   00003E   B2901400.... CMP.W   #0x14, &myTime
+   \   000044   1820         JNE     ??run_case_eight_0
+    222                myTime = RESET_STATE;
+   \   000046   8243....     MOV.W   #0x0, &myTime
+    223                count ++;
+   \   00004A   9253....     ADD.W   #0x1, &count
+    224              
+    225              if(count % LOOP == RESET){
+   \   00004E   3E405000     MOV.W   #0x50, R14
+   \   000052   1C42....     MOV.W   &count, R12
+   \   000056   ........     CALLA   #?DivMod16u
+   \   00005A   0E93         CMP.W   #0x0, R14
+   \   00005C   0C20         JNE     ??run_case_eight_0
+    226                switch(loop){
+   \   00005E   1F42....     MOV.W   &loop, R15
+   \   000062   0F83         SUB.W   #0x0, R15
+   \   000064   0324         JEQ     ??run_case_eight_7
+   \   000066   1F83         SUB.W   #0x1, R15
+   \   000068   0424         JEQ     ??run_case_eight_8
+   \   00006A   053C         JMP     ??run_case_eight_0
+    227                  case LOOPONE:
+    228                    loop = LOOPTWO;
+   \                     ??run_case_eight_7:
+   \   00006C   9243....     MOV.W   #0x1, &loop
+    229                    break;
+   \   000070   023C         JMP     ??run_case_eight_0
+    230                  case LOOPTWO:
+    231                    loop = LOOPONE;
+   \                     ??run_case_eight_8:
+   \   000072   8243....     MOV.W   #0x0, &loop
+    232                    break;
+    233                default: break;
+    234                }
+    235              }
+    236              }
+    237              
+    238              if(count == FOURLOOP){
+   \                     ??run_case_eight_0:
+   \   000076   B2904001.... CMP.W   #0x140, &count
+   \   00007C   0320         JNE     ??run_case_eight_3
+    239                state = END;
+   \   00007E   F2404500.... MOV.B   #0x45, &state
+    240              }
+    241             
+    242            }
+    243          }
+   \                     ??run_case_eight_3:
+   \   000084   1001         RETA
+   \   000086                REQUIRE _A_PCOUT_L
+    244                
+    245          
+
+   \                                 In  segment CODE, align 2
+    246          void run_case_triangle (void){
+   \                     run_case_triangle:
+    247            if(time_change){
+   \   000000   8293....     CMP.W   #0x0, &time_change
+   \   000004   2924         JEQ     ??run_case_triangle_1
+    248              time_change = 0;
+   \   000006   8243....     MOV.W   #0x0, &time_change
+    249              if(myTime > STAGETWOTRI){
+   \   00000A   B290F501.... CMP.W   #0x1f5, &myTime
+   \   000010   0528         JNC     ??run_case_triangle_2
+    250                P6OUT |= R_FORWARD;
+   \   000012   D2D34302     BIS.B   #0x1, &0x243
+    251                P6OUT |= L_FORWARD;
+   \   000016   E2D34302     BIS.B   #0x2, &0x243
+   \   00001A   0D3C         JMP     ??run_case_triangle_0
+    252              }
+    253              else if(myTime > STAGEONETRI){
+   \                     ??run_case_triangle_2:
+   \   00001C   B290C900.... CMP.W   #0xc9, &myTime
+   \   000022   0528         JNC     ??run_case_triangle_3
+    254                P6OUT |= R_FORWARD;
+   \   000024   D2D34302     BIS.B   #0x1, &0x243
+    255                P6OUT &= ~L_FORWARD;
+   \   000028   E2C34302     BIC.B   #0x2, &0x243
+   \   00002C   043C         JMP     ??run_case_triangle_0
+    256              }
+    257              else{
+    258                P6OUT |= R_FORWARD;
+   \                     ??run_case_triangle_3:
+   \   00002E   D2D34302     BIS.B   #0x1, &0x243
+    259                P6OUT |= L_FORWARD;
+   \   000032   E2D34302     BIS.B   #0x2, &0x243
+    260              }
+    261              myTime++;
+   \                     ??run_case_triangle_0:
+   \   000036   9253....     ADD.W   #0x1, &myTime
+    262              if(myTime == STAGETHREETRI){
+   \   00003A   B2902003.... CMP.W   #0x320, &myTime
+   \   000040   0420         JNE     ??run_case_triangle_4
+    263                myTime = RESET_STATE;
+   \   000042   8243....     MOV.W   #0x0, &myTime
+    264                count++;
+   \   000046   9253....     ADD.W   #0x1, &count
+    265              }
+    266              if (count >= TRI){
+   \                     ??run_case_triangle_4:
+   \   00004A   B2900600.... CMP.W   #0x6, &count
+   \   000050   0328         JNC     ??run_case_triangle_1
+    267                state = END;
+   \   000052   F2404500.... MOV.B   #0x45, &state
+    268              }
+    269            }
+    270          }
+   \                     ??run_case_triangle_1:
+   \   000058   1001         RETA
+   \   00005A                REQUIRE _A_PCOUT_L
+    271              
+    272          
+
+   \                                 In  segment CODE, align 2
+    273          void end_case(void){
+   \                     end_case:
+    274            Forward_Off();
+   \   000000   ........     CALLA   #Forward_Off
+    275            state = WAIT;
+   \   000004   F2405700.... MOV.B   #0x57, &state
+    276            event = NONE;
+   \   00000A   F2404E00.... MOV.B   #0x4e, &event
+    277          }
+   \   000010   1001         RETA
+    278          
+
+   \                                 In  segment CODE, align 2
+    279          void Forward_On(){
+   \                     Forward_On:
+    280            P6OUT |= R_FORWARD;
+   \   000000   D2D34302     BIS.B   #0x1, &0x243
+    281            P6OUT |= L_FORWARD;
+   \   000004   E2D34302     BIS.B   #0x2, &0x243
+    282          }
+   \   000008   1001         RETA
+   \   00000A                REQUIRE _A_PCOUT_L
+    283          
+
+   \                                 In  segment CODE, align 2
+    284          void Forward_Move(){
+   \                     Forward_Move:
+    285            P6OUT |= R_FORWARD;
+   \   000000   D2D34302     BIS.B   #0x1, &0x243
+    286            P6OUT |= L_FORWARD;
+   \   000004   E2D34302     BIS.B   #0x2, &0x243
+    287          }
+   \   000008   1001         RETA
+   \   00000A                REQUIRE _A_PCOUT_L
+    288          
+
+   \                                 In  segment CODE, align 2
+    289          void Forward_Off(){
+   \                     Forward_Off:
+    290            P6OUT &= ~R_FORWARD;
+   \   000000   D2C34302     BIC.B   #0x1, &0x243
+    291            P6OUT &= ~L_FORWARD;
+   \   000004   E2C34302     BIC.B   #0x2, &0x243
+    292          }
+   \   000008   1001         RETA
+   \   00000A                REQUIRE _A_PCOUT_L
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant " STRAIGHT  ">`:
+   \   000000   205354524149 DC8 " STRAIGHT  "
+   \            474854202000
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant " CIRCLE  ">`:
+   \   000000   20434952434C DC8 " CIRCLE  "
+   \            45202000    
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant " TRIANGLE  ">`:
+   \   000000   20545249414E DC8 " TRIANGLE  "
+   \            474C45202000
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant " FIGURE 8  ">`:
+   \   000000   204649475552 DC8 " FIGURE 8  "
+   \            452038202000
+    293          
+    294          
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      4   Circle
+        4   -> end_case
+        0   -> run_case_circle
+        0   -> start_case
+        0   -> wait_case
+      4   Fig_Eight
+        4   -> end_case
+        0   -> run_case_eight
+        0   -> start_case
+        0   -> wait_case
+      4   Forward_Move
+      4   Forward_Off
+      4   Forward_On
+      4   Straight
+        4   -> end_case
+        0   -> run_case_straight
+        0   -> start_case
+        0   -> wait_case
+      4   Triangle
+        4   -> end_case
+        0   -> run_case_triangle
+        0   -> start_case
+        0   -> wait_case
+      4   end_case
+        4   -> Forward_Off
+      4   paths
+        4   -> Circle
+        4   -> Fig_Eight
+        4   -> Straight
+        4   -> Triangle
+        0   -> strcpy
+      4   run_case_circle
+      4   run_case_eight
+        4 ?DivMod16u
+      4   run_case_straight
+        0   -> Forward_Move
+      4   run_case_triangle
+      4   start_case
+        4   -> Forward_On
+      4   wait_case
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      10  ?<Constant " CIRCLE  ">
+      12  ?<Constant " FIGURE 8  ">
+      12  ?<Constant " STRAIGHT  ">
+      12  ?<Constant " TRIANGLE  ">
+      42  Circle
+      42  Fig_Eight
+      10  Forward_Move
+      10  Forward_Off
+      10  Forward_On
+      42  Straight
+      42  Triangle
+       2  _A_PCOUT_L
+       2  count
+       2  delay_start
+      18  end_case
+       2  left_motor_count
+       2  loop
+       2  myTime
+      90  paths
+       2  right_motor_count
+      70  run_case_circle
+     134  run_case_eight
+      98  run_case_straight
+      90  run_case_triangle
+       2  segment_count
+      40  start_case
+      40  wait_case
+
+ 
+ 778 bytes in segment CODE
+   2 bytes in segment DATA16_AN
+  46 bytes in segment DATA16_C
+  14 bytes in segment DATA16_Z
+ 
+ 778 bytes of CODE  memory
+  46 bytes of CONST memory
+  14 bytes of DATA  memory (+ 2 bytes shared)
+
+Errors: none
+Warnings: none

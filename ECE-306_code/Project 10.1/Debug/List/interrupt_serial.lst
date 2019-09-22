@@ -1,0 +1,700 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           25/Apr/2019  15:00:54
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10.1\interrupt_serial.c
+#    Command line  =  
+#        -f C:\Users\Michael\AppData\Local\Temp\EWBBA3.tmp
+#        ("C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10.1\interrupt_serial.c" -lC "C:\Users\Michael\Documents\2019\ECE
+#        306\ECE-306_code\Project 10.1\Debug\List" -o
+#        "C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10.1\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10.1\Debug\List\interrupt_serial.lst
+#    Object file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10.1\Debug\Obj\interrupt_serial.r43
+#
+###############################################################################
+
+C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project 10.1\interrupt_serial.c
+      1          //------------------------------------------------------------------------------
+      2          //
+      3          //  Description: This file contains the functions to initiate the Serial 
+      4          //      port for USB at various Baud Rates
+      5          //      A0 - 115,200
+      6          //      A1 - 460,800
+      7          //  
+      8          //
+      9          //  Michael Barilla
+     10          //  Jan 2019
+     11          //  Built with IAR Embedded Workbench Version: V4.10A/W32 (7.11.2)
+     12          //------------------------------------------------------------------------------
+     13          
+     14          #include  "functions.h"
+     15          #include  "msp430.h"
+
+   \                                 In  segment DATA16_AN, at 0x50c
+   \   union <unnamed> _A_UCA0RXBUF_L
+   \                     _A_UCA0RXBUF_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x50e
+   \   union <unnamed> _A_UCA0TXBUF_L
+   \                     _A_UCA0TXBUF_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x51e
+   \   union <unnamed> _A_UCA0IV_L
+   \                     _A_UCA0IV_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x58c
+   \   union <unnamed> _A_UCA1RXBUF_L
+   \                     _A_UCA1RXBUF_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x58e
+   \   union <unnamed> _A_UCA1TXBUF_L
+   \                     _A_UCA1TXBUF_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x59e
+   \   union <unnamed> _A_UCA1IV_L
+   \                     _A_UCA1IV_L:
+   \   000000                DS8 2
+     16          #include "macros.h"
+     17          #include <string.h>
+
+   \                                 In  segment CODE, align 2
+   \   __intrinsic __nounwind __cc_version2 char *strstr(char const *, char const *)
+   \                     strstr:
+   \   000000   1B15         PUSHM.W #0x2, R11
+   \   000002   0A4C         MOV.W   R12, R10
+   \   000004   0B4D         MOV.W   R13, R11
+   \   000006   0D4B         MOV.W   R11, R13
+   \   000008   0C4A         MOV.W   R10, R12
+   \   00000A   ........     CALLA   #__iar_Strstr
+   \   00000E   1A17         POPM.W  #0x2, R11
+   \   000010   1001         RETA
+     18          
+     19          //Global Varibles
+     20          extern volatile unsigned int usb_rx_ring_wr;
+     21          extern volatile unsigned int usb_rx_ring_rd;
+     22          extern volatile char USB_Char_Rx[SMALL_RING_SIZE];
+     23          extern volatile char USB_Char_Tx[SMALL_RING_SIZE];
+     24          extern volatile unsigned int iot_rx_ring_wr;
+     25          extern volatile char IOT_Char_Rx[SMALL_RING_SIZE];
+     26          extern volatile char IOT_Char_Tx[SMALL_RING_SIZE];
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     27          unsigned int UCA1_index;
+   \                     UCA1_index:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     28          unsigned int UCA0_index;
+   \                     UCA0_index:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     29          unsigned int lineFinished;
+   \                     lineFinished:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     30          unsigned int lineStart;
+   \                     lineStart:
+   \   000000                DS8 2
+     31          extern unsigned int transmit;
+     32          extern unsigned int send;
+     33          extern unsigned int startPos;
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     34          char character;
+   \                     character:
+   \   000000                DS8 1
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     35          char IOTcharacter;
+   \                     IOTcharacter:
+   \   000000                DS8 1
+     36          
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     37          unsigned int ipSearch;
+   \                     ipSearch:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     38          unsigned int updateStatus;
+   \                     updateStatus:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     39          unsigned int collect;
+   \                     collect:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     40          char IOT_All_Char[SMALL_RING_SIZE];
+   \                     IOT_All_Char:
+   \   000000                DS8 16
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     41          unsigned int all_char;
+   \                     all_char:
+   \   000000                DS8 2
+     42          extern unsigned int updateIP;
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     43          unsigned int location = RESET;
+   \                     location:
+   \   000000                DS8 2
+     44          extern char SSID[COUNT_ELEVEN];
+     45          extern char IP[SMALL_RING_SIZE];
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     46          unsigned int findSSID;
+   \                     findSSID:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     47          unsigned int findIP;
+   \                     findIP:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     48          unsigned int flagSSID;
+   \                     flagSSID:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     49          unsigned int flagIP;
+   \                     flagIP:
+   \   000000                DS8 2
+     50          
+     51          extern char statusNTWK;
+     52          extern char driveCommand[SMALL_RING_SIZE];
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     53          unsigned int driveCommandCount;
+   \                     driveCommandCount:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     54          unsigned int newDriveCommand;
+   \                     newDriveCommand:
+   \   000000                DS8 2
+     55          extern unsigned int readyDrive;
+     56          
+     57          
+     58          
+     59          
+     60          
+     61          //------------------------------------------------------------------------------
+     62          
+     63          #pragma vector = EUSCI_A0_VECTOR
+
+   \                                 In  segment ISR_CODE, align 2
+     64          __interrupt void eUSCI_A0_ISR(void){
+   \                     eUSCI_A0_ISR:
+   \   000000   3F15         PUSHM.W #0x4, R15
+     65            
+     66            switch(__even_in_range(UCA0IV, UCA0TXD)){
+   \   000002   1F421E05     MOV.W   &0x51e, R15
+   \   000006   E00F         ADDA    R15, PC
+   \                     `?<Jumptable for eUSCI_A0_ISR>_0`:
+   \   000008   E33C         JMP     ??eUSCI_A0_ISR_11
+   \   00000A   3F3C         JMP     ??eUSCI_A0_ISR_12
+   \   00000C   E13C         JMP     ??eUSCI_A0_ISR_11
+   \   00000E   E03C         JMP     ??eUSCI_A0_ISR_11
+   \   000010   DF3C         JMP     ??eUSCI_A0_ISR_11
+   \   000012   DE3C         JMP     ??eUSCI_A0_ISR_11
+   \   000014   DD3C         JMP     ??eUSCI_A0_ISR_11
+   \   000016   DC3C         JMP     ??eUSCI_A0_ISR_11
+   \   000018   DB3C         JMP     ??eUSCI_A0_ISR_11
+   \   00001A   DA3C         JMP     ??eUSCI_A0_ISR_11
+   \   00001C   D93C         JMP     ??eUSCI_A0_ISR_11
+   \   00001E   D83C         JMP     ??eUSCI_A0_ISR_11
+   \   000020   D73C         JMP     ??eUSCI_A0_ISR_11
+   \   000022   D63C         JMP     ??eUSCI_A0_ISR_11
+   \   000024   D53C         JMP     ??eUSCI_A0_ISR_11
+   \   000026   D43C         JMP     ??eUSCI_A0_ISR_11
+   \   000028   D33C         JMP     ??eUSCI_A0_ISR_11
+   \   00002A   D23C         JMP     ??eUSCI_A0_ISR_11
+   \   00002C   D13C         JMP     ??eUSCI_A0_ISR_11
+   \   00002E   D03C         JMP     ??eUSCI_A0_ISR_11
+   \   000030   CF3C         JMP     ??eUSCI_A0_ISR_11
+   \   000032   CE3C         JMP     ??eUSCI_A0_ISR_11
+   \   000034   CD3C         JMP     ??eUSCI_A0_ISR_11
+   \   000036   CC3C         JMP     ??eUSCI_A0_ISR_11
+   \   000038   CB3C         JMP     ??eUSCI_A0_ISR_11
+   \   00003A   CA3C         JMP     ??eUSCI_A0_ISR_11
+   \   00003C   C93C         JMP     ??eUSCI_A0_ISR_11
+   \   00003E   C83C         JMP     ??eUSCI_A0_ISR_11
+   \   000040   C73C         JMP     ??eUSCI_A0_ISR_11
+   \   000042   C63C         JMP     ??eUSCI_A0_ISR_11
+   \   000044   C53C         JMP     ??eUSCI_A0_ISR_11
+   \   000046   C43C         JMP     ??eUSCI_A0_ISR_11
+   \   000048   C33C         JMP     ??eUSCI_A0_ISR_11
+   \   00004A   C23C         JMP     ??eUSCI_A0_ISR_11
+   \   00004C   C13C         JMP     ??eUSCI_A0_ISR_11
+   \   00004E   C03C         JMP     ??eUSCI_A0_ISR_11
+   \   000050   BF3C         JMP     ??eUSCI_A0_ISR_11
+   \   000052   BE3C         JMP     ??eUSCI_A0_ISR_11
+   \   000054   BD3C         JMP     ??eUSCI_A0_ISR_11
+   \   000056   BC3C         JMP     ??eUSCI_A0_ISR_11
+   \   000058   BB3C         JMP     ??eUSCI_A0_ISR_11
+   \   00005A   BA3C         JMP     ??eUSCI_A0_ISR_11
+   \   00005C   B93C         JMP     ??eUSCI_A0_ISR_11
+   \   00005E   B83C         JMP     ??eUSCI_A0_ISR_11
+   \   000060   B73C         JMP     ??eUSCI_A0_ISR_11
+   \   000062   B63C         JMP     ??eUSCI_A0_ISR_11
+   \   000064   B53C         JMP     ??eUSCI_A0_ISR_11
+   \   000066   B43C         JMP     ??eUSCI_A0_ISR_11
+   \   000068   B33C         JMP     ??eUSCI_A0_ISR_11
+   \   00006A   B23C         JMP     ??eUSCI_A0_ISR_11
+   \   00006C   B13C         JMP     ??eUSCI_A0_ISR_11
+   \   00006E   B03C         JMP     ??eUSCI_A0_ISR_11
+   \   000070   AF3C         JMP     ??eUSCI_A0_ISR_11
+   \   000072   AE3C         JMP     ??eUSCI_A0_ISR_11
+   \   000074   AD3C         JMP     ??eUSCI_A0_ISR_11
+   \   000076   AC3C         JMP     ??eUSCI_A0_ISR_11
+   \   000078   AB3C         JMP     ??eUSCI_A0_ISR_11
+   \   00007A   AA3C         JMP     ??eUSCI_A0_ISR_11
+   \   00007C   A93C         JMP     ??eUSCI_A0_ISR_11
+   \   00007E   A83C         JMP     ??eUSCI_A0_ISR_11
+   \   000080   A73C         JMP     ??eUSCI_A0_ISR_11
+   \   000082   A63C         JMP     ??eUSCI_A0_ISR_11
+   \   000084   A53C         JMP     ??eUSCI_A0_ISR_11
+   \   000086   A43C         JMP     ??eUSCI_A0_ISR_11
+   \   000088   A33C         JMP     ??eUSCI_A0_ISR_11
+     67              case S0:
+     68                break;
+     69              case S2:
+     70                IOTcharacter = UCA0RXBUF;
+   \                     ??eUSCI_A0_ISR_12:
+   \   00008A   1E420C05     MOV.W   &0x50c, R14
+   \   00008E   C24E....     MOV.B   R14, &IOTcharacter
+     71                UCA1TXBUF = IOTcharacter; 
+   \   000092   5F42....     MOV.B   &IOTcharacter, R15
+   \   000096   4F4F         MOV.B   R15, R15
+   \   000098   824F8E05     MOV.W   R15, &0x58e
+     72                IOT_All_Char[all_char++%SMALL_RING_SIZE] = IOTcharacter;
+   \   00009C   1F42....     MOV.W   &all_char, R15
+   \   0000A0   3FF00F00     AND.W   #0xf, R15
+   \   0000A4   DF42........ MOV.B   &IOTcharacter, IOT_All_Char(R15)
+   \   0000AA   9253....     ADD.W   #0x1, &all_char
+     73                /*if(lineStart){
+     74                   IOT_Char_Rx[iot_rx_ring_wr] = IOTcharacter;
+     75                    iot_rx_ring_wr++;
+     76                    if(IOTcharacter == '\r'){
+     77                      lineStart = LOW;
+     78                      lineFinished = HIGH;
+     79                    }
+     80                }*/
+     81                if(strstr(IOT_All_Char, "SS\r\n")&&(statusNTWK != NEW)) 
+   \   0000AE   3D40....     MOV.W   #`?<Constant "SS\\r\\n">`, R13
+   \   0000B2   3C40....     MOV.W   #IOT_All_Char, R12
+   \   0000B6   ........     CALLA   #strstr
+   \   0000BA   0C93         CMP.W   #0x0, R12
+   \   0000BC   0724         JEQ     ??eUSCI_A0_ISR_3
+   \   0000BE   F2906E00.... CMP.B   #0x6e, &statusNTWK
+   \   0000C4   0324         JEQ     ??eUSCI_A0_ISR_3
+     82                  statusNTWK = NEW;
+   \   0000C6   F2406E00.... MOV.B   #0x6e, &statusNTWK
+     83                if(statusNTWK == UPDATE){
+   \                     ??eUSCI_A0_ISR_3:
+   \   0000CC   F2907500.... CMP.B   #0x75, &statusNTWK
+   \   0000D2   5A20         JNE     ??eUSCI_A0_ISR_1
+     84                  if(findSSID){
+   \   0000D4   8293....     CMP.W   #0x0, &findSSID
+   \   0000D8   1D24         JEQ     ??eUSCI_A0_ISR_4
+     85                    if(IOTcharacter == '"'){
+   \   0000DA   F2902200.... CMP.B   #0x22, &IOTcharacter
+   \   0000E0   0720         JNE     ??eUSCI_A0_ISR_5
+     86                      findSSID = LOW;
+   \   0000E2   8243....     MOV.W   #0x0, &findSSID
+     87                      location = RESET;
+   \   0000E6   8243....     MOV.W   #0x0, &location
+     88                      flagSSID = HIGH;
+   \   0000EA   9243....     MOV.W   #0x1, &flagSSID
+   \   0000EE   4C3C         JMP     ??eUSCI_A0_ISR_1
+     89                    }
+     90                    else{
+     91                      SSID[location] = IOTcharacter;
+   \                     ??eUSCI_A0_ISR_5:
+   \   0000F0   1F42....     MOV.W   &location, R15
+   \   0000F4   DF42........ MOV.B   &IOTcharacter, SSID(R15)
+     92                      location++;
+   \   0000FA   9253....     ADD.W   #0x1, &location
+     93                      if(location == sizeof(SSID)){
+   \   0000FE   B2900B00.... CMP.W   #0xb, &location
+   \   000104   4120         JNE     ??eUSCI_A0_ISR_1
+     94                        findSSID = LOW;
+   \   000106   8243....     MOV.W   #0x0, &findSSID
+     95                        location = RESET;
+   \   00010A   8243....     MOV.W   #0x0, &location
+     96                        flagSSID = HIGH;
+   \   00010E   9243....     MOV.W   #0x1, &flagSSID
+   \   000112   3A3C         JMP     ??eUSCI_A0_ISR_1
+     97                      }
+     98                    }
+     99                  }
+    100                  else if(IOTcharacter == '"' && !flagSSID) findSSID = HIGH;
+   \                     ??eUSCI_A0_ISR_4:
+   \   000114   F2902200.... CMP.B   #0x22, &IOTcharacter
+   \   00011A   0620         JNE     ??eUSCI_A0_ISR_6
+   \   00011C   8293....     CMP.W   #0x0, &flagSSID
+   \   000120   0320         JNE     ??eUSCI_A0_ISR_6
+   \   000122   9243....     MOV.W   #0x1, &findSSID
+   \   000126   303C         JMP     ??eUSCI_A0_ISR_1
+    101                  else if(findIP){
+   \                     ??eUSCI_A0_ISR_6:
+   \   000128   8293....     CMP.W   #0x0, &findIP
+   \   00012C   2324         JEQ     ??eUSCI_A0_ISR_7
+    102                    if(IOTcharacter == ' '){
+   \   00012E   F2902000.... CMP.B   #0x20, &IOTcharacter
+   \   000134   0820         JNE     ??eUSCI_A0_ISR_8
+    103                      findIP = LOW;
+   \   000136   8243....     MOV.W   #0x0, &findIP
+    104                      location = RESET;
+   \   00013A   8243....     MOV.W   #0x0, &location
+    105                      statusNTWK = DISPLAY;
+   \   00013E   F2406400.... MOV.B   #0x64, &statusNTWK
+   \   000144   213C         JMP     ??eUSCI_A0_ISR_1
+    106                    }
+    107                    else if(IOTcharacter == '=');
+   \                     ??eUSCI_A0_ISR_8:
+   \   000146   F2903D00.... CMP.B   #0x3d, &IOTcharacter
+   \   00014C   1D24         JEQ     ??eUSCI_A0_ISR_1
+    108                    else{
+    109                      IP[location] = IOTcharacter;
+   \   00014E   1F42....     MOV.W   &location, R15
+   \   000152   DF42........ MOV.B   &IOTcharacter, IP(R15)
+    110                      location++;
+   \   000158   9253....     ADD.W   #0x1, &location
+    111                      if(location == sizeof(IP)){
+   \   00015C   B2901000.... CMP.W   #0x10, &location
+   \   000162   1220         JNE     ??eUSCI_A0_ISR_1
+    112                        findIP = LOW;
+   \   000164   8243....     MOV.W   #0x0, &findIP
+    113                        location = RESET;
+   \   000168   8243....     MOV.W   #0x0, &location
+    114                        statusNTWK = DISPLAY;
+   \   00016C   F2406400.... MOV.B   #0x64, &statusNTWK
+   \   000172   0A3C         JMP     ??eUSCI_A0_ISR_1
+    115                      }
+    116                    }
+    117                  }
+    118                  else if(strstr(IOT_All_Char,"r=")) 
+   \                     ??eUSCI_A0_ISR_7:
+   \   000174   3D40....     MOV.W   #`?<Constant "r=">`, R13
+   \   000178   3C40....     MOV.W   #IOT_All_Char, R12
+   \   00017C   ........     CALLA   #strstr
+   \   000180   0C93         CMP.W   #0x0, R12
+   \   000182   0224         JEQ     ??eUSCI_A0_ISR_1
+    119                    findIP = HIGH;
+   \   000184   9243....     MOV.W   #0x1, &findIP
+    120                }
+    121                
+    122                if(newDriveCommand){
+   \                     ??eUSCI_A0_ISR_1:
+   \   000188   8293....     CMP.W   #0x0, &newDriveCommand
+   \   00018C   1324         JEQ     ??eUSCI_A0_ISR_9
+    123                  if(IOTcharacter == ';') {
+   \   00018E   F2903B00.... CMP.B   #0x3b, &IOTcharacter
+   \   000194   0520         JNE     ??eUSCI_A0_ISR_10
+    124                    readyDrive = HIGH;
+   \   000196   9243....     MOV.W   #0x1, &readyDrive
+    125                    newDriveCommand = LOW;
+   \   00019A   8243....     MOV.W   #0x0, &newDriveCommand
+   \   00019E   123C         JMP     ??eUSCI_A0_ISR_2
+    126                  }
+    127                  else {
+    128                    driveCommand[driveCommandCount%SMALL_RING_SIZE] = IOTcharacter;
+   \                     ??eUSCI_A0_ISR_10:
+   \   0001A0   1F42....     MOV.W   &driveCommandCount, R15
+   \   0001A4   3FF00F00     AND.W   #0xf, R15
+   \   0001A8   DF42........ MOV.B   &IOTcharacter, driveCommand(R15)
+    129                    driveCommandCount++;
+   \   0001AE   9253....     ADD.W   #0x1, &driveCommandCount
+   \   0001B2   083C         JMP     ??eUSCI_A0_ISR_2
+    130                  }
+    131                }
+    132                else if(IOTcharacter == '~'){
+   \                     ??eUSCI_A0_ISR_9:
+   \   0001B4   F2907E00.... CMP.B   #0x7e, &IOTcharacter
+   \   0001BA   0420         JNE     ??eUSCI_A0_ISR_2
+    133                      newDriveCommand = HIGH;
+   \   0001BC   9243....     MOV.W   #0x1, &newDriveCommand
+    134                      driveCommandCount = RESET;
+   \   0001C0   8243....     MOV.W   #0x0, &driveCommandCount
+    135                }
+    136          
+    137                if (iot_rx_ring_wr >= (sizeof(IOT_Char_Rx))){
+   \                     ??eUSCI_A0_ISR_2:
+   \   0001C4   B2901000.... CMP.W   #0x10, &iot_rx_ring_wr
+   \   0001CA   0228         JNC     ??eUSCI_A0_ISR_11
+    138                  iot_rx_ring_wr = BEGINNING;
+   \   0001CC   8243....     MOV.W   #0x0, &iot_rx_ring_wr
+    139                }
+    140                
+    141                break;
+    142              case S4:
+    143                /*switch(UCA1_index++){
+    144                  case 0:
+    145                  case 1:
+    146                  case 2:
+    147                  case 3:
+    148                  case 4:
+    149                  case 5:
+    150                  case 6:
+    151                  case 7:
+    152                  case 8:
+    153                    UCA1TXBUF = USB_Char_Tx[UCA1_index];
+    154                    break;
+    155                  case 9:
+    156                    UCA1TXBUF = 0x0D;
+    157                    break;
+    158                  case 10:
+    159                    UCA1TXBUF = 0x0A;
+    160                    break;
+    161                  default:
+    162                    UCA1IE &= ~UCTXIE;
+    163                    break;
+    164                }
+    165                break;*/
+    166              default: break;
+    167            }
+    168          }
+   \                     ??eUSCI_A0_ISR_11:
+   \   0001D0   3C17         POPM.W  #0x4, R15
+   \   0001D2   0013         RETI
+   \   0001D4                REQUIRE _A_UCA0RXBUF_L
+   \   0001D4                REQUIRE _A_UCA1TXBUF_L
+   \   0001D4                REQUIRE _A_UCA0IV_L
+    169          
+    170          #pragma vector = EUSCI_A1_VECTOR
+
+   \                                 In  segment ISR_CODE, align 2
+    171          __interrupt void eUSCI_A1_ISR(void){
+   \                     eUSCI_A1_ISR:
+   \   000000   1F15         PUSHM.W #0x2, R15
+    172            transmit = HIGH;
+   \   000002   9243....     MOV.W   #0x1, &transmit
+    173            send = LOW;
+   \   000006   8243....     MOV.W   #0x0, &send
+    174            switch(__even_in_range(UCA1IV, UCA1TXD)){
+   \   00000A   1F429E05     MOV.W   &0x59e, R15
+   \   00000E   E00F         ADDA    R15, PC
+   \                     `?<Jumptable for eUSCI_A1_ISR>_0`:
+   \   000010   363C         JMP     ??eUSCI_A1_ISR_4
+   \   000012   033C         JMP     ??eUSCI_A1_ISR_5
+   \   000014   343C         JMP     ??eUSCI_A1_ISR_4
+   \   000016   333C         JMP     ??eUSCI_A1_ISR_4
+   \   000018   323C         JMP     ??eUSCI_A1_ISR_4
+    175              case S0:
+    176                break;
+    177              case S2:
+    178                character = UCA1RXBUF;
+   \                     ??eUSCI_A1_ISR_5:
+   \   00001A   1E428C05     MOV.W   &0x58c, R14
+   \   00001E   C24E....     MOV.B   R14, &character
+    179                
+    180                if(lineStart){
+   \   000022   8293....     CMP.W   #0x0, &lineStart
+   \   000026   1024         JEQ     ??eUSCI_A1_ISR_2
+    181                   USB_Char_Rx[usb_rx_ring_wr] = character;
+   \   000028   1F42....     MOV.W   &usb_rx_ring_wr, R15
+   \   00002C   DF42........ MOV.B   &character, USB_Char_Rx(R15)
+    182                    usb_rx_ring_wr++;
+   \   000032   9253....     ADD.W   #0x1, &usb_rx_ring_wr
+    183                    if(character == '\r'){
+   \   000036   F2900D00.... CMP.B   #0xd, &character
+   \   00003C   1A20         JNE     ??eUSCI_A1_ISR_1
+    184                      lineStart = LOW;
+   \   00003E   8243....     MOV.W   #0x0, &lineStart
+    185                      lineFinished = HIGH;
+   \   000042   9243....     MOV.W   #0x1, &lineFinished
+   \   000046   153C         JMP     ??eUSCI_A1_ISR_1
+    186                    }
+    187                }
+    188                else if(character == '^'){
+   \                     ??eUSCI_A1_ISR_2:
+   \   000048   F2905E00.... CMP.B   #0x5e, &character
+   \   00004E   0C20         JNE     ??eUSCI_A1_ISR_3
+    189                  lineStart = HIGH;
+   \   000050   9243....     MOV.W   #0x1, &lineStart
+    190                  usb_rx_ring_wr = RESET;
+   \   000054   8243....     MOV.W   #0x0, &usb_rx_ring_wr
+    191                  USB_Char_Rx[usb_rx_ring_wr] = character;
+   \   000058   1F42....     MOV.W   &usb_rx_ring_wr, R15
+   \   00005C   DF42........ MOV.B   &character, USB_Char_Rx(R15)
+    192                  usb_rx_ring_wr++;
+   \   000062   9253....     ADD.W   #0x1, &usb_rx_ring_wr
+   \   000066   053C         JMP     ??eUSCI_A1_ISR_1
+    193                }
+    194                else UCA0TXBUF = character; 
+   \                     ??eUSCI_A1_ISR_3:
+   \   000068   5F42....     MOV.B   &character, R15
+   \   00006C   4F4F         MOV.B   R15, R15
+   \   00006E   824F0E05     MOV.W   R15, &0x50e
+    195                if (usb_rx_ring_wr >= (sizeof(USB_Char_Rx))){
+   \                     ??eUSCI_A1_ISR_1:
+   \   000072   B2901000.... CMP.W   #0x10, &usb_rx_ring_wr
+   \   000078   0228         JNC     ??eUSCI_A1_ISR_4
+    196                  usb_rx_ring_wr = BEGINNING;
+   \   00007A   8243....     MOV.W   #0x0, &usb_rx_ring_wr
+    197                }
+    198                break;
+    199              case S4:
+    200                /*switch(UCA1_index++){
+    201                  case 0:
+    202                  case 1:
+    203                  case 2:
+    204                  case 3:
+    205                  case 4:
+    206                  case 5:
+    207                  case 6:
+    208                  case 7:
+    209                  case 8:
+    210                    UCA1TXBUF = USB_Char_Tx[UCA1_index];
+    211                    break;
+    212                  case 9:
+    213                    UCA1TXBUF = 0x0D;
+    214                    break;
+    215                  case 10:
+    216                    UCA1TXBUF = 0x0A;
+    217                    break;
+    218                  default:
+    219                    UCA1IE &= ~UCTXIE;
+    220                    break;
+    221                }
+    222                break;*/
+    223              default: break;
+    224            }
+    225          }
+   \                     ??eUSCI_A1_ISR_4:
+   \   00007E   1E17         POPM.W  #0x2, R15
+   \   000080   0013         RETI
+   \   000082                REQUIRE _A_UCA1RXBUF_L
+   \   000082                REQUIRE _A_UCA0TXBUF_L
+   \   000082                REQUIRE _A_UCA1IV_L
+
+   \                                 In  segment INTVEC, offset 0x40, root
+   \                     `??eUSCI_A1_ISR::??INTVEC 64`:
+   \   000040   ....         DC16    eUSCI_A1_ISR
+
+   \                                 In  segment INTVEC, offset 0x42, root
+   \                     `??eUSCI_A0_ISR::??INTVEC 66`:
+   \   000042   ....         DC16    eUSCI_A0_ISR
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "SS\\r\\n">`:
+   \   000000   53530D0A00   DC8 "SS\015\012"
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "r=">`:
+   \   000000   723D00       DC8 "r="
+    226             
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+     12   eUSCI_A0_ISR
+       12   -> strstr
+      8   eUSCI_A1_ISR
+      8   strstr
+        8   -> __iar_Strstr
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       5  ?<Constant "SS\r\n">
+       3  ?<Constant "r=">
+      16  IOT_All_Char
+       1  IOTcharacter
+       2  UCA0_index
+       2  UCA1_index
+       2  _A_UCA0IV_L
+       2  _A_UCA0RXBUF_L
+       2  _A_UCA0TXBUF_L
+       2  _A_UCA1IV_L
+       2  _A_UCA1RXBUF_L
+       2  _A_UCA1TXBUF_L
+       2  all_char
+       1  character
+       2  collect
+       2  driveCommandCount
+     468  eUSCI_A0_ISR
+       2  eUSCI_A0_ISR::??INTVEC 66
+     130  eUSCI_A1_ISR
+       2  eUSCI_A1_ISR::??INTVEC 64
+       2  findIP
+       2  findSSID
+       2  flagIP
+       2  flagSSID
+       2  ipSearch
+       2  lineFinished
+       2  lineStart
+       2  location
+       2  newDriveCommand
+      18  strstr
+       2  updateStatus
+
+ 
+  18 bytes in segment CODE
+  12 bytes in segment DATA16_AN
+   8 bytes in segment DATA16_C
+  48 bytes in segment DATA16_Z
+   4 bytes in segment INTVEC
+ 598 bytes in segment ISR_CODE
+ 
+ 598 bytes of CODE  memory (+ 18 bytes shared)
+   8 bytes of CONST memory (+  4 bytes shared)
+  48 bytes of DATA  memory (+ 12 bytes shared)
+
+Errors: none
+Warnings: none

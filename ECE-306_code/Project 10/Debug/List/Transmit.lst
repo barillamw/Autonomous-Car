@@ -1,0 +1,752 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           11/Apr/2019  10:28:23
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework
+#        08\Transmit.c
+#    Command line  =  
+#        -f C:\Users\Michael\AppData\Local\Temp\EWBAC4.tmp
+#        ("C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework
+#        08\Transmit.c" -lC "C:\Users\Michael\Documents\2019\ECE
+#        306\ECE-306_code\Homework 09 - copy\Debug\List" -o
+#        "C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework 09 -
+#        copy\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework 09 -
+#        copy\Debug\List\Transmit.lst
+#    Object file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework 09 -
+#        copy\Debug\Obj\Transmit.r43
+#
+###############################################################################
+
+C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework 08\Transmit.c
+      1          
+      2          
+      3          #include  "functions.h"
+      4          #include  "msp430.h"
+
+   \                                 In  segment DATA16_AN, at 0x50e
+   \   union <unnamed> _A_UCA0TXBUF_L
+   \                     _A_UCA0TXBUF_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x51c
+   \   union <unnamed> _A_UCA0IFG_L
+   \                     _A_UCA0IFG_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x58e
+   \   union <unnamed> _A_UCA1TXBUF_L
+   \                     _A_UCA1TXBUF_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x59c
+   \   union <unnamed> _A_UCA1IFG_L
+   \                     _A_UCA1IFG_L:
+   \   000000                DS8 2
+      5          #include  "macros.h"
+      6          #include  <string.h>
+      7          #include  <stdio.h>
+      8          #include  <stdlib.h>
+      9          
+     10          #define NEW                           ('n')
+     11          #define UPDATE                        ('u')
+     12          #define DISPLAY                       ('d')
+     13          #define WAIT                          ('w')
+     14          #define TCP                           ('t')
+     15          #define MIDPOINT                        (4)
+     16          
+     17          extern unsigned int UCA1_index;
+
+   \                                 In  segment DATA16_I, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_copy
+     18          unsigned char ncsu[COUNT_ELEVEN] = " NCSU  #1 ";
+   \                     ncsu:
+   \   000000                DS8 11
+   \   00000B                REQUIRE `?<Initializer for ncsu>`
+
+   \                                 In  segment DATA16_I, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_copy
+     19          unsigned char test_Baud[SMALL_RING_SIZE] = "$UUUUUUUUUUUUUU";
+   \                     test_Baud:
+   \   000000                DS8 16
+   \   000010                REQUIRE `?<Initializer for test_Baud>`
+
+   \                                 In  segment DATA16_I, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_copy
+     20          unsigned char Send_Text[COUNT_ELEVEN] = "          ";
+   \                     Send_Text:
+   \   000000                DS8 11
+   \   00000B                REQUIRE `?<Initializer for Send_Text>`
+     21          extern volatile char USB_Char_Rx[SMALL_RING_SIZE];
+     22          extern volatile char IOT_Char_Rx[SMALL_RING_SIZE];
+     23          extern char display_line[FOURTH][COUNT_ELEVEN];
+     24          extern volatile unsigned char display_changed;
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     25          char Text[COUNT_ELEVEN];
+   \                     Text:
+   \   000000                DS8 11
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     26          char IOTcommand[SMALL_RING_SIZE];
+   \                     IOTcommand:
+   \   000000                DS8 16
+
+   \                                 In  segment DATA16_I, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_copy
+     27          char PING[LARGE_RING_SIZE] = "AT+PING=www.google.com,3\r";
+   \                     PING:
+   \   000000                DS8 32
+   \   000020                REQUIRE `?<Initializer for PING>`
+     28          
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     29          unsigned int transmitCount;
+   \                     transmitCount:
+   \   000000                DS8 2
+     30          extern char serial_state;
+     31          
+     32          extern unsigned int waitTime;
+     33          extern unsigned int endWait;
+     34          
+     35          extern unsigned int lineFinished;
+     36          extern unsigned int lineStart;
+     37          
+     38          extern unsigned int menu;
+     39          extern char serial_state;
+     40          
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     41          unsigned int once;
+   \                     once:
+   \   000000                DS8 2
+     42          extern unsigned int freq;
+     43          extern unsigned int ipSearch;
+     44          
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     45          unsigned int startPos;
+   \                     startPos:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     46          unsigned int updateIP;
+   \                     updateIP:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     47          char statusNTWK;
+   \                     statusNTWK:
+   \   000000                DS8 1
+     48          extern char IP[SMALL_RING_SIZE];
+     49          extern char SSID[COUNT_ELEVEN];
+
+   \                                 In  segment DATA16_I, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_copy
+     50          unsigned int sendPing = HIGH;
+   \                     sendPing:
+   \   000000                DS8 2
+   \   000002                REQUIRE `?<Initializer for sendPing>`
+     51          
+     52          /*void Serial_Process(void){
+     53               switch(serial_state){
+     54                case WAITING:
+     55                  strcpy(display_line[FIRST_LINE],"WAITING...");
+     56                  switch(freq){
+     57                  case K115:
+     58                    strcpy(display_line[THIRD_LINE],"BR: 115.2k");
+     59                    break;
+     60                  case K460:
+     61                    strcpy(display_line[THIRD_LINE],"BR: 460.8k");
+     62                    break;
+     63                  }
+     64                  if(lineStart) serial_state = RECIEVING;
+     65                  break;
+     66                case RECIEVING:
+     67                  strcpy(display_line[FIRST_LINE]," RECIEVED ");
+     68                  if(lineFinished){
+     69                    lineFinished = LOW;
+     70                  }
+     71                  break;      
+     72                case TRANSMITTING:
+     73                  strcpy(display_line[FIRST_LINE]," TRANSMIT ");
+     74                  if(once){
+     75                    once = LOW;
+     76                    display_Text_A0();
+     77                    Transmit_Text_A0();
+     78                  }
+     79                  switch(freq){
+     80                  case K115:
+     81                    strcpy(display_line[THIRD_LINE],"BR: 115.2k");
+     82                    break;
+     83                  case K460:
+     84                    strcpy(display_line[THIRD_LINE],"BR: 460.8k");
+     85                    break;
+     86                  }
+     87                  break;
+     88                default: break;
+     89              }
+     90              display_changed = HIGH;
+     91           
+     92              Transmit_NCSU_A1();
+     93          }*/
+     94          
+
+   \                                 In  segment CODE, align 2
+     95          void out_character_A0(char character){
+   \                     out_character_A0:
+   \                     ??out_character_A0_0:
+     96            while(!(UCA0IFG & UCTXIFG));
+   \   000000   A2B31C05     BIT.W   #0x2, &0x51c
+   \   000004   FD2B         JNC     ??out_character_A0_0
+     97              if(character != '\0') UCA0TXBUF = character;
+   \   000006   4C93         CMP.B   #0x0, R12
+   \   000008   0324         JEQ     ??out_character_A0_1
+   \   00000A   4C4C         MOV.B   R12, R12
+   \   00000C   824C0E05     MOV.W   R12, &0x50e
+     98          }
+   \                     ??out_character_A0_1:
+   \   000010   1001         RETA
+   \   000012                REQUIRE _A_UCA0IFG_L
+   \   000012                REQUIRE _A_UCA0TXBUF_L
+     99          
+
+   \                                 In  segment CODE, align 2
+    100          void out_character_A1 (char character){
+   \                     out_character_A1:
+   \                     ??out_character_A1_0:
+    101            while(!(UCA1IFG & UCTXIFG));
+   \   000000   A2B39C05     BIT.W   #0x2, &0x59c
+   \   000004   FD2B         JNC     ??out_character_A1_0
+    102              if(character != '\0') UCA1TXBUF = character;
+   \   000006   4C93         CMP.B   #0x0, R12
+   \   000008   0324         JEQ     ??out_character_A1_1
+   \   00000A   4C4C         MOV.B   R12, R12
+   \   00000C   824C8E05     MOV.W   R12, &0x58e
+    103          }
+   \                     ??out_character_A1_1:
+   \   000010   1001         RETA
+   \   000012                REQUIRE _A_UCA1IFG_L
+   \   000012                REQUIRE _A_UCA1TXBUF_L
+    104          
+    105          /*void Transmit_Text_A0(void){
+    106            int i;
+    107            for(i=RESET; i<COUNT_ELEVEN; i++){
+    108             //if(Text[i] != RESET)
+    109              out_character_A0(Text[i]);
+    110            }
+    111          }*/
+    112          
+
+   \                                 In  segment CODE, align 2
+    113          void Transmit_Text_A1(void){
+   \                     Transmit_Text_A1:
+    114            int i;
+    115            for(i=RESET; i<COUNT_ELEVEN; i++){
+   \   000000   0F43         MOV.W   #0x0, R15
+   \                     ??Transmit_Text_A1_0:
+   \   000002   3F900B00     CMP.W   #0xb, R15
+   \   000006   0634         JGE     ??Transmit_Text_A1_1
+    116             //if(Text[i] != RESET)
+    117              out_character_A1(Text[i]);
+   \   000008   5C4F....     MOV.B   Text(R15), R12
+   \   00000C   ........     CALLA   #out_character_A1
+    118            }
+   \   000010   1F53         ADD.W   #0x1, R15
+   \   000012   F73F         JMP     ??Transmit_Text_A1_0
+    119          }
+   \                     ??Transmit_Text_A1_1:
+   \   000014   1001         RETA
+    120          
+
+   \                                 In  segment CODE, align 2
+    121          void display_Text_A0(void){
+   \                     display_Text_A0:
+    122            int i;
+    123            for(i=RESET; i<=COUNT_ELEVEN; i++){
+   \   000000   0F43         MOV.W   #0x0, R15
+   \                     ??display_Text_A0_0:
+   \   000002   3F900C00     CMP.W   #0xc, R15
+   \   000006   0A34         JGE     ??display_Text_A0_1
+    124              Text[i] = IOT_Char_Rx[i];
+   \   000008   DF4F........ MOV.B   IOT_Char_Rx(R15), Text(R15)
+    125              display_line[SECOND_LINE][i] = Text[i];
+   \   00000E   DF4F........ MOV.B   Text(R15), display_line + 11(R15)
+    126              Text[CHARA] = '\0';
+   \   000014   C243....     MOV.B   #0x0, &Text + 10
+    127            }
+   \   000018   1F53         ADD.W   #0x1, R15
+   \   00001A   F33F         JMP     ??display_Text_A0_0
+    128          
+    129          }
+   \                     ??display_Text_A0_1:
+   \   00001C   1001         RETA
+    130          
+
+   \                                 In  segment CODE, align 2
+    131          void display_Text_A1(void){
+   \                     display_Text_A1:
+    132            int i;
+    133            for(i=RESET; i<=COUNT_ELEVEN; i++){
+   \   000000   0F43         MOV.W   #0x0, R15
+   \                     ??display_Text_A1_0:
+   \   000002   3F900C00     CMP.W   #0xc, R15
+   \   000006   0A34         JGE     ??display_Text_A1_1
+    134              Text[i] = USB_Char_Rx[i];
+   \   000008   DF4F........ MOV.B   USB_Char_Rx(R15), Text(R15)
+    135              display_line[SECOND_LINE][i] = Text[i];
+   \   00000E   DF4F........ MOV.B   Text(R15), display_line + 11(R15)
+    136              Text[CHARA] = '\0';
+   \   000014   C243....     MOV.B   #0x0, &Text + 10
+    137            }
+   \   000018   1F53         ADD.W   #0x1, R15
+   \   00001A   F33F         JMP     ??display_Text_A1_0
+    138          
+    139          }
+   \                     ??display_Text_A1_1:
+   \   00001C   1001         RETA
+    140          
+
+   \                                 In  segment CODE, align 2
+    141          void clear(void){
+   \                     clear:
+    142            int i;
+    143            for(i=RESET; i<SMALL_RING_SIZE; i++){
+   \   000000   0F43         MOV.W   #0x0, R15
+   \                     ??clear_0:
+   \   000002   3F901000     CMP.W   #0x10, R15
+   \   000006   0634         JGE     ??clear_1
+    144              USB_Char_Rx[i] = RESET;
+   \   000008   CF43....     MOV.B   #0x0, USB_Char_Rx(R15)
+    145              IOT_Char_Rx[i] = RESET;
+   \   00000C   CF43....     MOV.B   #0x0, IOT_Char_Rx(R15)
+    146            }
+   \   000010   1F53         ADD.W   #0x1, R15
+   \   000012   F73F         JMP     ??clear_0
+    147          }
+   \                     ??clear_1:
+   \   000014   1001         RETA
+    148          
+
+   \                                 In  segment CODE, align 2
+    149          void Store_Text_A1(void){
+   \                     Store_Text_A1:
+    150            int i;
+    151            for(i=RESET; i<=COUNT_ELEVEN; i++){
+   \   000000   0F43         MOV.W   #0x0, R15
+   \                     ??Store_Text_A1_0:
+   \   000002   3F900C00     CMP.W   #0xc, R15
+   \   000006   0534         JGE     ??Store_Text_A1_1
+    152              Text[i] = USB_Char_Rx[i];
+   \   000008   DF4F........ MOV.B   USB_Char_Rx(R15), Text(R15)
+    153            }
+   \   00000E   1F53         ADD.W   #0x1, R15
+   \   000010   F83F         JMP     ??Store_Text_A1_0
+    154          }
+   \                     ??Store_Text_A1_1:
+   \   000012   1001         RETA
+    155          
+
+   \                                 In  segment CODE, align 2
+    156          void Transmit_Test_A1(void){
+   \                     Transmit_Test_A1:
+    157            int i;
+    158            for (i=RESET; i<=COUNT_ELEVEN; i++){
+   \   000000   0F43         MOV.W   #0x0, R15
+   \                     ??Transmit_Test_A1_0:
+   \   000002   3F900C00     CMP.W   #0xc, R15
+   \   000006   0634         JGE     ??Transmit_Test_A1_1
+    159              out_character_A1(ncsu[i]);
+   \   000008   5C4F....     MOV.B   ncsu(R15), R12
+   \   00000C   ........     CALLA   #out_character_A1
+    160            }
+   \   000010   1F53         ADD.W   #0x1, R15
+   \   000012   F73F         JMP     ??Transmit_Test_A1_0
+    161          }
+   \                     ??Transmit_Test_A1_1:
+   \   000014   1001         RETA
+    162          
+
+   \                                 In  segment CODE, align 2
+    163          void Transmit_Command_A0(void){
+   \                     Transmit_Command_A0:
+    164            int i;
+    165            for(i=RESET; i<SMALL_RING_SIZE; i++){
+   \   000000   0F43         MOV.W   #0x0, R15
+   \                     ??Transmit_Command_A0_0:
+   \   000002   3F901000     CMP.W   #0x10, R15
+   \   000006   0634         JGE     ??Transmit_Command_A0_1
+    166              out_character_A0(IOTcommand[i]);
+   \   000008   5C4F....     MOV.B   IOTcommand(R15), R12
+   \   00000C   ........     CALLA   #out_character_A0
+    167            }
+   \   000010   1F53         ADD.W   #0x1, R15
+   \   000012   F73F         JMP     ??Transmit_Command_A0_0
+    168          }
+   \                     ??Transmit_Command_A0_1:
+   \   000014   1001         RETA
+    169          
+
+   \                                 In  segment CODE, align 2
+    170          void updateNetwork(void){
+   \                     updateNetwork:
+   \   000000   7B15         PUSHM.W #0x8, R11
+    171            int i = RESET;
+   \   000002   0543         MOV.W   #0x0, R5
+    172            int dotCount = RESET;
+   \   000004   0443         MOV.W   #0x0, R4
+    173            int firstDot=RESET;
+   \   000006   0A43         MOV.W   #0x0, R10
+    174            int secondDot=RESET;
+   \   000008   0B43         MOV.W   #0x0, R11
+    175            int thirdDot=RESET;
+   \   00000A   0843         MOV.W   #0x0, R8
+    176            int offset1 = RESET;
+   \   00000C   0743         MOV.W   #0x0, R7
+    177            int offset3 = RESET;
+   \   00000E   0943         MOV.W   #0x0, R9
+    178            int offset4 = RESET;
+   \   000010   0643         MOV.W   #0x0, R6
+    179            
+    180            
+    181            switch(statusNTWK){
+   \   000012   5E42....     MOV.B   &statusNTWK, R14
+   \   000016   7E806400     SUB.B   #0x64, R14
+   \   00001A   1324         JEQ     ??updateNetwork_6
+   \   00001C   7E800A00     SUB.B   #0xa, R14
+   \   000020   0424         JEQ     ??updateNetwork_7
+   \   000022   7E800600     SUB.B   #0x6, R14
+   \   000026   7824         JEQ     ??updateNetwork_8
+   \   000028   823C         JMP     ??updateNetwork_4
+    182            case NEW:
+    183                statusNTWK = UPDATE;
+   \                     ??updateNetwork_7:
+   \   00002A   F2407500.... MOV.B   #0x75, &statusNTWK
+    184                strcpy(IOTcommand,"AT+NSTAT=?\r");
+   \   000030   3D40....     MOV.W   #`?<Constant "AT+NSTAT=?\\r">`, R13
+   \   000034   3C40....     MOV.W   #IOTcommand, R12
+   \   000038   ........     CALLA   #strcpy
+    185                Transmit_Command_A0();
+   \   00003C   ........     CALLA   #Transmit_Command_A0
+    186                break;    
+   \   000040   763C         JMP     ??updateNetwork_4
+    187            case DISPLAY:
+    188              for(i=COUNT_ELEVEN; i > RESET; i--){
+   \                     ??updateNetwork_6:
+   \   000042   35400B00     MOV.W   #0xb, R5
+   \                     ??updateNetwork_0:
+   \   000046   1593         CMP.W   #0x1, R5
+   \   000048   0638         JL      ??updateNetwork_9
+    189                if(SSID[i] == '\0') offset1++;
+   \   00004A   C593....     CMP.B   #0x0, SSID(R5)
+   \   00004E   0120         JNE     ??updateNetwork_10
+   \   000050   1753         ADD.W   #0x1, R7
+    190              }
+   \                     ??updateNetwork_10:
+   \   000052   3553         ADD.W   #0xffff, R5
+   \   000054   F83F         JMP     ??updateNetwork_0
+    191              
+    192              dotCount = RESET;
+   \                     ??updateNetwork_9:
+   \   000056   0443         MOV.W   #0x0, R4
+    193              for(i=RESET; i<sizeof(IP); i++){
+   \   000058   0543         MOV.W   #0x0, R5
+   \                     ??updateNetwork_1:
+   \   00005A   35901000     CMP.W   #0x10, R5
+   \   00005E   192C         JC      ??updateNetwork_11
+    194                if(IP[i] == '.') dotCount++;
+   \   000060   F5902E00.... CMP.B   #0x2e, IP(R5)
+   \   000066   0120         JNE     ??updateNetwork_12
+   \   000068   1453         ADD.W   #0x1, R4
+    195                if(dotCount == FIRST && !firstDot) firstDot = i;
+   \                     ??updateNetwork_12:
+   \   00006A   1493         CMP.W   #0x1, R4
+   \   00006C   0420         JNE     ??updateNetwork_13
+   \   00006E   0A93         CMP.W   #0x0, R10
+   \   000070   0220         JNE     ??updateNetwork_13
+   \   000072   0A45         MOV.W   R5, R10
+   \   000074   0C3C         JMP     ??updateNetwork_5
+    196                else if(dotCount == SECOND && !secondDot) secondDot = i;
+   \                     ??updateNetwork_13:
+   \   000076   2493         CMP.W   #0x2, R4
+   \   000078   0420         JNE     ??updateNetwork_14
+   \   00007A   0B93         CMP.W   #0x0, R11
+   \   00007C   0220         JNE     ??updateNetwork_14
+   \   00007E   0B45         MOV.W   R5, R11
+   \   000080   063C         JMP     ??updateNetwork_5
+    197                else if(dotCount == THIRD && !thirdDot) thirdDot = i;
+   \                     ??updateNetwork_14:
+   \   000082   34900300     CMP.W   #0x3, R4
+   \   000086   0320         JNE     ??updateNetwork_5
+   \   000088   0893         CMP.W   #0x0, R8
+   \   00008A   0120         JNE     ??updateNetwork_5
+   \   00008C   0845         MOV.W   R5, R8
+    198              }
+   \                     ??updateNetwork_5:
+   \   00008E   1553         ADD.W   #0x1, R5
+   \   000090   E43F         JMP     ??updateNetwork_1
+    199              offset3 = MIDPOINT-firstDot;
+   \                     ??updateNetwork_11:
+   \   000092   2F42         MOV.W   #0x4, R15
+   \   000094   0F8A         SUB.W   R10, R15
+   \   000096   094F         MOV.W   R15, R9
+    200              offset4 = thirdDot - MIDPOINT;
+   \   000098   0F48         MOV.W   R8, R15
+   \   00009A   3F50FCFF     ADD.W   #0xfffc, R15
+   \   00009E   064F         MOV.W   R15, R6
+    201              
+    202              strcpy(display_line[FIRST_LINE],"          ");
+   \   0000A0   3D40....     MOV.W   #`?<Constant "          ">`, R13
+   \   0000A4   3C40....     MOV.W   #display_line, R12
+   \   0000A8   ........     CALLA   #strcpy
+    203              strcpy(display_line[SECOND_LINE],"IP address");
+   \   0000AC   3D40....     MOV.W   #`?<Constant "IP address">`, R13
+   \   0000B0   3C40....     MOV.W   #display_line + 11, R12
+   \   0000B4   ........     CALLA   #strcpy
+    204              strcpy(display_line[THIRD_LINE],"          ");
+   \   0000B8   3D40....     MOV.W   #`?<Constant "          ">`, R13
+   \   0000BC   3C40....     MOV.W   #display_line + 22, R12
+   \   0000C0   ........     CALLA   #strcpy
+    205              strcpy(display_line[FOURTH_LINE],"          ");
+   \   0000C4   3D40....     MOV.W   #`?<Constant "          ">`, R13
+   \   0000C8   3C40....     MOV.W   #display_line + 33, R12
+   \   0000CC   ........     CALLA   #strcpy
+    206              
+    207              for(i=RESET; i<COUNT_ELEVEN; i++){
+   \   0000D0   0543         MOV.W   #0x0, R5
+   \                     ??updateNetwork_2:
+   \   0000D2   35900B00     CMP.W   #0xb, R5
+   \   0000D6   0934         JGE     ??updateNetwork_15
+    208                display_line[FIRST_LINE][i+(offset1>>FIRST)] = SSID[i];
+   \   0000D8   0E47         MOV.W   R7, R14
+   \   0000DA   0E11         RRA.W   R14
+   \   0000DC   0F45         MOV.W   R5, R15
+   \   0000DE   0F5E         ADD.W   R14, R15
+   \   0000E0   DF45........ MOV.B   SSID(R5), display_line(R15)
+    209              }
+   \   0000E6   1553         ADD.W   #0x1, R5
+   \   0000E8   F43F         JMP     ??updateNetwork_2
+    210              for(i=RESET; i<SMALL_RING_SIZE; i++){
+   \                     ??updateNetwork_15:
+   \   0000EA   0543         MOV.W   #0x0, R5
+   \                     ??updateNetwork_3:
+   \   0000EC   35901000     CMP.W   #0x10, R5
+   \   0000F0   1034         JGE     ??updateNetwork_16
+    211                if(i<secondDot) display_line[THIRD_LINE][i+offset3] = IP[i];
+   \   0000F2   059B         CMP.W   R11, R5
+   \   0000F4   0534         JGE     ??updateNetwork_17
+   \   0000F6   0F45         MOV.W   R5, R15
+   \   0000F8   0F59         ADD.W   R9, R15
+   \   0000FA   DF45........ MOV.B   IP(R5), display_line + 22(R15)
+    212                if(i>secondDot) display_line[FOURTH_LINE][i-offset4] = IP[i];
+   \                     ??updateNetwork_17:
+   \   000100   0B95         CMP.W   R5, R11
+   \   000102   0534         JGE     ??updateNetwork_18
+   \   000104   0F45         MOV.W   R5, R15
+   \   000106   0F86         SUB.W   R6, R15
+   \   000108   DF45........ MOV.B   IP(R5), display_line + 33(R15)
+    213              }
+   \                     ??updateNetwork_18:
+   \   00010E   1553         ADD.W   #0x1, R5
+   \   000110   ED3F         JMP     ??updateNetwork_3
+    214              statusNTWK = TCP;
+   \                     ??updateNetwork_16:
+   \   000112   F2407400.... MOV.B   #0x74, &statusNTWK
+    215            case TCP:
+    216              strcpy(IOTcommand, "AT+NSTCP=7898,1\r");
+   \                     ??updateNetwork_8:
+   \   000118   3D40....     MOV.W   #`?<Constant "AT+NSTCP=7898,1\\r">`, R13
+   \   00011C   3C40....     MOV.W   #IOTcommand, R12
+   \   000120   ........     CALLA   #strcpy
+    217              Transmit_Command_A0();
+   \   000124   ........     CALLA   #Transmit_Command_A0
+    218              statusNTWK=WAIT;
+   \   000128   F2407700.... MOV.B   #0x77, &statusNTWK
+    219              
+    220              
+    221            default: break;
+    222            }
+    223          }
+   \                     ??updateNetwork_4:
+   \   00012E   7417         POPM.W  #0x8, R11
+   \   000130   1001         RETA
+    224          
+
+   \                                 In  segment CODE, align 2
+    225          void ping(void){
+   \                     ping:
+    226            if(sendPing && (statusNTWK == WAIT)){
+   \   000000   8293....     CMP.W   #0x0, &sendPing
+   \   000004   1024         JEQ     ??ping_1
+   \   000006   F2907700.... CMP.B   #0x77, &statusNTWK
+   \   00000C   0C20         JNE     ??ping_1
+    227              sendPing = LOW;
+   \   00000E   8243....     MOV.W   #0x0, &sendPing
+    228                for(int i=RESET; i<LARGE_RING_SIZE; i++)
+   \   000012   0F43         MOV.W   #0x0, R15
+   \                     ??ping_0:
+   \   000014   3F902000     CMP.W   #0x20, R15
+   \   000018   0634         JGE     ??ping_1
+    229                  out_character_A0(PING[i]);
+   \   00001A   5C4F....     MOV.B   PING(R15), R12
+   \   00001E   ........     CALLA   #out_character_A0
+   \   000022   1F53         ADD.W   #0x1, R15
+   \   000024   F73F         JMP     ??ping_0
+    230            }
+    231          }
+   \                     ??ping_1:
+   \   000026   1001         RETA
+
+   \                                 In  segment DATA16_ID, align 1, align-sorted
+   \                     `?<Initializer for ncsu>`:
+   \   000000   204E43535520 DC8 " NCSU  #1 "
+   \            2023312000  
+
+   \                                 In  segment DATA16_ID, align 1, align-sorted
+   \                     `?<Initializer for test_Baud>`:
+   \   000000   245555555555 DC8 "$UUUUUUUUUUUUUU"
+   \            555555555555
+   \            55555500    
+
+   \                                 In  segment DATA16_ID, align 1, align-sorted
+   \                     `?<Initializer for Send_Text>`:
+   \   000000   202020202020 DC8 "          "
+   \            2020202000  
+
+   \                                 In  segment DATA16_ID, align 1, align-sorted
+   \                     `?<Initializer for PING>`:
+   \   000000   41542B50494E DC8 "AT+PING=www.google.com,3\015"
+   \            473D7777772E
+   \            676F6F676C65
+   \            2E636F6D2C33
+   \            0D00        
+   \   00001A   000000000000 DC8 0, 0, 0, 0, 0, 0
+
+   \                                 In  segment DATA16_ID, align 2, align-sorted
+   \                     `?<Initializer for sendPing>`:
+   \   000000   0100         DC16 1
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "AT+NSTAT=?\\r">`:
+   \   000000   41542B4E5354 DC8 "AT+NSTAT=?\015"
+   \            41543D3F0D00
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "          ">`:
+   \   000000   202020202020 DC8 "          "
+   \            2020202000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "IP address">`:
+   \   000000   495020616464 DC8 "IP address"
+   \            7265737300  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "AT+NSTCP=7898,1\\r">`:
+   \   000000   41542B4E5354 DC8 "AT+NSTCP=7898,1\015"
+   \            43503D373839
+   \            382C310D00  
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      4   Store_Text_A1
+      4   Transmit_Command_A0
+        4   -> out_character_A0
+      4   Transmit_Test_A1
+        4   -> out_character_A1
+      4   Transmit_Text_A1
+        4   -> out_character_A1
+      4   clear
+      4   display_Text_A0
+      4   display_Text_A1
+      4   out_character_A0
+      4   out_character_A1
+      4   ping
+        4   -> out_character_A0
+     20   updateNetwork
+       20   -> Transmit_Command_A0
+       20   -> strcpy
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      11  ?<Constant "          ">
+      12  ?<Constant "AT+NSTAT=?\r">
+      17  ?<Constant "AT+NSTCP=7898,1\r">
+      11  ?<Constant "IP address">
+      32  ?<Initializer for PING>
+      11  ?<Initializer for Send_Text>
+      11  ?<Initializer for ncsu>
+       2  ?<Initializer for sendPing>
+      16  ?<Initializer for test_Baud>
+      16  IOTcommand
+      32  PING
+      11  Send_Text
+      20  Store_Text_A1
+      11  Text
+      22  Transmit_Command_A0
+      22  Transmit_Test_A1
+      22  Transmit_Text_A1
+       2  _A_UCA0IFG_L
+       2  _A_UCA0TXBUF_L
+       2  _A_UCA1IFG_L
+       2  _A_UCA1TXBUF_L
+      22  clear
+      30  display_Text_A0
+      30  display_Text_A1
+      11  ncsu
+       2  once
+      18  out_character_A0
+      18  out_character_A1
+      40  ping
+       2  sendPing
+       2  startPos
+       1  statusNTWK
+      16  test_Baud
+       2  transmitCount
+       2  updateIP
+     306  updateNetwork
+
+ 
+ 550 bytes in segment CODE
+   8 bytes in segment DATA16_AN
+  51 bytes in segment DATA16_C
+  72 bytes in segment DATA16_I
+  72 bytes in segment DATA16_ID
+  36 bytes in segment DATA16_Z
+ 
+ 550 bytes of CODE  memory
+ 123 bytes of CONST memory
+ 108 bytes of DATA  memory (+ 8 bytes shared)
+
+Errors: none
+Warnings: none

@@ -1,0 +1,182 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           15/Feb/2019  12:01:36
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework
+#        05\switches.c
+#    Command line  =  
+#        -f C:\Users\Michael\AppData\Local\Temp\EWF9B6.tmp
+#        ("C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework
+#        05\switches.c" -lC "C:\Users\Michael\Documents\2019\ECE
+#        306\ECE-306_code\Homework 05\Debug\List" -o
+#        "C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework
+#        05\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework
+#        05\Debug\List\switches.lst
+#    Object file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework
+#        05\Debug\Obj\switches.r43
+#
+###############################################################################
+
+C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework 05\switches.c
+      1          #include  "functions.h"
+      2          #include  "msp430.h"
+
+   \                                 In  segment DATA16_AN, at 0x200
+   \   union <unnamed> _A_PAIN_L
+   \                     _A_PAIN_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x220
+   \   union <unnamed> _A_PBIN_L
+   \                     _A_PBIN_L:
+   \   000000                DS8 2
+      3          #include "macros.h"
+      4          
+      5          extern char display_line[4][11];
+      6          extern unsigned int time_change2;
+      7          extern unsigned char event;
+      8          extern unsigned char shape;
+      9          extern unsigned int p3use;
+     10          
+
+   \                                 In  segment CODE, align 2
+     11          void Switches_Process(void){
+   \                     Switches_Process:
+     12            //---------------------------------------------------------------------------
+     13            if(time_change2){
+   \   000000   8293....     CMP.W   #0x0, &time_change2
+   \   000004   3324         JEQ     ??Switches_Process_1
+     14              time_change2 = 0;
+   \   000006   8243....     MOV.W   #0x0, &time_change2
+     15              if (!(P4IN & SW1)){
+   \   00000A   E2B32102     BIT.B   #0x2, &0x221
+   \   00000E   252C         JC      ??Switches_Process_2
+     16                event = shape;
+   \   000010   D242........ MOV.B   &shape, &event
+     17                switch(shape){
+   \   000016   5E42....     MOV.B   &shape, R14
+   \   00001A   7E804300     SUB.B   #0x43, R14
+   \   00001E   0C24         JEQ     ??Switches_Process_3
+   \   000020   6E83         SUB.B   #0x2, R14
+   \   000022   0E24         JEQ     ??Switches_Process_4
+   \   000024   7E800700     SUB.B   #0x7, R14
+   \   000028   0324         JEQ     ??Switches_Process_5
+   \   00002A   7E82         SUB.B   #0x8, R14
+   \   00002C   0D24         JEQ     ??Switches_Process_6
+   \   00002E   0F3C         JMP     ??Switches_Process_0
+     18                  case STRAIGHT:
+     19                    shape = CIRCLE;
+   \                     ??Switches_Process_5:
+   \   000030   F2404300.... MOV.B   #0x43, &shape
+     20                    break;
+   \   000036   0B3C         JMP     ??Switches_Process_0
+     21                  case CIRCLE:
+     22                    shape = FIG_EIGHT;
+   \                     ??Switches_Process_3:
+   \   000038   F2404500.... MOV.B   #0x45, &shape
+     23                    break;
+   \   00003E   073C         JMP     ??Switches_Process_0
+     24                  case FIG_EIGHT:
+     25                    shape = TRIANGLE;
+   \                     ??Switches_Process_4:
+   \   000040   F2405400.... MOV.B   #0x54, &shape
+     26                    break;
+   \   000046   033C         JMP     ??Switches_Process_0
+     27                  case TRIANGLE:
+     28                    shape = STRAIGHT;
+   \                     ??Switches_Process_6:
+   \   000048   F2404C00.... MOV.B   #0x4c, &shape
+     29                    break;
+     30                  default: break;
+     31                }
+     32                p3use = USE_SMCLK;        //Switch 3.4 to SMCLK
+   \                     ??Switches_Process_0:
+   \   00004E   9243....     MOV.W   #0x1, &p3use
+     33                Init_Port3(p3use);
+   \   000052   1C42....     MOV.W   &p3use, R12
+   \   000056   ........     CALLA   #Init_Port3
+     34              }
+     35              
+     36          
+     37                /*display_line[1] = "NCSU";
+     38                posL1 = 3;
+     39                display_line [2] = "WOLFAPACK";
+     40                posL2 = 1;
+     41                display_3 = "ECE306";
+     42                posL3 = 2;
+     43                display_4 = "M Barilla";
+     44                posL4 = 1;*/
+     45              
+     46              if (!(P2IN & SW2)){
+   \                     ??Switches_Process_2:
+   \   00005A   F2B20102     BIT.B   #0x8, &0x201
+   \   00005E   062C         JC      ??Switches_Process_1
+     47                
+     48                p3use = USE_GPIO;
+   \   000060   8243....     MOV.W   #0x0, &p3use
+     49                Init_Port3(p3use);                //Switch 3.4 to GPIO
+   \   000064   1C42....     MOV.W   &p3use, R12
+   \   000068   ........     CALLA   #Init_Port3
+     50                
+     51                /*display_1 = "Embedded";
+     52                posL1 = 1;
+     53                display_2 = "Systems";
+     54                posL2 = 2;
+     55                dislay_3 = "Rock!";
+     56                posL3 = 3;
+     57                display_4 = "Go Pack!";
+     58                posL4 = 1;*/
+     59              }
+     60            //---------------------------------------------------------------------------
+     61              
+     62          }
+     63          }
+   \                     ??Switches_Process_1:
+   \   00006C   1001         RETA
+   \   00006E                REQUIRE _A_PBIN_L
+   \   00006E                REQUIRE _A_PAIN_L
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      4   Switches_Process
+        4   -> Init_Port3
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+     110  Switches_Process
+       2  _A_PAIN_L
+       2  _A_PBIN_L
+
+ 
+ 110 bytes in segment CODE
+   4 bytes in segment DATA16_AN
+ 
+ 110 bytes of CODE memory
+   0 bytes of DATA memory (+ 4 bytes shared)
+
+Errors: none
+Warnings: none

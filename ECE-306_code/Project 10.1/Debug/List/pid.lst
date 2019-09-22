@@ -1,0 +1,389 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           25/Apr/2019  15:00:55
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10.1\pid.c
+#    Command line  =  
+#        -f C:\Users\Michael\AppData\Local\Temp\EWBE29.tmp
+#        ("C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10.1\pid.c" -lC "C:\Users\Michael\Documents\2019\ECE
+#        306\ECE-306_code\Project 10.1\Debug\List" -o
+#        "C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10.1\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10.1\Debug\List\pid.lst
+#    Object file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10.1\Debug\Obj\pid.r43
+#
+###############################################################################
+
+C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project 10.1\pid.c
+      1          //------------------------------------------------------------------------------
+      2          //
+      3          //  Description: This file contains the functions execute a PID and a wheel 
+      4          //      control based on a given value.
+      5          //  
+      6          //
+      7          //  Michael Barilla
+      8          //  Mar 2019
+      9          //  Built with IAR Embedded Workbench Version: V4.10A/W32 (7.11.2)
+     10          //------------------------------------------------------------------------------
+     11          #include  "functions.h"
+     12          #include  "msp430.h"
+
+   \                                 In  segment DATA16_AN, at 0x386
+   \   union <unnamed> _A_TB0CCTL2_L
+   \                     _A_TB0CCTL2_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x454
+   \   union <unnamed> _A_TB3CCR1_L
+   \                     _A_TB3CCR1_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x456
+   \   union <unnamed> _A_TB3CCR2_L
+   \                     _A_TB3CCR2_L:
+   \   000000                DS8 2
+     13          #include "macros.h"
+     14          #include <string.h>
+     15          
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     16           int r_error;
+   \                     r_error:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     17           int l_error;
+   \                     l_error:
+   \   000000                DS8 2
+     18          extern unsigned int black ; 
+     19          extern unsigned int midpoint;
+     20          extern unsigned int R_average;
+     21          extern unsigned int L_average;
+     22          extern unsigned int R_count;
+     23          extern unsigned int L_count;
+     24          extern unsigned int V_Detect_R[MAX_ARRAY];
+     25          extern unsigned int V_Detect_L[MAX_ARRAY];
+     26          extern unsigned int doneDrive;
+     27          
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     28           int current_error;
+   \                     current_error:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     29           int previous_error;
+   \                     previous_error:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     30           int sum_error;
+   \                     sum_error:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     31           int delta_error;
+   \                     delta_error:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     32           int proportional;
+   \                     proportional:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     33           int integral;
+   \                     integral:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     34           int derivative;
+   \                     derivative:
+   \   000000                DS8 2
+     35           
+     36           extern unsigned int waitTime;
+     37           extern unsigned int endWait;
+     38           extern char stateBlackLine;
+     39           
+     40           //int sample_time=0.1; //1 second;
+     41           extern char display_line[FOURTH][COUNT_ELEVEN];
+     42          
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     43          unsigned int lspeed;
+   \                     lspeed:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     44          unsigned int rspeed;
+   \                     rspeed:
+   \   000000                DS8 2
+     45          
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     46          unsigned int runDrive;
+   \                     runDrive:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     47          char current_state;
+   \                     current_state:
+   \   000000                DS8 1
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     48          char previous_state;
+   \                     previous_state:
+   \   000000                DS8 1
+     49          extern unsigned int sample;
+     50          extern char driveCommand[SMALL_RING_SIZE];
+     51          extern unsigned int distance;
+     52          extern unsigned int startTimer;
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     53          unsigned int displayCircle = LOW;
+   \                     displayCircle:
+   \   000000                DS8 2
+     54          
+     55          
+
+   \                                 In  segment CODE, align 2
+     56          char getCurrentState(void){
+   \                     getCurrentState:
+     57            Read_ADC();
+   \   000000   ........     CALLA   #Read_ADC
+     58            
+     59            if(R_average > midpoint && L_average > midpoint) return BLACK_LINE;
+   \   000004   9292........ CMP.W   &R_average, &midpoint
+   \   00000A   072C         JC      ??getCurrentState_0
+   \   00000C   9292........ CMP.W   &L_average, &midpoint
+   \   000012   032C         JC      ??getCurrentState_0
+   \   000014   7C406200     MOV.B   #0x62, R12
+   \   000018   1001         RETA
+     60            else if(R_average < midpoint && L_average > midpoint) return RIGHT_SIDE;
+   \                     ??getCurrentState_0:
+   \   00001A   9292........ CMP.W   &midpoint, &R_average
+   \   000020   072C         JC      ??getCurrentState_1
+   \   000022   9292........ CMP.W   &L_average, &midpoint
+   \   000028   032C         JC      ??getCurrentState_1
+   \   00002A   7C407200     MOV.B   #0x72, R12
+   \   00002E   1001         RETA
+     61            else if(R_average > midpoint && L_average < midpoint) return LEFT_SIDE;
+   \                     ??getCurrentState_1:
+   \   000030   9292........ CMP.W   &R_average, &midpoint
+   \   000036   072C         JC      ??getCurrentState_2
+   \   000038   9292........ CMP.W   &midpoint, &L_average
+   \   00003E   032C         JC      ??getCurrentState_2
+   \   000040   7C406C00     MOV.B   #0x6c, R12
+   \   000044   1001         RETA
+     62            else return WHITE_BOARD;
+   \                     ??getCurrentState_2:
+   \   000046   7C407700     MOV.B   #0x77, R12
+   \   00004A   1001         RETA
+     63          }
+     64          
+
+   \                                 In  segment CODE, align 2
+     65          void followCircle(void){
+   \                     followCircle:
+     66            waitTime = TWOSECS;
+   \   000000   B2402800.... MOV.W   #0x28, &waitTime
+     67            TB0CCTL2 &=~ CCIFG;
+   \   000006   92C38603     BIC.W   #0x1, &0x386
+     68            TB0CCTL2 |= CCIE;
+   \   00000A   B2D010008603 BIS.W   #0x10, &0x386
+     69            
+     70            if(endWait||displayCircle){
+   \   000010   8293....     CMP.W   #0x0, &endWait
+   \   000014   0320         JNE     ??followCircle_1
+   \   000016   8293....     CMP.W   #0x0, &displayCircle
+   \   00001A   0B24         JEQ     ??followCircle_2
+     71              endWait = LOW;
+   \                     ??followCircle_1:
+   \   00001C   8243....     MOV.W   #0x0, &endWait
+     72              displayCircle = HIGH;
+   \   000020   9243....     MOV.W   #0x1, &displayCircle
+     73              strcpy(display_line[FIRST_LINE],"BL  CIRCLE");
+   \   000024   3D40....     MOV.W   #`?<Constant "BL  CIRCLE">`, R13
+   \   000028   3C40....     MOV.W   #display_line, R12
+   \   00002C   ........     CALLA   #strcpy
+   \   000030   063C         JMP     ??followCircle_0
+     74            }
+     75            else{
+     76              strcpy(display_line[FIRST_LINE],"BL  TRAVEL");
+   \                     ??followCircle_2:
+   \   000032   3D40....     MOV.W   #`?<Constant "BL  TRAVEL">`, R13
+   \   000036   3C40....     MOV.W   #display_line, R12
+   \   00003A   ........     CALLA   #strcpy
+     77            }
+     78            
+     79            
+     80            if(driveCommand[CHARC] == 'I'){
+   \                     ??followCircle_0:
+   \   00003E   F2904900.... CMP.B   #0x49, &driveCommand + 12
+   \   000044   0E20         JNE     ??followCircle_3
+     81              TB0CCTL2 &= ~CCIE;
+   \   000046   B2C010008603 BIC.W   #0x10, &0x386
+     82              All_Wheel_Off();
+   \   00004C   ........     CALLA   #All_Wheel_Off
+     83              stateBlackLine = EXIT;
+   \   000050   F2406500.... MOV.B   #0x65, &stateBlackLine
+     84              distance = COUNT_FOUR;
+   \   000056   A242....     MOV.W   #0x4, &distance
+     85              doneDrive = LOW;
+   \   00005A   8243....     MOV.W   #0x0, &doneDrive
+     86              startTimer = HIGH;
+   \   00005E   9243....     MOV.W   #0x1, &startTimer
+     87            }
+     88            Read_ADC();
+   \                     ??followCircle_3:
+   \   000062   ........     CALLA   #Read_ADC
+     89            Reverse_Off();
+   \   000066   ........     CALLA   #Reverse_Off
+     90            //displayADC();
+     91            Read_ADC();
+   \   00006A   ........     CALLA   #Read_ADC
+     92            
+     93            
+     94             if(V_Detect_R[R_count%MAX_ARRAY] > V_Detect_L[L_count%MAX_ARRAY]  ){
+   \   00006E   1F42....     MOV.W   &L_count, R15
+   \   000072   3FF00700     AND.W   #0x7, R15
+   \   000076   0F5F         RLA.W   R15
+   \   000078   1E42....     MOV.W   &R_count, R14
+   \   00007C   3EF00700     AND.W   #0x7, R14
+   \   000080   0E5E         RLA.W   R14
+   \   000082   9F9E........ CMP.W   V_Detect_R(R14), V_Detect_L(R15)
+   \   000088   062C         JC      ??followCircle_4
+     95              RIGHT_FORWARD_SPEED = WHEEL_OFF;
+   \   00008A   82435404     MOV.W   #0x0, &0x454
+     96              LEFT_FORWARD_SPEED = LCORRECT;
+   \   00008E   B240C05D5604 MOV.W   #0x5dc0, &0x456
+   \   000094   1001         RETA
+     97              }
+     98             else if(V_Detect_R[R_count%MAX_ARRAY] < V_Detect_L[L_count%MAX_ARRAY]){
+   \                     ??followCircle_4:
+   \   000096   1F42....     MOV.W   &R_count, R15
+   \   00009A   3FF00700     AND.W   #0x7, R15
+   \   00009E   0F5F         RLA.W   R15
+   \   0000A0   1E42....     MOV.W   &L_count, R14
+   \   0000A4   3EF00700     AND.W   #0x7, R14
+   \   0000A8   0E5E         RLA.W   R14
+   \   0000AA   9F9E........ CMP.W   V_Detect_L(R14), V_Detect_R(R15)
+   \   0000B0   052C         JC      ??followCircle_5
+     99                RIGHT_FORWARD_SPEED = RCORRECT;
+   \   0000B2   B24090655404 MOV.W   #0x6590, &0x454
+    100                LEFT_FORWARD_SPEED = WHEEL_OFF;
+   \   0000B8   82435604     MOV.W   #0x0, &0x456
+    101              }
+    102            }  
+   \                     ??followCircle_5:
+   \   0000BC   1001         RETA
+   \   0000BE                REQUIRE _A_TB0CCTL2_L
+   \   0000BE                REQUIRE _A_TB3CCR1_L
+   \   0000BE                REQUIRE _A_TB3CCR2_L
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "BL  CIRCLE">`:
+   \   000000   424C20204349 DC8 "BL  CIRCLE"
+   \            52434C4500  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "BL  TRAVEL">`:
+   \   000000   424C20205452 DC8 "BL  TRAVEL"
+   \            4156454C00  
+    103                
+    104            
+    105            
+    106             
+    107                
+    108          
+    109            
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      4   followCircle
+        4   -> All_Wheel_Off
+        4   -> Read_ADC
+        4   -> Reverse_Off
+        4   -> strcpy
+      4   getCurrentState
+        4   -> Read_ADC
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      11  ?<Constant "BL  CIRCLE">
+      11  ?<Constant "BL  TRAVEL">
+       2  _A_TB0CCTL2_L
+       2  _A_TB3CCR1_L
+       2  _A_TB3CCR2_L
+       2  current_error
+       1  current_state
+       2  delta_error
+       2  derivative
+       2  displayCircle
+     190  followCircle
+      76  getCurrentState
+       2  integral
+       2  l_error
+       2  lspeed
+       2  previous_error
+       1  previous_state
+       2  proportional
+       2  r_error
+       2  rspeed
+       2  runDrive
+       2  sum_error
+
+ 
+ 266 bytes in segment CODE
+   6 bytes in segment DATA16_AN
+  22 bytes in segment DATA16_C
+  28 bytes in segment DATA16_Z
+ 
+ 266 bytes of CODE  memory
+  22 bytes of CONST memory
+  28 bytes of DATA  memory (+ 6 bytes shared)
+
+Errors: none
+Warnings: none

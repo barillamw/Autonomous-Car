@@ -1,0 +1,296 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           20/Apr/2019  14:51:05
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10\intercept.c
+#    Command line  =  
+#        -f C:\Users\Michael\AppData\Local\Temp\EW6E88.tmp
+#        ("C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10\intercept.c" -lC "C:\Users\Michael\Documents\2019\ECE
+#        306\ECE-306_code\Project 10\Debug\List" -o
+#        "C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10\Debug\List\intercept.lst
+#    Object file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10\Debug\Obj\intercept.r43
+#
+###############################################################################
+
+C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project 10\intercept.c
+      1          //------------------------------------------------------------------------------
+      2          //
+      3          //  Description: This file contains the functions to execute black line 
+      4          //      detection and intercept.
+      5          //
+      6          //  Michael Barilla
+      7          //  Mar 2019
+      8          //  Built with IAR Embedded Workbench Version: V4.10A/W32 (7.11.2)
+      9          //------------------------------------------------------------------------------
+     10          #include  "functions.h"
+     11          #include  "msp430.h"
+
+   \                                 In  segment DATA16_AN, at 0x386
+   \   union <unnamed> _A_TB0CCTL2_L
+   \                     _A_TB0CCTL2_L:
+   \   000000                DS8 2
+     12          #include "macros.h"
+     13          #include <string.h>
+     14          
+     15          extern unsigned int R_average;
+     16          extern unsigned int L_average;
+     17          extern unsigned int V_Detect_R[MAX_ARRAY];
+     18          extern unsigned int V_Detect_L[MAX_ARRAY];
+     19          extern unsigned int R_count;
+     20          extern unsigned int L_count;
+     21          extern unsigned int black;
+     22          extern unsigned int midpoint;
+     23          //extern char state;
+     24          extern char display_line[FOURTH][COUNT_ELEVEN];
+     25          extern volatile unsigned char display_changed;
+     26          extern unsigned int capture;
+
+   \                                 In  segment DATA16_I, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_copy
+     27          unsigned int searching = HIGH;
+   \                     searching:
+   \   000000                DS8 2
+   \   000002                REQUIRE `?<Initializer for searching>`
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     28          unsigned int endWait;
+   \                     endWait:
+   \   000000                DS8 2
+     29          extern unsigned int newDrive;
+     30          extern unsigned int waitTime;
+     31          
+
+   \                                 In  segment CODE, align 2
+     32          void whiteBoard(void){
+   \                     whiteBoard:
+     33            displayADC();
+   \   000000   ........     CALLA   #displayADC
+     34            Read_ADC();
+   \   000004   ........     CALLA   #Read_ADC
+     35            if(capture){
+   \   000008   8293....     CMP.W   #0x0, &capture
+   \   00000C   2624         JEQ     ??whiteBoard_0
+     36            if(searching){
+   \   00000E   8293....     CMP.W   #0x0, &searching
+   \   000012   1924         JEQ     ??whiteBoard_1
+     37                strcpy(display_line[SECOND_LINE],"  SEARCH  ");
+   \   000014   3D40....     MOV.W   #`?<Constant "  SEARCH  ">`, R13
+   \   000018   3C40....     MOV.W   #display_line + 11, R12
+   \   00001C   ........     CALLA   #strcpy
+     38                display_changed = HIGH;
+   \   000020   D243....     MOV.B   #0x1, &display_changed
+     39                driveForward(SEARCH,SEARCH);
+   \   000024   3D40A861     MOV.W   #0x61a8, R13
+   \   000028   3C40A861     MOV.W   #0x61a8, R12
+   \   00002C   ........     CALLA   #driveForward
+     40                if(R_average < midpoint || L_average < midpoint) searching = LOW;
+   \   000030   9292........ CMP.W   &midpoint, &R_average
+   \   000036   0428         JNC     ??whiteBoard_2
+   \   000038   9292........ CMP.W   &midpoint, &L_average
+   \   00003E   0D2C         JC      ??whiteBoard_0
+   \                     ??whiteBoard_2:
+   \   000040   8243....     MOV.W   #0x0, &searching
+   \   000044   1001         RETA
+     41            }
+     42           else{
+     43            strcpy(display_line[FOURTH_LINE],"  BOARD  ");
+   \                     ??whiteBoard_1:
+   \   000046   3D40....     MOV.W   #`?<Constant "  BOARD  ">`, R13
+   \   00004A   3C40....     MOV.W   #display_line + 33, R12
+   \   00004E   ........     CALLA   #strcpy
+     44            display_changed = HIGH;
+   \   000052   D243....     MOV.B   #0x1, &display_changed
+     45            All_Wheel_Off();
+   \   000056   ........     CALLA   #All_Wheel_Off
+     46            /*waitTime = TWOSECS;
+     47            TB0CCTL2 &=~ CCIFG;
+     48            TB0CCTL2 |= CCIE;
+     49            if(endWait){
+     50              strcpy(display_line[SECOND_LINE],"  WAITING ");
+     51              TB0CCTL2 &= ~CCIE;
+     52              state = TURN;
+     53              capture = RESET;
+     54              endWait = RESET;
+     55              searching = LOW;
+     56              }*/
+     57            }
+     58            }
+     59          }
+   \                     ??whiteBoard_0:
+   \   00005A   1001         RETA
+     60          
+     61            
+     62          
+
+   \                                 In  segment CODE, align 2
+     63          void intercept(void){
+   \                     intercept:
+     64            displayADC();
+   \   000000   ........     CALLA   #displayADC
+     65            if(capture){
+   \   000004   8293....     CMP.W   #0x0, &capture
+   \   000008   4224         JEQ     ??intercept_0
+     66              Read_ADC();
+   \   00000A   ........     CALLA   #Read_ADC
+     67              if(searching){
+   \   00000E   8293....     CMP.W   #0x0, &searching
+   \   000012   1924         JEQ     ??intercept_1
+     68                  strcpy(display_line[FOURTH_LINE],"  SEARCH  ");
+   \   000014   3D40....     MOV.W   #`?<Constant "  SEARCH  ">`, R13
+   \   000018   3C40....     MOV.W   #display_line + 33, R12
+   \   00001C   ........     CALLA   #strcpy
+     69                  display_changed = HIGH;
+   \   000020   D243....     MOV.B   #0x1, &display_changed
+     70                  driveForward(SEARCH,SEARCH);
+   \   000024   3D40A861     MOV.W   #0x61a8, R13
+   \   000028   3C40A861     MOV.W   #0x61a8, R12
+   \   00002C   ........     CALLA   #driveForward
+     71                  if(R_average > midpoint || L_average > midpoint) searching = LOW;
+   \   000030   9292........ CMP.W   &R_average, &midpoint
+   \   000036   0428         JNC     ??intercept_2
+   \   000038   9292........ CMP.W   &L_average, &midpoint
+   \   00003E   272C         JC      ??intercept_0
+   \                     ??intercept_2:
+   \   000040   8243....     MOV.W   #0x0, &searching
+   \   000044   1001         RETA
+     72              }
+     73             else{
+     74              strcpy(display_line[FOURTH_LINE],"  FOUND  ");
+   \                     ??intercept_1:
+   \   000046   3D40....     MOV.W   #`?<Constant "  FOUND  ">`, R13
+   \   00004A   3C40....     MOV.W   #display_line + 33, R12
+   \   00004E   ........     CALLA   #strcpy
+     75              display_changed = HIGH;
+   \   000052   D243....     MOV.B   #0x1, &display_changed
+     76              All_Wheel_Off();
+   \   000056   ........     CALLA   #All_Wheel_Off
+     77              waitTime = TWOSECS;
+   \   00005A   B2402800.... MOV.W   #0x28, &waitTime
+     78              TB0CCTL2 &=~ CCIFG;
+   \   000060   92C38603     BIC.W   #0x1, &0x386
+     79              TB0CCTL2 |= CCIE;
+   \   000064   B2D010008603 BIS.W   #0x10, &0x386
+     80              if(endWait){
+   \   00006A   8293....     CMP.W   #0x0, &endWait
+   \   00006E   0F24         JEQ     ??intercept_0
+     81                strcpy(display_line[SECOND_LINE],"  WAITING ");
+   \   000070   3D40....     MOV.W   #`?<Constant "  WAITING ">`, R13
+   \   000074   3C40....     MOV.W   #display_line + 11, R12
+   \   000078   ........     CALLA   #strcpy
+     82                TB0CCTL2 &= ~CCIE;
+   \   00007C   B2C010008603 BIC.W   #0x10, &0x386
+     83                //state = TURN;
+     84                capture = RESET;
+   \   000082   8243....     MOV.W   #0x0, &capture
+     85                endWait = RESET;
+   \   000086   8243....     MOV.W   #0x0, &endWait
+     86                searching = LOW;
+   \   00008A   8243....     MOV.W   #0x0, &searching
+     87                }
+     88              }
+     89             }
+     90            }
+   \                     ??intercept_0:
+   \   00008E   1001         RETA
+   \   000090                REQUIRE _A_TB0CCTL2_L
+
+   \                                 In  segment DATA16_ID, align 2, align-sorted
+   \                     `?<Initializer for searching>`:
+   \   000000   0100         DC16 1
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "  SEARCH  ">`:
+   \   000000   202053454152 DC8 "  SEARCH  "
+   \            4348202000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "  BOARD  ">`:
+   \   000000   2020424F4152 DC8 "  BOARD  "
+   \            44202000    
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "  FOUND  ">`:
+   \   000000   2020464F554E DC8 "  FOUND  "
+   \            44202000    
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "  WAITING ">`:
+   \   000000   202057414954 DC8 "  WAITING "
+   \            494E472000  
+     91          
+     92          
+     93          
+     94            
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      4   intercept
+        4   -> All_Wheel_Off
+        4   -> Read_ADC
+        4   -> displayADC
+        4   -> driveForward
+        4   -> strcpy
+      4   whiteBoard
+        4   -> All_Wheel_Off
+        4   -> Read_ADC
+        4   -> displayADC
+        4   -> driveForward
+        4   -> strcpy
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      10  ?<Constant "  BOARD  ">
+      10  ?<Constant "  FOUND  ">
+      11  ?<Constant "  SEARCH  ">
+      11  ?<Constant "  WAITING ">
+       2  ?<Initializer for searching>
+       2  _A_TB0CCTL2_L
+       2  endWait
+     144  intercept
+       2  searching
+      92  whiteBoard
+
+ 
+ 236 bytes in segment CODE
+   2 bytes in segment DATA16_AN
+  42 bytes in segment DATA16_C
+   2 bytes in segment DATA16_I
+   2 bytes in segment DATA16_ID
+   2 bytes in segment DATA16_Z
+ 
+ 236 bytes of CODE  memory
+  44 bytes of CONST memory
+   4 bytes of DATA  memory (+ 2 bytes shared)
+
+Errors: none
+Warnings: none

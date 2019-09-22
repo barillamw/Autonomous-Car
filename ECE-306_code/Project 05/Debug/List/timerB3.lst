@@ -1,0 +1,184 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           22/Feb/2019  13:15:04
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        05\timerB3.c
+#    Command line  =  
+#        -f C:\Users\Michael\AppData\Local\Temp\EW1F55.tmp
+#        ("C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        05\timerB3.c" -lC "C:\Users\Michael\Documents\2019\ECE
+#        306\ECE-306_code\Project 05\Debug\List" -o
+#        "C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        05\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        05\Debug\List\timerB3.lst
+#    Object file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        05\Debug\Obj\timerB3.r43
+#
+###############################################################################
+
+C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project 05\timerB3.c
+      1          //------------------------------------------------------------------------------
+      2          //
+      3          //  Michael Barilla
+      4          //  Feb 2019
+      5          //  Built with IAR Embedded Workbench Version: V4.10A/W32 (7.11.2)
+      6          //
+      7          //   Description: This function initializes the Time B3 timer
+      8          //      TB3.1 P6.0 R_FORWARD
+      9          //      TB3.2 P6.1 L_FORWARD
+     10          //      TB3.3 P6.2 R_REVERSE
+     11          //      TB3.4 P6.3 L_REVERSE
+     12          //
+     13          //------------------------------------------------------------------------------
+     14          #include  "msp430.h"
+
+   \                                 In  segment DATA16_AN, at 0x440
+   \   union <unnamed> _A_TB3CTL_L
+   \                     _A_TB3CTL_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x444
+   \   union <unnamed> _A_TB3CCTL1_L
+   \                     _A_TB3CCTL1_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x446
+   \   union <unnamed> _A_TB3CCTL2_L
+   \                     _A_TB3CCTL2_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x448
+   \   union <unnamed> _A_TB3CCTL3_L
+   \                     _A_TB3CCTL3_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x44a
+   \   union <unnamed> _A_TB3CCTL4_L
+   \                     _A_TB3CCTL4_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x452
+   \   union <unnamed> _A_TB3CCR0_L
+   \                     _A_TB3CCR0_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x454
+   \   union <unnamed> _A_TB3CCR1_L
+   \                     _A_TB3CCR1_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x456
+   \   union <unnamed> _A_TB3CCR2_L
+   \                     _A_TB3CCR2_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x458
+   \   union <unnamed> _A_TB3CCR3_L
+   \                     _A_TB3CCR3_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x45a
+   \   union <unnamed> _A_TB3CCR4_L
+   \                     _A_TB3CCR4_L:
+   \   000000                DS8 2
+     15          #include  "macros.h"
+     16          #include  "functions.h"
+     17          
+
+   \                                 In  segment CODE, align 2
+     18          void Init_Timer_B3(void){
+   \                     Init_Timer_B3:
+     19            TB3CTL = TBSSEL__SMCLK;                 //Source = SMCLK
+   \   000000   B24000024004 MOV.W   #0x200, &0x440
+     20            TB3CTL |= MC__UP;                       //Up Mode
+   \   000006   B2D010004004 BIS.W   #0x10, &0x440
+     21            TB3CTL |= TBCLR;                        //Clear TAR
+   \   00000C   A2D24004     BIS.W   #0x4, &0x440
+     22          
+     23            TB3CCR0 = WHEEL_PERIOD;                 //PWM Period
+   \   000010   B240409C5204 MOV.W   #0x9c40, &0x452
+     24          
+     25            TB3CCTL1 = OUTMOD_7;                    //CCR1 reset/set
+   \   000016   B240E0004404 MOV.W   #0xe0, &0x444
+     26            RIGHT_FORWARD_SPEED = WHEEL_OFF;        //P6.0 Right Forward PWM duty cycle
+   \   00001C   82435404     MOV.W   #0x0, &0x454
+     27          
+     28            TB3CCTL2 = OUTMOD_7;                    //CCR2 reset/set
+   \   000020   B240E0004604 MOV.W   #0xe0, &0x446
+     29            LEFT_FORWARD_SPEED = WHEEL_OFF;         //P6.1 Right Forward PWM duty cycle
+   \   000026   82435604     MOV.W   #0x0, &0x456
+     30          
+     31            TB3CCTL3 = OUTMOD_7;                     //CCR3 reset/set
+   \   00002A   B240E0004804 MOV.W   #0xe0, &0x448
+     32            RIGHT_REVERSE_SPEED = WHEEL_OFF;       //P6.2 Right Reverse PWM duty cycle
+   \   000030   82435804     MOV.W   #0x0, &0x458
+     33          
+     34            TB3CCTL4 = OUTMOD_7;                    //CCR4 reset/set
+   \   000034   B240E0004A04 MOV.W   #0xe0, &0x44a
+     35            LEFT_REVERSE_SPEED = WHEEL_OFF;          //P6.3 Left Reverse PWM duty cycle
+   \   00003A   82435A04     MOV.W   #0x0, &0x45a
+     36          }
+   \   00003E   1001         RETA
+   \   000040                REQUIRE _A_TB3CTL_L
+   \   000040                REQUIRE _A_TB3CCR0_L
+   \   000040                REQUIRE _A_TB3CCTL1_L
+   \   000040                REQUIRE _A_TB3CCR1_L
+   \   000040                REQUIRE _A_TB3CCTL2_L
+   \   000040                REQUIRE _A_TB3CCR2_L
+   \   000040                REQUIRE _A_TB3CCTL3_L
+   \   000040                REQUIRE _A_TB3CCR3_L
+   \   000040                REQUIRE _A_TB3CCTL4_L
+   \   000040                REQUIRE _A_TB3CCR4_L
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      4   Init_Timer_B3
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      64  Init_Timer_B3
+       2  _A_TB3CCR0_L
+       2  _A_TB3CCR1_L
+       2  _A_TB3CCR2_L
+       2  _A_TB3CCR3_L
+       2  _A_TB3CCR4_L
+       2  _A_TB3CCTL1_L
+       2  _A_TB3CCTL2_L
+       2  _A_TB3CCTL3_L
+       2  _A_TB3CCTL4_L
+       2  _A_TB3CTL_L
+
+ 
+ 64 bytes in segment CODE
+ 20 bytes in segment DATA16_AN
+ 
+ 64 bytes of CODE memory
+  0 bytes of DATA memory (+ 20 bytes shared)
+
+Errors: none
+Warnings: none

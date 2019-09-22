@@ -1,0 +1,351 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           22/Feb/2019  00:39:38
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework
+#        06\paths.c
+#    Command line  =  
+#        -f C:\Users\Michael\AppData\Local\Temp\EW8329.tmp
+#        ("C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework
+#        06\paths.c" -lC "C:\Users\Michael\Documents\2019\ECE
+#        306\ECE-306_code\Homework 06\Debug\List" -o
+#        "C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework
+#        06\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework
+#        06\Debug\List\paths.lst
+#    Object file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework
+#        06\Debug\Obj\paths.r43
+#
+###############################################################################
+
+C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework 06\paths.c
+      1          //------------------------------------------------------------------------------
+      2          //
+      3          //  Description: This file contains the functions to drive the car on a pre-designed 
+      4          //  path.
+      5          //
+      6          //  Michael Barilla
+      7          //  Feb 2018
+      8          //  Built with IAR Embedded Workbench Version: V4.10A/W32 (7.11.2)
+      9          //------------------------------------------------------------------------------
+     10          #include  "functions.h"
+     11          #include  "msp430.h"
+     12          #include "macros.h"
+     13          #include <string.h>
+     14          
+     15          extern char display_line[4][11];
+     16          extern unsigned int cycle_time;
+     17          extern unsigned int time_change;
+     18          extern unsigned char event;
+     19          extern unsigned char state;
+     20          extern unsigned char shape;
+     21          extern volatile unsigned int Time_Sequence;
+     22          unsigned int delay_start;
+     23          unsigned int left_motor_count;
+     24          unsigned int right_motor_count;
+     25          unsigned int segment_count;
+     26          unsigned int count;
+     27          unsigned int myTime;
+     28          unsigned int loop;
+     29          
+     30          void paths(void){
+     31                  
+     32              switch (event) {
+     33                case STRAIGHT:
+     34                  Straight();
+     35                  strcpy(display_line[THIRD_LINE], " STRAIGHT  ");
+     36          
+     37                  break;
+     38                case CIRCLE:
+     39                  Circle();
+     40                  strcpy(display_line[THIRD_LINE], " CIRCLE  ");
+     41          
+     42                  break;
+     43                case TRIANGLE:
+     44                  Triangle();
+     45                  strcpy(display_line[THIRD_LINE], " TRIANGLE  ");
+     46                  break;
+     47                case FIG_EIGHT:
+     48                  Fig_Eight();
+     49                  strcpy(display_line[THIRD_LINE], " FIGURE 8  ");
+     50                  break;
+     51                default: break;
+     52              }
+     53          }
+     54          
+     55          void Straight (){
+     56            switch(state){
+     57              case WAIT:
+     58                wait_case();
+     59                break;
+     60              case START:
+     61                start_case();
+     62                break;
+     63              case RUN:
+     64                run_case_straight();
+     65                break;
+     66              case END:
+     67                end_case();
+     68                break;
+     69              default: break;  
+     70            }
+     71          }
+     72          
+     73          void Circle (){
+     74            switch(state){
+     75              case WAIT:
+     76                wait_case();
+     77                break;
+     78              case START:
+     79                start_case();
+     80                break;
+     81              case RUN:
+     82                run_case_circle();
+     83                break;
+     84              case END:
+     85                end_case();
+     86                break;
+     87              default: break;  
+     88            }
+     89          }
+     90          
+     91          void Fig_Eight(){
+     92            switch(state){
+     93              case WAIT:
+     94                wait_case();
+     95                break;
+     96              case START:
+     97                start_case();
+     98                break;
+     99              case RUN:
+    100                run_case_eight();
+    101                break;
+    102              case END:
+    103                end_case();
+    104                break;
+    105              default: break;  
+    106            }
+    107          }
+    108          
+    109          void Triangle () {
+    110            switch(state){
+    111              case WAIT:
+    112                wait_case();
+    113                break;
+    114              case START:
+    115                start_case();
+    116                break;
+    117              case RUN:
+    118                run_case_triangle();
+    119                break;
+    120              case END:
+    121                end_case();
+    122                break;
+    123              default: break;  
+    124            }
+    125          }
+    126          
+    127          
+    128          void wait_case(){
+    129            if(time_change){
+    130              time_change = 0;
+    131              if(delay_start++ >= WAITING2START){
+    132                delay_start = 0;
+    133                state = START;
+    134              }
+    135            }
+    136          }
+    137          
+    138          void start_case(void){
+    139            cycle_time = RESET_STATE;
+    140            right_motor_count = RESET_STATE;
+    141            left_motor_count = RESET_STATE;
+    142            Forward_On();
+                   ^
+Warning[Pe223]: function "Forward_On" declared implicitly
+    143            segment_count = RESET_STATE;
+    144            count = RESET_STATE;
+    145            myTime = RESET_STATE;
+    146            loop = RESET_STATE;
+    147            state = RUN;
+    148          }
+    149          
+    150          void run_case_straight(void){
+    151            if(time_change){
+    152              time_change = 0;
+    153              cycle_time++;
+    154              if (segment_count <= TRAVEL_DISTANCE){
+    155                if(right_motor_count++ >= RIGHT_COUNT_TIME){
+    156                  P6OUT &= ~R_FORWARD;
+    157                }
+    158                if(left_motor_count++ >= LEFT_COUNT_TIME){
+    159                  P6OUT &= ~L_FORWARD;
+    160                }
+    161                if(cycle_time >= 10){
+    162                  cycle_time = 0;
+    163                  right_motor_count = 0;
+    164                  left_motor_count = 0;
+    165                  segment_count++;
+    166                  Forward_Move();
+                         ^
+Warning[Pe223]: function "Forward_Move" declared implicitly
+    167                }
+    168              }else{
+    169                state = END;
+    170              }
+    171            }
+    172          }
+    173          
+    174          void run_case_circle (void){
+    175            if(time_change){
+    176                time_change = RESET;
+    177                if (myTime > STAGEONE){
+    178                  P6OUT |= L_FORWARD;
+    179                  P6OUT &= ~R_FORWARD;
+    180                }
+    181                else{
+    182                  P6OUT |= L_FORWARD;
+    183                  P6OUT |= R_FORWARD;
+    184                }
+    185                myTime ++;
+    186                
+    187                if (myTime == STAGETWO){
+    188                  myTime = RESET_STATE;
+    189                  count ++;
+    190                }
+    191                
+    192                if (count == TWOLOOP){
+    193                  state = END;
+    194                }
+    195            }
+    196          }
+    197          
+    198          void run_case_eight (void){
+    199          
+    200            if(time_change){
+    201              time_change = RESET_STATE;
+    202              if (myTime > STAGEONE){
+    203                switch (loop){
+    204                case LOOPONE:
+    205                  P6OUT &= ~R_FORWARD;
+    206                  P6OUT |= L_FORWARD;
+    207                  break;
+    208                case LOOPTWO:
+    209                  P6OUT |= R_FORWARD;
+    210                  P6OUT &= ~L_FORWARD;
+    211                  break;
+    212                default: break;
+    213                }
+    214              }
+    215              else{
+    216                  P6OUT |= R_FORWARD;
+    217                  P6OUT |= L_FORWARD;
+    218              }
+    219              myTime ++;
+    220              
+    221              if(myTime == STAGETWO){
+    222                myTime = RESET_STATE;
+    223                count ++;
+    224              
+    225              if(count % LOOP == RESET){
+    226                switch(loop){
+    227                  case LOOPONE:
+    228                    loop = LOOPTWO;
+    229                    break;
+    230                  case LOOPTWO:
+    231                    loop = LOOPONE;
+    232                    break;
+    233                default: break;
+    234                }
+    235              }
+    236              }
+    237              
+    238              if(count == FOURLOOP){
+    239                state = END;
+    240              }
+    241             
+    242            }
+    243          }
+    244                
+    245          
+    246          void run_case_triangle (void){
+    247            if(time_change){
+    248              time_change = 0;
+    249              if(myTime > STAGETWOTRI){
+    250                P6OUT |= R_FORWARD;
+    251                P6OUT |= L_FORWARD;
+    252              }
+    253              else if(myTime > STAGEONETRI){
+    254                P6OUT |= R_FORWARD;
+    255                P6OUT &= ~L_FORWARD;
+    256              }
+    257              else{
+    258                P6OUT |= R_FORWARD;
+    259                P6OUT |= L_FORWARD;
+    260              }
+    261              myTime++;
+    262              if(myTime == STAGETHREETRI){
+    263                myTime = RESET_STATE;
+    264                count++;
+    265              }
+    266              if (count >= TRI){
+    267                state = END;
+    268              }
+    269            }
+    270          }
+    271              
+    272          
+    273          void end_case(void){
+    274            Forward_Off();
+                   ^
+Warning[Pe223]: function "Forward_Off" declared implicitly
+    275            state = WAIT;
+    276            event = NONE;
+    277          }
+    278          
+    279          void Forward_On(){
+                      ^
+Error[Pe159]: declaration is incompatible with previous "Forward_On" (declared
+          at line 142)
+    280            P6OUT |= R_FORWARD;
+    281            P6OUT |= L_FORWARD;
+    282          }
+    283          
+    284          void Forward_Move(){
+                      ^
+Error[Pe159]: declaration is incompatible with previous "Forward_Move"
+          (declared at line 166)
+    285            P6OUT |= R_FORWARD;
+    286            P6OUT |= L_FORWARD;
+    287          }
+    288          
+    289          void Forward_Off(){
+                      ^
+Error[Pe159]: declaration is incompatible with previous "Forward_Off" (declared
+          at line 274)
+    290            P6OUT &= ~R_FORWARD;
+    291            P6OUT &= ~L_FORWARD;
+    292          }
+    293          
+    294          
+
+Errors: 3
+Warnings: 3

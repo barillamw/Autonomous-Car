@@ -1,0 +1,321 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           25/Mar/2019  17:49:18
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project 07 -
+#        OLD\cruise.c
+#    Command line  =  
+#        -f C:\Users\Michael\AppData\Local\Temp\EWF94F.tmp
+#        ("C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project 07 -
+#        OLD\cruise.c" -lC "C:\Users\Michael\Documents\2019\ECE
+#        306\ECE-306_code\Project 07 - OLD\Debug\List" -o
+#        "C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project 07 -
+#        OLD\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project 07 -
+#        OLD\Debug\List\cruise.lst
+#    Object file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project 07 -
+#        OLD\Debug\Obj\cruise.r43
+#
+###############################################################################
+
+C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project 07 - OLD\cruise.c
+      1          //------------------------------------------------------------------------------
+      2          //
+      3          //  Description: This file contains the functions to drive the car along certain
+      4          //      paths like forward and a 90 degree turn in place. 
+      5          //  
+      6          //
+      7          //  Michael Barilla
+      8          //  Mar 2019
+      9          //  Built with IAR Embedded Workbench Version: V4.10A/W32 (7.11.2)
+     10          //------------------------------------------------------------------------------
+     11          
+     12          #include  "msp430.h"
+
+   \                                 In  segment DATA16_AN, at 0x386
+   \   union <unnamed> _A_TB0CCTL2_L
+   \                     _A_TB0CCTL2_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x454
+   \   union <unnamed> _A_TB3CCR1_L
+   \                     _A_TB3CCR1_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x456
+   \   union <unnamed> _A_TB3CCR2_L
+   \                     _A_TB3CCR2_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x458
+   \   union <unnamed> _A_TB3CCR3_L
+   \                     _A_TB3CCR3_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x45a
+   \   union <unnamed> _A_TB3CCR4_L
+   \                     _A_TB3CCR4_L:
+   \   000000                DS8 2
+     13          #include  "macros.h"
+     14          #include  "functions.h"
+     15          
+     16          extern volatile unsigned int newDrive;
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     17          unsigned int drive_count;
+   \                     drive_count:
+   \   000000                DS8 2
+     18          extern unsigned char state;
+     19          
+     20          
+
+   \                                 In  segment CODE, align 2
+     21          void driveForward(unsigned int speedL, unsigned int speedR){
+   \                     driveForward:
+     22            Reverse_Off();
+   \   000000   ........     CALLA   #Reverse_Off
+     23            RIGHT_FORWARD_SPEED = speedR;
+   \   000004   824D5404     MOV.W   R13, &0x454
+     24            LEFT_FORWARD_SPEED = speedL+SPEED_SHIFT;
+   \   000008   0F4C         MOV.W   R12, R15
+   \   00000A   3F50E803     ADD.W   #0x3e8, R15
+   \   00000E   824F5604     MOV.W   R15, &0x456
+     25          }
+   \   000012   1001         RETA
+   \   000014                REQUIRE _A_TB3CCR1_L
+   \   000014                REQUIRE _A_TB3CCR2_L
+     26          
+
+   \                                 In  segment CODE, align 2
+     27          void driveReverse(){
+   \                     driveReverse:
+     28            Forward_Off();
+   \   000000   ........     CALLA   #Forward_Off
+     29            RIGHT_REVERSE_SPEED = CRUISE+SPEED_SHIFT;
+   \   000004   B24018795804 MOV.W   #0x7918, &0x458
+     30            LEFT_REVERSE_SPEED = CRUISE;
+   \   00000A   B24030755A04 MOV.W   #0x7530, &0x45a
+     31          }
+   \   000010   1001         RETA
+   \   000012                REQUIRE _A_TB3CCR3_L
+   \   000012                REQUIRE _A_TB3CCR4_L
+     32          
+
+   \                                 In  segment CODE, align 2
+     33          void turnRight(){
+   \                     turnRight:
+     34            All_Wheel_Off();
+   \   000000   ........     CALLA   #All_Wheel_Off
+     35            RIGHT_REVERSE_SPEED = CRUISE + SPEED_SHIFT;
+   \   000004   B24018795804 MOV.W   #0x7918, &0x458
+     36            LEFT_FORWARD_SPEED = CRUISE;
+   \   00000A   B24030755604 MOV.W   #0x7530, &0x456
+     37          }
+   \   000010   1001         RETA
+   \   000012                REQUIRE _A_TB3CCR3_L
+   \   000012                REQUIRE _A_TB3CCR2_L
+     38          
+
+   \                                 In  segment CODE, align 2
+     39          void turnLeft(){
+   \                     turnLeft:
+     40            All_Wheel_Off();
+   \   000000   ........     CALLA   #All_Wheel_Off
+     41            RIGHT_FORWARD_SPEED = CRUISE + SPEED_SHIFT;
+   \   000004   B24018795404 MOV.W   #0x7918, &0x454
+     42            LEFT_REVERSE_SPEED = CRUISE;
+   \   00000A   B24030755A04 MOV.W   #0x7530, &0x45a
+     43          }
+   \   000010   1001         RETA
+   \   000012                REQUIRE _A_TB3CCR1_L
+   \   000012                REQUIRE _A_TB3CCR4_L
+     44          
+
+   \                                 In  segment CODE, align 2
+     45          void Reverse_Off(){
+   \                     Reverse_Off:
+     46            RIGHT_REVERSE_SPEED = WHEEL_OFF;
+   \   000000   82435804     MOV.W   #0x0, &0x458
+     47            LEFT_REVERSE_SPEED = WHEEL_OFF;
+   \   000004   82435A04     MOV.W   #0x0, &0x45a
+     48          }
+   \   000008   1001         RETA
+   \   00000A                REQUIRE _A_TB3CCR3_L
+   \   00000A                REQUIRE _A_TB3CCR4_L
+     49          
+
+   \                                 In  segment CODE, align 2
+     50          void All_Wheel_Off(){
+   \                     All_Wheel_Off:
+     51            Forward_Off();
+   \   000000   ........     CALLA   #Forward_Off
+     52            Reverse_Off();
+   \   000004   ........     BRA     #Reverse_Off
+     53          }
+     54          
+
+   \                                 In  segment CODE, align 2
+     55          void Forward_Off(){
+   \                     Forward_Off:
+     56            RIGHT_FORWARD_SPEED = WHEEL_OFF;
+   \   000000   82435404     MOV.W   #0x0, &0x454
+     57            LEFT_FORWARD_SPEED = WHEEL_OFF;
+   \   000004   82435604     MOV.W   #0x0, &0x456
+     58          }
+   \   000008   1001         RETA
+   \   00000A                REQUIRE _A_TB3CCR1_L
+   \   00000A                REQUIRE _A_TB3CCR2_L
+     59          
+
+   \                                 In  segment CODE, align 2
+     60          void rightTurn(){
+   \                     rightTurn:
+     61            All_Wheel_Off();
+   \   000000   ........     CALLA   #All_Wheel_Off
+     62            RIGHT_REVERSE_SPEED = HALF;
+   \   000004   B240A8615804 MOV.W   #0x61a8, &0x458
+     63            LEFT_FORWARD_SPEED = HALF;  
+   \   00000A   B240A8615604 MOV.W   #0x61a8, &0x456
+     64          }
+   \   000010   1001         RETA
+   \   000012                REQUIRE _A_TB3CCR3_L
+   \   000012                REQUIRE _A_TB3CCR2_L
+     65          
+
+   \                                 In  segment CODE, align 2
+     66          int drivePivot(int length){
+   \                     drivePivot:
+   \   000000   0E4C         MOV.W   R12, R14
+     67            TB0CCTL2 |= CCIE;
+   \   000002   B2D010008603 BIS.W   #0x10, &0x386
+     68            if(newDrive){
+   \   000008   8293....     CMP.W   #0x0, &newDrive
+   \   00000C   2A24         JEQ     ??drivePivot_0
+     69                newDrive=RESET;
+   \   00000E   8243....     MOV.W   #0x0, &newDrive
+     70                if(drive_count++ < QUARTER_LOOP*length){
+   \   000012   1F42....     MOV.W   &drive_count, R15
+   \   000016   0D4F         MOV.W   R15, R13
+   \   000018   1D53         ADD.W   #0x1, R13
+   \   00001A   824D....     MOV.W   R13, &drive_count
+   \   00001E   0D4E         MOV.W   R14, R13
+   \   000020                RPT     #0x2
+   \   000020   41180D5E     ADDX.W  R14, R13
+   \   000024   0F9D         CMP.W   R13, R15
+   \   000026   042C         JC      ??drivePivot_1
+     71                  rightTurn();
+   \   000028   ........     CALLA   #rightTurn
+     72                  return LOW;
+   \   00002C   0C43         MOV.W   #0x0, R12
+   \   00002E   1001         RETA
+     73                }
+     74                else if(drive_count++ < CHAR7){
+   \                     ??drivePivot_1:
+   \   000030   1F42....     MOV.W   &drive_count, R15
+   \   000034   0D4F         MOV.W   R15, R13
+   \   000036   1D53         ADD.W   #0x1, R13
+   \   000038   824D....     MOV.W   R13, &drive_count
+   \   00003C   3F900700     CMP.W   #0x7, R15
+   \   000040   072C         JC      ??drivePivot_2
+     75                   driveForward(CRUISE,CRUISE);
+   \   000042   3D403075     MOV.W   #0x7530, R13
+   \   000046   3C403075     MOV.W   #0x7530, R12
+   \   00004A   ........     CALLA   #driveForward
+   \   00004E   093C         JMP     ??drivePivot_0
+     76                }
+     77                else{
+     78                //state = DRIVE;
+     79                All_Wheel_Off();
+   \                     ??drivePivot_2:
+   \   000050   ........     CALLA   #All_Wheel_Off
+     80                TB0CCTL2 &= ~CCIE;
+   \   000054   B2C010008603 BIC.W   #0x10, &0x386
+     81                drive_count = RESET;
+   \   00005A   8243....     MOV.W   #0x0, &drive_count
+     82                return HIGH;
+   \   00005E   1C43         MOV.W   #0x1, R12
+   \   000060   1001         RETA
+     83               }
+     84            }
+     85            return LOW;
+   \                     ??drivePivot_0:
+   \   000062   0C43         MOV.W   #0x0, R12
+   \   000064   1001         RETA
+   \   000066                REQUIRE _A_TB0CCTL2_L
+     86          }
+     87          
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      4   All_Wheel_Off
+        4   -> Forward_Off
+        0   -> Reverse_Off
+      4   Forward_Off
+      4   Reverse_Off
+      4   driveForward
+        4   -> Reverse_Off
+      4   drivePivot
+        4   -> All_Wheel_Off
+        4   -> driveForward
+        4   -> rightTurn
+      4   driveReverse
+        4   -> Forward_Off
+      4   rightTurn
+        4   -> All_Wheel_Off
+      4   turnLeft
+        4   -> All_Wheel_Off
+      4   turnRight
+        4   -> All_Wheel_Off
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       8  All_Wheel_Off
+      10  Forward_Off
+      10  Reverse_Off
+       2  _A_TB0CCTL2_L
+       2  _A_TB3CCR1_L
+       2  _A_TB3CCR2_L
+       2  _A_TB3CCR3_L
+       2  _A_TB3CCR4_L
+      20  driveForward
+     102  drivePivot
+      18  driveReverse
+       2  drive_count
+      18  rightTurn
+      18  turnLeft
+      18  turnRight
+
+ 
+ 222 bytes in segment CODE
+  10 bytes in segment DATA16_AN
+   2 bytes in segment DATA16_Z
+ 
+ 222 bytes of CODE memory
+   2 bytes of DATA memory (+ 10 bytes shared)
+
+Errors: none
+Warnings: none

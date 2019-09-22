@@ -1,0 +1,169 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           22/Feb/2019  13:46:27
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        04\switches.c
+#    Command line  =  
+#        -f C:\Users\Michael\AppData\Local\Temp\EWD699.tmp
+#        ("C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        04\switches.c" -lC "C:\Users\Michael\Documents\2019\ECE
+#        306\ECE-306_code\Project 04\Debug\List" -o
+#        "C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        04\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        04\Debug\List\switches.lst
+#    Object file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        04\Debug\Obj\switches.r43
+#
+###############################################################################
+
+C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project 04\switches.c
+      1          #include  "functions.h"
+      2          #include  "msp430.h"
+
+   \                                 In  segment DATA16_AN, at 0x200
+   \   union <unnamed> _A_PAIN_L
+   \                     _A_PAIN_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x220
+   \   union <unnamed> _A_PBIN_L
+   \                     _A_PBIN_L:
+   \   000000                DS8 2
+      3          #include "macros.h"
+      4          
+      5          
+      6          extern unsigned int time_change2;
+      7          extern unsigned char event;
+      8          extern unsigned char shape;
+      9          
+
+   \                                 In  segment CODE, align 2
+     10          void Switches_Process(void){
+   \                     Switches_Process:
+     11            //---------------------------------------------------------------------------
+     12            if(time_change2){
+   \   000000   8293....     CMP.W   #0x0, &time_change2
+   \   000004   2924         JEQ     ??Switches_Process_1
+     13              time_change2 = 0;
+   \   000006   8243....     MOV.W   #0x0, &time_change2
+     14              if (!(P4IN & SW1)){
+   \   00000A   E2B32102     BIT.B   #0x2, &0x221
+   \   00000E   242C         JC      ??Switches_Process_1
+     15                event = shape;
+   \   000010   D242........ MOV.B   &shape, &event
+     16                switch(shape){
+   \   000016   5E42....     MOV.B   &shape, R14
+   \   00001A   7E804300     SUB.B   #0x43, R14
+   \   00001E   0C24         JEQ     ??Switches_Process_2
+   \   000020   6E83         SUB.B   #0x2, R14
+   \   000022   0E24         JEQ     ??Switches_Process_3
+   \   000024   7E800700     SUB.B   #0x7, R14
+   \   000028   0324         JEQ     ??Switches_Process_4
+   \   00002A   7E82         SUB.B   #0x8, R14
+   \   00002C   0D24         JEQ     ??Switches_Process_5
+   \   00002E   0F3C         JMP     ??Switches_Process_0
+     17                  case STRAIGHT:
+     18                    shape = CIRCLE;
+   \                     ??Switches_Process_4:
+   \   000030   F2404300.... MOV.B   #0x43, &shape
+     19                    break;
+   \   000036   0B3C         JMP     ??Switches_Process_0
+     20                  case CIRCLE:
+     21                    shape = FIG_EIGHT;
+   \                     ??Switches_Process_2:
+   \   000038   F2404500.... MOV.B   #0x45, &shape
+     22                    break;
+   \   00003E   073C         JMP     ??Switches_Process_0
+     23                  case FIG_EIGHT:
+     24                    shape = TRIANGLE;
+   \                     ??Switches_Process_3:
+   \   000040   F2405400.... MOV.B   #0x54, &shape
+     25                    break;
+   \   000046   033C         JMP     ??Switches_Process_0
+     26                  case TRIANGLE:
+     27                    shape = STRAIGHT;
+   \                     ??Switches_Process_5:
+   \   000048   F2404C00.... MOV.B   #0x4c, &shape
+     28                    break;
+     29                  default: break;
+     30              Forward_On();
+                     ^
+Warning[Pe111]: statement is unreachable
+     31                /*display_line[1] = "NCSU";
+     32                posL1 = 3;
+     33                display_line [2] = "WOLFAPACK";
+     34                posL2 = 1;
+     35                display_3 = "ECE306";
+     36                posL3 = 2;
+     37                display_4 = "M Barilla";
+     38                posL4 = 1;*/
+     39              }
+     40              if (!(P2IN & SW2)){
+   \                     ??Switches_Process_0:
+   \   00004E   F2B20102     BIT.B   #0x8, &0x201
+   \   000052   022C         JC      ??Switches_Process_1
+     41                Forward_On();
+   \   000054   ........     CALLA   #Forward_On
+     42                /*display_1 = "Embedded";
+     43                posL1 = 1;
+     44                display_2 = "Systems";
+     45                posL2 = 2;
+     46                dislay_3 = "Rock!";
+     47                posL3 = 3;
+     48                display_4 = "Go Pack!";
+     49                posL4 = 1;*/
+     50              }
+     51            //---------------------------------------------------------------------------
+     52              }
+     53            }
+     54          }
+   \                     ??Switches_Process_1:
+   \   000058   1001         RETA
+   \   00005A                REQUIRE _A_PBIN_L
+   \   00005A                REQUIRE _A_PAIN_L
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      4   Switches_Process
+        4   -> Forward_On
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      90  Switches_Process
+       2  _A_PAIN_L
+       2  _A_PBIN_L
+
+ 
+ 90 bytes in segment CODE
+  4 bytes in segment DATA16_AN
+ 
+ 90 bytes of CODE memory
+  0 bytes of DATA memory (+ 4 bytes shared)
+
+Errors: none
+Warnings: 1

@@ -1,0 +1,110 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           25/Apr/2019  15:00:55
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10.1\time_display.c
+#    Command line  =  
+#        -f C:\Users\Michael\AppData\Local\Temp\EWBFA3.tmp
+#        ("C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10.1\time_display.c" -lC "C:\Users\Michael\Documents\2019\ECE
+#        306\ECE-306_code\Project 10.1\Debug\List" -o
+#        "C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10.1\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10.1\Debug\List\time_display.lst
+#    Object file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10.1\Debug\Obj\time_display.r43
+#
+###############################################################################
+
+C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project 10.1\time_display.c
+      1          //------------------------------------------------------------------------------
+      2          //
+      3          //  Description: This file contains the function to update a timer on the screen
+      4          //  
+      5          //
+      6          //  Michael Barilla
+      7          //  Mar 2019
+      8          //  Built with IAR Embedded Workbench Version: V4.10A/W32 (7.11.2)
+      9          //------------------------------------------------------------------------------
+     10          
+     11          #include  "functions.h"
+     12          #include  "msp430.h"
+     13          #include "macros.h"
+     14          #include <string.h>
+     15          
+     16          extern unsigned int time_count;
+     17          extern char bcd_char [COUNT_ELEVEN];
+     18          extern char display_line[FOURTH][COUNT_ELEVEN];
+     19          extern volatile unsigned char display_changed;
+     20          
+
+   \                                 In  segment CODE, align 2
+     21          void time_display(void){
+   \                     time_display:
+     22            display_line[FOURTH_LINE][CHAR0] = 'T';
+   \   000000   F2405400.... MOV.B   #0x54, &display_line + 33
+     23            display_line[FOURTH_LINE][CHAR1] = 'I';
+   \   000006   F2404900.... MOV.B   #0x49, &display_line + 34
+     24            display_line[FOURTH_LINE][CHAR2] = 'M';
+   \   00000C   F2404D00.... MOV.B   #0x4d, &display_line + 35
+     25            display_line[FOURTH_LINE][CHAR3] = 'E';
+   \   000012   F2404500.... MOV.B   #0x45, &display_line + 36
+     26            display_line[FOURTH_LINE][CHAR4] = ' ';
+   \   000018   F2402000.... MOV.B   #0x20, &display_line + 37
+     27            HEXtoBCD(time_count);
+   \   00001E   1C42....     MOV.W   &time_count, R12
+   \   000022   ........     CALLA   #HEXtoBCD
+     28            display_line[FOURTH_LINE][CHAR5] = bcd_char[CHAR0];
+   \   000026   D242........ MOV.B   &bcd_char, &display_line + 38
+     29            display_line[FOURTH_LINE][CHAR6] = bcd_char[CHAR1];
+   \   00002C   D242........ MOV.B   &bcd_char + 1, &display_line + 39
+     30            display_line[FOURTH_LINE][CHAR7] = bcd_char[CHAR2];
+   \   000032   D242........ MOV.B   &bcd_char + 2, &display_line + 40
+     31            display_line[FOURTH_LINE][CHAR8] = '.';
+   \   000038   F2402E00.... MOV.B   #0x2e, &display_line + 41
+     32            display_line[FOURTH_LINE][CHAR9] = bcd_char[CHAR3];
+   \   00003E   D242........ MOV.B   &bcd_char + 3, &display_line + 42
+     33          }  
+   \   000044   1001         RETA
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      4   time_display
+        4   -> HEXtoBCD
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      70  time_display
+
+ 
+ 70 bytes in segment CODE
+ 
+ 70 bytes of CODE memory
+
+Errors: none
+Warnings: none

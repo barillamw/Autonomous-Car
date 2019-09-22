@@ -1,0 +1,106 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           25/Feb/2019  12:59:34
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project 05\led.c
+#    Command line  =  
+#        -f C:\Users\Michael\AppData\Local\Temp\EWE5E9.tmp
+#        ("C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        05\led.c" -lC "C:\Users\Michael\Documents\2019\ECE
+#        306\ECE-306_code\Project 05\Debug\List" -o
+#        "C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        05\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        05\Debug\List\led.lst
+#    Object file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        05\Debug\Obj\led.r43
+#
+###############################################################################
+
+C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project 05\led.c
+      1          //------------------------------------------------------------------------------
+      2          //
+      3          //  Description: This file contains the functions which run the LED on the 
+      4          //  MSP430.
+      5          //
+      6          //  Michael Barilla
+      7          //  Jan 2018
+      8          //  Built with IAR Embedded Workbench Version: V4.10A/W32 (7.11.2)
+      9          //------------------------------------------------------------------------------
+     10          
+     11          #include  "functions.h"
+     12          #include  "msp430.h"
+
+   \                                 In  segment DATA16_AN, at 0x202
+   \   union <unnamed> _A_PAOUT_L
+   \                     _A_PAOUT_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x242
+   \   union <unnamed> _A_PCOUT_L
+   \                     _A_PCOUT_L:
+   \   000000                DS8 2
+     13          #include <string.h>
+     14          #include "macros.h"
+     15          
+     16          
+
+   \                                 In  segment CODE, align 2
+     17          void Init_LEDs(void){
+   \                     Init_LEDs:
+     18          //------------------------------------------------------------------------------
+     19          // LED Configurations
+     20          //------------------------------------------------------------------------------
+     21          // Turns on both LEDs
+     22            GREEN_LED_OFF;
+   \   000000   F2C040004302 BIC.B   #0x40, &0x243
+     23            RED_LED_OFF;
+   \   000006   D2C30202     BIC.B   #0x1, &0x202
+     24          //------------------------------------------------------------------------------
+     25          }
+   \   00000A   1001         RETA
+   \   00000C                REQUIRE _A_PCOUT_L
+   \   00000C                REQUIRE _A_PAOUT_L
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      4   Init_LEDs
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      12  Init_LEDs
+       2  _A_PAOUT_L
+       2  _A_PCOUT_L
+
+ 
+ 12 bytes in segment CODE
+  4 bytes in segment DATA16_AN
+ 
+ 12 bytes of CODE memory
+  0 bytes of DATA memory (+ 4 bytes shared)
+
+Errors: none
+Warnings: none

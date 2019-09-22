@@ -1,0 +1,213 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           25/Feb/2019  12:59:34
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        05\wheels.c
+#    Command line  =  
+#        -f C:\Users\Michael\AppData\Local\Temp\EWE7D1.tmp
+#        ("C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        05\wheels.c" -lC "C:\Users\Michael\Documents\2019\ECE
+#        306\ECE-306_code\Project 05\Debug\List" -o
+#        "C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        05\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        05\Debug\List\wheels.lst
+#    Object file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        05\Debug\Obj\wheels.r43
+#
+###############################################################################
+
+C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project 05\wheels.c
+      1          //------------------------------------------------------------------------------
+      2          //
+      3          //  Michael Barilla
+      4          //  Feb 2019
+      5          //  Built with IAR Embedded Workbench Version: V4.10A/W32 (7.11.2)
+      6          //
+      7          //   Description: This file contains the functions used to run the wheels using 
+      8          //      pulse width modulation
+      9          //
+     10          //------------------------------------------------------------------------------
+     11          #include  "msp430.h"
+
+   \                                 In  segment DATA16_AN, at 0x454
+   \   union <unnamed> _A_TB3CCR1_L
+   \                     _A_TB3CCR1_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x456
+   \   union <unnamed> _A_TB3CCR2_L
+   \                     _A_TB3CCR2_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x458
+   \   union <unnamed> _A_TB3CCR3_L
+   \                     _A_TB3CCR3_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x45a
+   \   union <unnamed> _A_TB3CCR4_L
+   \                     _A_TB3CCR4_L:
+   \   000000                DS8 2
+     12          #include  "macros.h"
+     13          #include  "functions.h"
+     14          
+
+   \                                 In  segment CODE, align 2
+     15          void Forward(){
+   \                     Forward:
+     16            Reverse_Off();
+   \   000000   ........     CALLA   #Reverse_Off
+     17            RIGHT_FORWARD_SPEED = TOTAL;
+   \   000004   B2403B9C5404 MOV.W   #0x9c3b, &0x454
+     18            LEFT_FORWARD_SPEED = TOTAL;
+   \   00000A   B2403B9C5604 MOV.W   #0x9c3b, &0x456
+     19          }
+   \   000010   1001         RETA
+   \   000012                REQUIRE _A_TB3CCR1_L
+   \   000012                REQUIRE _A_TB3CCR2_L
+     20          
+
+   \                                 In  segment CODE, align 2
+     21          void Forward_Off(){
+   \                     Forward_Off:
+     22            RIGHT_FORWARD_SPEED = WHEEL_OFF;
+   \   000000   82435404     MOV.W   #0x0, &0x454
+     23            LEFT_FORWARD_SPEED = WHEEL_OFF;
+   \   000004   82435604     MOV.W   #0x0, &0x456
+     24          }
+   \   000008   1001         RETA
+   \   00000A                REQUIRE _A_TB3CCR1_L
+   \   00000A                REQUIRE _A_TB3CCR2_L
+     25          
+
+   \                                 In  segment CODE, align 2
+     26          void Reverse_Off(){
+   \                     Reverse_Off:
+     27            RIGHT_REVERSE_SPEED = WHEEL_OFF;
+   \   000000   82435804     MOV.W   #0x0, &0x458
+     28            LEFT_REVERSE_SPEED = WHEEL_OFF;
+   \   000004   82435A04     MOV.W   #0x0, &0x45a
+     29          }
+   \   000008   1001         RETA
+   \   00000A                REQUIRE _A_TB3CCR3_L
+   \   00000A                REQUIRE _A_TB3CCR4_L
+     30          
+
+   \                                 In  segment CODE, align 2
+     31          void Reverse(){
+   \                     Reverse:
+     32            Forward_Off();
+   \   000000   ........     CALLA   #Forward_Off
+     33            RIGHT_REVERSE_SPEED = TOTAL;
+   \   000004   B2403B9C5804 MOV.W   #0x9c3b, &0x458
+     34            LEFT_REVERSE_SPEED = TOTAL;
+   \   00000A   B2403B9C5A04 MOV.W   #0x9c3b, &0x45a
+     35          }
+   \   000010   1001         RETA
+   \   000012                REQUIRE _A_TB3CCR3_L
+   \   000012                REQUIRE _A_TB3CCR4_L
+     36          
+
+   \                                 In  segment CODE, align 2
+     37          void All_Wheel_Off(){
+   \                     All_Wheel_Off:
+     38            Forward_Off();
+   \   000000   ........     CALLA   #Forward_Off
+     39            Reverse_Off();
+   \   000004   ........     BRA     #Reverse_Off
+     40          }
+     41          
+
+   \                                 In  segment CODE, align 2
+     42          void CW_Turn(){
+   \                     CW_Turn:
+     43            All_Wheel_Off();
+   \   000000   ........     CALLA   #All_Wheel_Off
+     44            RIGHT_REVERSE_SPEED = TOTAL;
+   \   000004   B2403B9C5804 MOV.W   #0x9c3b, &0x458
+     45            LEFT_FORWARD_SPEED = TOTAL;  
+   \   00000A   B2403B9C5604 MOV.W   #0x9c3b, &0x456
+     46          }
+   \   000010   1001         RETA
+   \   000012                REQUIRE _A_TB3CCR3_L
+   \   000012                REQUIRE _A_TB3CCR2_L
+     47          
+
+   \                                 In  segment CODE, align 2
+     48          void CCW_Turn(){
+   \                     CCW_Turn:
+     49            All_Wheel_Off();
+   \   000000   ........     CALLA   #All_Wheel_Off
+     50            LEFT_REVERSE_SPEED = TOTAL;
+   \   000004   B2403B9C5A04 MOV.W   #0x9c3b, &0x45a
+     51            RIGHT_FORWARD_SPEED = TOTAL;
+   \   00000A   B2403B9C5404 MOV.W   #0x9c3b, &0x454
+     52          }
+   \   000010   1001         RETA
+   \   000012                REQUIRE _A_TB3CCR4_L
+   \   000012                REQUIRE _A_TB3CCR1_L
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      4   All_Wheel_Off
+        4   -> Forward_Off
+        0   -> Reverse_Off
+      4   CCW_Turn
+        4   -> All_Wheel_Off
+      4   CW_Turn
+        4   -> All_Wheel_Off
+      4   Forward
+        4   -> Reverse_Off
+      4   Forward_Off
+      4   Reverse
+        4   -> Forward_Off
+      4   Reverse_Off
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       8  All_Wheel_Off
+      18  CCW_Turn
+      18  CW_Turn
+      18  Forward
+      10  Forward_Off
+      18  Reverse
+      10  Reverse_Off
+       2  _A_TB3CCR1_L
+       2  _A_TB3CCR2_L
+       2  _A_TB3CCR3_L
+       2  _A_TB3CCR4_L
+
+ 
+ 100 bytes in segment CODE
+   8 bytes in segment DATA16_AN
+ 
+ 100 bytes of CODE memory
+   0 bytes of DATA memory (+ 8 bytes shared)
+
+Errors: none
+Warnings: none

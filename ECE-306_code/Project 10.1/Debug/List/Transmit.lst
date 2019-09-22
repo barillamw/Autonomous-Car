@@ -1,0 +1,341 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           21/Apr/2019  18:41:40
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework
+#        08\Transmit.c
+#    Command line  =  
+#        -f C:\Users\Michael\AppData\Local\Temp\EWE419.tmp
+#        ("C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework
+#        08\Transmit.c" -lC "C:\Users\Michael\Documents\2019\ECE
+#        306\ECE-306_code\Project 10.1\Debug\List" -o
+#        "C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10.1\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10.1\Debug\List\Transmit.lst
+#    Object file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10.1\Debug\Obj\Transmit.r43
+#
+###############################################################################
+
+C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework 08\Transmit.c
+      1          
+      2          
+      3          #include  "functions.h"
+      4          #include  "msp430.h"
+
+   \                                 In  segment DATA16_AN, at 0x50e
+   \   union <unnamed> _A_UCA0TXBUF_L
+   \                     _A_UCA0TXBUF_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x51c
+   \   union <unnamed> _A_UCA0IFG_L
+   \                     _A_UCA0IFG_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x58e
+   \   union <unnamed> _A_UCA1TXBUF_L
+   \                     _A_UCA1TXBUF_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x59c
+   \   union <unnamed> _A_UCA1IFG_L
+   \                     _A_UCA1IFG_L:
+   \   000000                DS8 2
+      5          #include  "macros.h"
+      6          #include  <string.h>
+      7          #include  <stdio.h>
+      8          #include  <stdlib.h>
+      9          
+     10          #define NEW                           ('n')
+     11          #define UPDATE                        ('u')
+     12          #define DISPLAY                       ('d')
+     13          #define WAIT                          ('w')
+     14          #define TCP                           ('t')
+     15          #define MIDPOINT                        (4)
+     16          
+
+   \                                 In  segment DATA16_I, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_copy
+     17          unsigned char ncsu[COUNT_ELEVEN] = " NCSU  #1 ";
+   \                     ncsu:
+   \   000000                DS8 11
+   \   00000B                REQUIRE `?<Initializer for ncsu>`
+     18          extern char display_line[FOURTH][COUNT_ELEVEN];
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     19          char Text[COUNT_ELEVEN];
+   \                     Text:
+   \   000000                DS8 11
+     20          extern volatile char IOT_Char_Rx[SMALL_RING_SIZE];
+     21          extern volatile char USB_Char_Rx[SMALL_RING_SIZE];
+     22          extern char IOTcommand[SMALL_RING_SIZE];
+     23          
+     24          
+     25          
+     26          
+     27          
+
+   \                                 In  segment CODE, align 2
+     28          void out_character_A0(char character){
+   \                     out_character_A0:
+   \                     ??out_character_A0_0:
+     29            while(!(UCA0IFG & UCTXIFG));
+   \   000000   A2B31C05     BIT.W   #0x2, &0x51c
+   \   000004   FD2B         JNC     ??out_character_A0_0
+     30              if(character != '\0') UCA0TXBUF = character;
+   \   000006   4C93         CMP.B   #0x0, R12
+   \   000008   0324         JEQ     ??out_character_A0_1
+   \   00000A   4C4C         MOV.B   R12, R12
+   \   00000C   824C0E05     MOV.W   R12, &0x50e
+     31          }
+   \                     ??out_character_A0_1:
+   \   000010   1001         RETA
+   \   000012                REQUIRE _A_UCA0IFG_L
+   \   000012                REQUIRE _A_UCA0TXBUF_L
+     32          
+
+   \                                 In  segment CODE, align 2
+     33          void out_character_A1 (char character){
+   \                     out_character_A1:
+   \                     ??out_character_A1_0:
+     34            while(!(UCA1IFG & UCTXIFG));
+   \   000000   A2B39C05     BIT.W   #0x2, &0x59c
+   \   000004   FD2B         JNC     ??out_character_A1_0
+     35              if(character != '\0') UCA1TXBUF = character;
+   \   000006   4C93         CMP.B   #0x0, R12
+   \   000008   0324         JEQ     ??out_character_A1_1
+   \   00000A   4C4C         MOV.B   R12, R12
+   \   00000C   824C8E05     MOV.W   R12, &0x58e
+     36          }
+   \                     ??out_character_A1_1:
+   \   000010   1001         RETA
+   \   000012                REQUIRE _A_UCA1IFG_L
+   \   000012                REQUIRE _A_UCA1TXBUF_L
+     37          
+
+   \                                 In  segment CODE, align 2
+     38          void Transmit_Text_A1(void){
+   \                     Transmit_Text_A1:
+     39            int i;
+     40            for(i=RESET; i<COUNT_ELEVEN; i++){
+   \   000000   0F43         MOV.W   #0x0, R15
+   \                     ??Transmit_Text_A1_0:
+   \   000002   3F900B00     CMP.W   #0xb, R15
+   \   000006   0634         JGE     ??Transmit_Text_A1_1
+     41             //if(Text[i] != RESET)
+     42              out_character_A1(Text[i]);
+   \   000008   5C4F....     MOV.B   Text(R15), R12
+   \   00000C   ........     CALLA   #out_character_A1
+     43            }
+   \   000010   1F53         ADD.W   #0x1, R15
+   \   000012   F73F         JMP     ??Transmit_Text_A1_0
+     44          }
+   \                     ??Transmit_Text_A1_1:
+   \   000014   1001         RETA
+     45          
+
+   \                                 In  segment CODE, align 2
+     46          void display_Text_A0(void){
+   \                     display_Text_A0:
+     47            int i;
+     48            for(i=RESET; i<=COUNT_ELEVEN; i++){
+   \   000000   0F43         MOV.W   #0x0, R15
+   \                     ??display_Text_A0_0:
+   \   000002   3F900C00     CMP.W   #0xc, R15
+   \   000006   0A34         JGE     ??display_Text_A0_1
+     49              Text[i] = IOT_Char_Rx[i];
+   \   000008   DF4F........ MOV.B   IOT_Char_Rx(R15), Text(R15)
+     50              display_line[SECOND_LINE][i] = Text[i];
+   \   00000E   DF4F........ MOV.B   Text(R15), display_line + 11(R15)
+     51              Text[CHARA] = '\0';
+   \   000014   C243....     MOV.B   #0x0, &Text + 10
+     52            }
+   \   000018   1F53         ADD.W   #0x1, R15
+   \   00001A   F33F         JMP     ??display_Text_A0_0
+     53          
+     54          }
+   \                     ??display_Text_A0_1:
+   \   00001C   1001         RETA
+     55          
+
+   \                                 In  segment CODE, align 2
+     56          void display_Text_A1(void){
+   \                     display_Text_A1:
+     57            int i;
+     58            for(i=RESET; i<=COUNT_ELEVEN; i++){
+   \   000000   0F43         MOV.W   #0x0, R15
+   \                     ??display_Text_A1_0:
+   \   000002   3F900C00     CMP.W   #0xc, R15
+   \   000006   0A34         JGE     ??display_Text_A1_1
+     59              Text[i] = USB_Char_Rx[i];
+   \   000008   DF4F........ MOV.B   USB_Char_Rx(R15), Text(R15)
+     60              display_line[SECOND_LINE][i] = Text[i];
+   \   00000E   DF4F........ MOV.B   Text(R15), display_line + 11(R15)
+     61              Text[CHARA] = '\0';
+   \   000014   C243....     MOV.B   #0x0, &Text + 10
+     62            }
+   \   000018   1F53         ADD.W   #0x1, R15
+   \   00001A   F33F         JMP     ??display_Text_A1_0
+     63          
+     64          }
+   \                     ??display_Text_A1_1:
+   \   00001C   1001         RETA
+     65          
+
+   \                                 In  segment CODE, align 2
+     66          void clear(void){
+   \                     clear:
+     67            int i;
+     68            for(i=RESET; i<SMALL_RING_SIZE; i++){
+   \   000000   0F43         MOV.W   #0x0, R15
+   \                     ??clear_0:
+   \   000002   3F901000     CMP.W   #0x10, R15
+   \   000006   0634         JGE     ??clear_1
+     69              USB_Char_Rx[i] = RESET;
+   \   000008   CF43....     MOV.B   #0x0, USB_Char_Rx(R15)
+     70              IOT_Char_Rx[i] = RESET;
+   \   00000C   CF43....     MOV.B   #0x0, IOT_Char_Rx(R15)
+     71            }
+   \   000010   1F53         ADD.W   #0x1, R15
+   \   000012   F73F         JMP     ??clear_0
+     72          }
+   \                     ??clear_1:
+   \   000014   1001         RETA
+     73          
+
+   \                                 In  segment CODE, align 2
+     74          void Store_Text_A1(void){
+   \                     Store_Text_A1:
+     75            int i;
+     76            for(i=RESET; i<=COUNT_ELEVEN; i++){
+   \   000000   0F43         MOV.W   #0x0, R15
+   \                     ??Store_Text_A1_0:
+   \   000002   3F900C00     CMP.W   #0xc, R15
+   \   000006   0534         JGE     ??Store_Text_A1_1
+     77              Text[i] = USB_Char_Rx[i];
+   \   000008   DF4F........ MOV.B   USB_Char_Rx(R15), Text(R15)
+     78            }
+   \   00000E   1F53         ADD.W   #0x1, R15
+   \   000010   F83F         JMP     ??Store_Text_A1_0
+     79          }
+   \                     ??Store_Text_A1_1:
+   \   000012   1001         RETA
+     80          
+
+   \                                 In  segment CODE, align 2
+     81          void Transmit_Test_A1(void){
+   \                     Transmit_Test_A1:
+     82            int i;
+     83            for (i=RESET; i<=COUNT_ELEVEN; i++){
+   \   000000   0F43         MOV.W   #0x0, R15
+   \                     ??Transmit_Test_A1_0:
+   \   000002   3F900C00     CMP.W   #0xc, R15
+   \   000006   0634         JGE     ??Transmit_Test_A1_1
+     84              out_character_A1(ncsu[i]);
+   \   000008   5C4F....     MOV.B   ncsu(R15), R12
+   \   00000C   ........     CALLA   #out_character_A1
+     85            }
+   \   000010   1F53         ADD.W   #0x1, R15
+   \   000012   F73F         JMP     ??Transmit_Test_A1_0
+     86          }
+   \                     ??Transmit_Test_A1_1:
+   \   000014   1001         RETA
+     87          
+
+   \                                 In  segment CODE, align 2
+     88          void Transmit_Command_A0(void){
+   \                     Transmit_Command_A0:
+     89            int i;
+     90            for(i=RESET; i<SMALL_RING_SIZE; i++){
+   \   000000   0F43         MOV.W   #0x0, R15
+   \                     ??Transmit_Command_A0_0:
+   \   000002   3F901000     CMP.W   #0x10, R15
+   \   000006   0634         JGE     ??Transmit_Command_A0_1
+     91              out_character_A0(IOTcommand[i]);
+   \   000008   5C4F....     MOV.B   IOTcommand(R15), R12
+   \   00000C   ........     CALLA   #out_character_A0
+     92            }
+   \   000010   1F53         ADD.W   #0x1, R15
+   \   000012   F73F         JMP     ??Transmit_Command_A0_0
+     93          }
+   \                     ??Transmit_Command_A0_1:
+   \   000014   1001         RETA
+
+   \                                 In  segment DATA16_ID, align 1, align-sorted
+   \                     `?<Initializer for ncsu>`:
+   \   000000   204E43535520 DC8 " NCSU  #1 "
+   \            2023312000  
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      4   Store_Text_A1
+      4   Transmit_Command_A0
+        4   -> out_character_A0
+      4   Transmit_Test_A1
+        4   -> out_character_A1
+      4   Transmit_Text_A1
+        4   -> out_character_A1
+      4   clear
+      4   display_Text_A0
+      4   display_Text_A1
+      4   out_character_A0
+      4   out_character_A1
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      11  ?<Initializer for ncsu>
+      20  Store_Text_A1
+      11  Text
+      22  Transmit_Command_A0
+      22  Transmit_Test_A1
+      22  Transmit_Text_A1
+       2  _A_UCA0IFG_L
+       2  _A_UCA0TXBUF_L
+       2  _A_UCA1IFG_L
+       2  _A_UCA1TXBUF_L
+      22  clear
+      30  display_Text_A0
+      30  display_Text_A1
+      11  ncsu
+      18  out_character_A0
+      18  out_character_A1
+
+ 
+ 204 bytes in segment CODE
+   8 bytes in segment DATA16_AN
+  11 bytes in segment DATA16_I
+  11 bytes in segment DATA16_ID
+  11 bytes in segment DATA16_Z
+ 
+ 204 bytes of CODE  memory
+  11 bytes of CONST memory
+  22 bytes of DATA  memory (+ 8 bytes shared)
+
+Errors: none
+Warnings: none

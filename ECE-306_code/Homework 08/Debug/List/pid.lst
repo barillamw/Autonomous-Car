@@ -1,0 +1,332 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           31/Mar/2019  11:34:20
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework 08\pid.c
+#    Command line  =  
+#        -f C:\Users\Michael\AppData\Local\Temp\EWA72C.tmp
+#        ("C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework
+#        08\pid.c" -lC "C:\Users\Michael\Documents\2019\ECE
+#        306\ECE-306_code\Homework 08\Debug\List" -o
+#        "C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework
+#        08\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework
+#        08\Debug\List\pid.lst
+#    Object file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework
+#        08\Debug\Obj\pid.r43
+#
+###############################################################################
+
+C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework 08\pid.c
+      1          //------------------------------------------------------------------------------
+      2          //
+      3          //  Description: This file contains the functions execute a PID and a wheel 
+      4          //      control based on a given value.
+      5          //  
+      6          //
+      7          //  Michael Barilla
+      8          //  Mar 2019
+      9          //  Built with IAR Embedded Workbench Version: V4.10A/W32 (7.11.2)
+     10          //------------------------------------------------------------------------------
+     11          #include  "functions.h"
+     12          #include  "msp430.h"
+
+   \                                 In  segment DATA16_AN, at 0x386
+   \   union <unnamed> _A_TB0CCTL2_L
+   \                     _A_TB0CCTL2_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x454
+   \   union <unnamed> _A_TB3CCR1_L
+   \                     _A_TB3CCR1_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x456
+   \   union <unnamed> _A_TB3CCR2_L
+   \                     _A_TB3CCR2_L:
+   \   000000                DS8 2
+     13          #include "macros.h"
+     14          #include <string.h>
+     15          
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     16           int r_error;
+   \                     r_error:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     17           int l_error;
+   \                     l_error:
+   \   000000                DS8 2
+     18          extern unsigned int black ; 
+     19          extern unsigned int midpoint;
+     20          extern unsigned int R_average;
+     21          extern unsigned int L_average;
+     22          extern unsigned int R_count;
+     23          extern unsigned int L_count;
+     24          extern unsigned int V_Detect_R[MAX_ARRAY];
+     25          extern unsigned int V_Detect_L[MAX_ARRAY];
+     26          
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     27           int current_error;
+   \                     current_error:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     28           int previous_error;
+   \                     previous_error:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     29           int sum_error;
+   \                     sum_error:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     30           int delta_error;
+   \                     delta_error:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     31           int proportional;
+   \                     proportional:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     32           int integral;
+   \                     integral:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     33           int derivative;
+   \                     derivative:
+   \   000000                DS8 2
+     34           
+     35           extern unsigned int waitTime;
+     36           extern unsigned int endWait;
+     37           extern char state;
+     38           
+     39           //int sample_time=0.1; //1 second;
+     40           extern char display_line[FOURTH][COUNT_ELEVEN];
+     41          
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     42          unsigned int lspeed;
+   \                     lspeed:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     43          unsigned int rspeed;
+   \                     rspeed:
+   \   000000                DS8 2
+     44          
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     45          unsigned int runDrive;
+   \                     runDrive:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     46          char current_state;
+   \                     current_state:
+   \   000000                DS8 1
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     47          char previous_state;
+   \                     previous_state:
+   \   000000                DS8 1
+     48          extern unsigned int sample;
+     49          
+     50          
+
+   \                                 In  segment CODE, align 2
+     51          char getCurrentState(void){
+   \                     getCurrentState:
+     52            Read_ADC();
+   \   000000   ........     CALLA   #Read_ADC
+     53            
+     54            if(R_average > midpoint && L_average > midpoint) return BLACK_LINE;
+   \   000004   9292........ CMP.W   &R_average, &midpoint
+   \   00000A   072C         JC      ??getCurrentState_0
+   \   00000C   9292........ CMP.W   &L_average, &midpoint
+   \   000012   032C         JC      ??getCurrentState_0
+   \   000014   7C406200     MOV.B   #0x62, R12
+   \   000018   1001         RETA
+     55            else if(R_average < midpoint && L_average > midpoint) return RIGHT_SIDE;
+   \                     ??getCurrentState_0:
+   \   00001A   9292........ CMP.W   &midpoint, &R_average
+   \   000020   072C         JC      ??getCurrentState_1
+   \   000022   9292........ CMP.W   &L_average, &midpoint
+   \   000028   032C         JC      ??getCurrentState_1
+   \   00002A   7C407200     MOV.B   #0x72, R12
+   \   00002E   1001         RETA
+     56            else if(R_average > midpoint && L_average < midpoint) return LEFT_SIDE;
+   \                     ??getCurrentState_1:
+   \   000030   9292........ CMP.W   &R_average, &midpoint
+   \   000036   072C         JC      ??getCurrentState_2
+   \   000038   9292........ CMP.W   &midpoint, &L_average
+   \   00003E   032C         JC      ??getCurrentState_2
+   \   000040   7C406C00     MOV.B   #0x6c, R12
+   \   000044   1001         RETA
+     57            else return WHITE_BOARD;
+   \                     ??getCurrentState_2:
+   \   000046   7C407700     MOV.B   #0x77, R12
+   \   00004A   1001         RETA
+     58          }
+     59          
+
+   \                                 In  segment CODE, align 2
+     60          void followCircle(void){
+   \                     followCircle:
+     61            waitTime = TENSECS;
+   \   000000   B2409001.... MOV.W   #0x190, &waitTime
+     62            TB0CCTL2 &=~ CCIFG;
+   \   000006   92C38603     BIC.W   #0x1, &0x386
+     63            TB0CCTL2 |= CCIE;
+   \   00000A   B2D010008603 BIS.W   #0x10, &0x386
+     64            
+     65            
+     66            if(endWait){
+   \   000010   8293....     CMP.W   #0x0, &endWait
+   \   000014   0A24         JEQ     ??followCircle_0
+     67              TB0CCTL2 &= ~CCIE;
+   \   000016   B2C010008603 BIC.W   #0x10, &0x386
+     68              All_Wheel_Off();
+   \   00001C   ........     CALLA   #All_Wheel_Off
+     69              state = TURN2;
+   \   000020   F2407500.... MOV.B   #0x75, &state
+     70              endWait = RESET;
+   \   000026   8243....     MOV.W   #0x0, &endWait
+     71            }
+     72            Read_ADC();
+   \                     ??followCircle_0:
+   \   00002A   ........     CALLA   #Read_ADC
+     73            Reverse_Off();
+   \   00002E   ........     CALLA   #Reverse_Off
+     74            //displayADC();
+     75            Read_ADC();
+   \   000032   ........     CALLA   #Read_ADC
+     76            
+     77            
+     78             if(V_Detect_R[R_count%MAX_ARRAY] > V_Detect_L[L_count%MAX_ARRAY]  ){
+   \   000036   1F42....     MOV.W   &L_count, R15
+   \   00003A   3FF00700     AND.W   #0x7, R15
+   \   00003E   0F5F         RLA.W   R15
+   \   000040   1E42....     MOV.W   &R_count, R14
+   \   000044   3EF00700     AND.W   #0x7, R14
+   \   000048   0E5E         RLA.W   R14
+   \   00004A   9F9E........ CMP.W   V_Detect_R(R14), V_Detect_L(R15)
+   \   000050   052C         JC      ??followCircle_1
+     79              RIGHT_FORWARD_SPEED = WHEEL_OFF;
+   \   000052   82435404     MOV.W   #0x0, &0x454
+     80              LEFT_FORWARD_SPEED = LCORRECT;
+   \   000056   B240C05D5604 MOV.W   #0x5dc0, &0x456
+     81              }
+     82             if(V_Detect_R[R_count%MAX_ARRAY] < V_Detect_L[L_count%MAX_ARRAY]){
+   \                     ??followCircle_1:
+   \   00005C   1F42....     MOV.W   &R_count, R15
+   \   000060   3FF00700     AND.W   #0x7, R15
+   \   000064   0F5F         RLA.W   R15
+   \   000066   1E42....     MOV.W   &L_count, R14
+   \   00006A   3EF00700     AND.W   #0x7, R14
+   \   00006E   0E5E         RLA.W   R14
+   \   000070   9F9E........ CMP.W   V_Detect_L(R14), V_Detect_R(R15)
+   \   000076   052C         JC      ??followCircle_2
+     83                RIGHT_FORWARD_SPEED = RCORRECT;
+   \   000078   B24078695404 MOV.W   #0x6978, &0x454
+     84                LEFT_FORWARD_SPEED = WHEEL_OFF;
+   \   00007E   82435604     MOV.W   #0x0, &0x456
+     85              }
+     86            }  
+   \                     ??followCircle_2:
+   \   000082   1001         RETA
+   \   000084                REQUIRE _A_TB0CCTL2_L
+   \   000084                REQUIRE _A_TB3CCR1_L
+   \   000084                REQUIRE _A_TB3CCR2_L
+     87                
+     88            
+     89            
+     90             
+     91                
+     92          
+     93            
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      4   followCircle
+        4   -> All_Wheel_Off
+        4   -> Read_ADC
+        4   -> Reverse_Off
+      4   getCurrentState
+        4   -> Read_ADC
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       2  _A_TB0CCTL2_L
+       2  _A_TB3CCR1_L
+       2  _A_TB3CCR2_L
+       2  current_error
+       1  current_state
+       2  delta_error
+       2  derivative
+     132  followCircle
+      76  getCurrentState
+       2  integral
+       2  l_error
+       2  lspeed
+       2  previous_error
+       1  previous_state
+       2  proportional
+       2  r_error
+       2  rspeed
+       2  runDrive
+       2  sum_error
+
+ 
+ 208 bytes in segment CODE
+   6 bytes in segment DATA16_AN
+  26 bytes in segment DATA16_Z
+ 
+ 208 bytes of CODE memory
+  26 bytes of DATA memory (+ 6 bytes shared)
+
+Errors: none
+Warnings: none

@@ -1,0 +1,279 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           25/Apr/2019  15:00:55
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10.1\main.c
+#    Command line  =  
+#        -f C:\Users\Michael\AppData\Local\Temp\EWBC8F.tmp
+#        ("C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10.1\main.c" -lC "C:\Users\Michael\Documents\2019\ECE
+#        306\ECE-306_code\Project 10.1\Debug\List" -o
+#        "C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10.1\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10.1\Debug\List\main.lst
+#    Object file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10.1\Debug\Obj\main.r43
+#
+###############################################################################
+
+C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project 10.1\main.c
+      1          //------------------------------------------------------------------------------
+      2          //
+      3          //  Description: This file contains the Main Routine - "While" Operating System
+      4          //
+      5          //
+      6          //  Jim Carlson
+      7          //  Jan 2018
+      8          //  Built with IAR Embedded Workbench Version: V4.10A/W32 (7.11.2)
+      9          //------------------------------------------------------------------------------
+     10          
+     11          #include  "functions.h"
+     12          #include  "msp430.h"
+
+   \                                 In  segment DATA16_AN, at 0x242
+   \   union <unnamed> _A_PCOUT_L
+   \                     _A_PCOUT_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x130
+   \   union <unnamed> _A_PM5CTL0_L
+   \                     _A_PM5CTL0_L:
+   \   000000                DS8 2
+     13          #include <string.h>
+     14          #include "macros.h"
+     15          
+     16            // Global Variables
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     17          volatile char slow_input_down;
+   \                     slow_input_down:
+   \   000000                DS8 1
+     18          extern char display_line[FOURTH][COUNT_ELEVEN];
+     19          extern char *display[FOURTH];
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     20          unsigned char display_mode;
+   \                     display_mode:
+   \   000000                DS8 1
+     21          extern volatile unsigned char update_display;
+     22          extern volatile unsigned int update_display_count;
+     23          extern volatile unsigned int Time_Sequence;
+     24          extern volatile char one_time;
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     25          unsigned int test_value;
+   \                     test_value:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     26          char chosen_direction;
+   \                     chosen_direction:
+   \   000000                DS8 1
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     27          char change;
+   \                     change:
+   \   000000                DS8 1
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     28          unsigned int Last_Time_Sequence;
+   \                     Last_Time_Sequence:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     29          unsigned int cycle_time;
+   \                     cycle_time:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     30          unsigned int time_change;
+   \                     time_change:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     31          unsigned int time_change2;
+   \                     time_change2:
+   \   000000                DS8 2
+     32          
+     33          
+     34          
+     35          
+     36          extern unsigned int menu;
+     37          extern unsigned int menu_select;
+     38          
+     39          
+     40          
+
+   \                                 In  segment CODE, align 2
+     41          void main(void){
+   \                     main:
+     42          //------------------------------------------------------------------------------
+     43          // Main Program
+     44          // This is the main routine for the program. Execution of code starts here.
+     45          // The operating system is Back Ground Fore Ground.
+     46          //
+     47          //------------------------------------------------------------------------------
+     48          // Disable the GPIO power-on default high-impedance mode to activate
+     49          // previously configured port settings
+     50            
+     51            PM5CTL0 &= ~LOCKLPM5;
+   \   000000   92C33001     BIC.W   #0x1, &0x130
+     52            
+     53            Init_Ports();                        // Initialize Ports
+   \   000004   ........     CALLA   #Init_Ports
+     54            Init_Clocks();                       // Initialize Clock System
+   \   000008   ........     CALLA   #Init_Clocks
+     55            Init_Conditions();                   // Initialize Variables and Initial Conditions 
+   \   00000C   ........     CALLA   #Init_Conditions
+     56            Init_Timers();                       // Initialize Timers
+   \   000010   ........     CALLA   #Init_Timers
+     57            Init_LCD();                          // Initialize LCD
+   \   000014   ........     CALLA   #Init_LCD
+     58            Init_ADC();                          // Initialize ADC
+   \   000018   ........     CALLA   #Init_ADC
+     59            Init_Serial();                       // Initialize Serial
+   \   00001C   ........     CALLA   #Init_Serial
+     60            Begin_ADC();
+   \   000020   ........     CALLA   #Begin_ADC
+     61            
+     62            
+     63          
+     64          // Place the contents of what you want on the display, in between the quotes
+     65          // Limited to 10 characters per line
+     66          //
+     67          
+     68            strcpy(display_line[FIRST_LINE], "          ");
+   \   000024   3D40....     MOV.W   #`?<Constant "          ">`, R13
+   \   000028   3C40....     MOV.W   #display_line, R12
+   \   00002C   ........     CALLA   #strcpy
+     69            strcpy(display_line[SECOND_LINE], "          ");
+   \   000030   3D40....     MOV.W   #`?<Constant "          ">`, R13
+   \   000034   3C40....     MOV.W   #display_line + 11, R12
+   \   000038   ........     CALLA   #strcpy
+     70            strcpy(display_line[THIRD_LINE], "          ");
+   \   00003C   3D40....     MOV.W   #`?<Constant "          ">`, R13
+   \   000040   3C40....     MOV.W   #display_line + 22, R12
+   \   000044   ........     CALLA   #strcpy
+     71            strcpy(display_line[FOURTH_LINE], "          ");
+   \   000048   3D40....     MOV.W   #`?<Constant "          ">`, R13
+   \   00004C   3C40....     MOV.W   #display_line + 33, R12
+   \   000050   ........     CALLA   #strcpy
+     72            
+     73            Display_Update(FOURTH_LINE,SECOND_LINE,FIRST_LINE,FIRST_LINE);
+   \   000054   4F43         MOV.B   #0x0, R15
+   \   000056   4E43         MOV.B   #0x0, R14
+   \   000058   5D43         MOV.B   #0x1, R13
+   \   00005A   7C400300     MOV.B   #0x3, R12
+   \   00005E   ........     CALLA   #Display_Update
+     74            P5OUT |= IOT_RESET;
+   \   000062   D2D34202     BIS.B   #0x1, &0x242
+     75          //------------------------------------------------------------------------------
+     76          // Begining of the "While" Operating System
+     77          //------------------------------------------------------------------------------
+     78            while(ALWAYS) {                      // Can the Operating system run
+     79              network();
+   \                     ??main_0:
+   \   000066   ........     CALLA   #network
+     80              utilities();
+   \   00006A   ........     CALLA   #utilities
+   \   00006E   FB3F         JMP     ??main_0
+   \   000070   0343         NOP
+   \   000072                REQUIRE _A_PM5CTL0_L
+   \   000072                REQUIRE _A_PCOUT_L
+     81              
+     82            }
+     83               
+     84          //------------------------------------------------------------------------------
+     85          }
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "          ">`:
+   \   000000   202020202020 DC8 "          "
+   \            2020202000  
+     86          
+     87          
+     88          
+     89          
+     90          
+     91          
+     92          
+     93          
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      4   main
+        4   -> Begin_ADC
+        4   -> Display_Update
+        4   -> Init_ADC
+        4   -> Init_Clocks
+        4   -> Init_Conditions
+        4   -> Init_LCD
+        4   -> Init_Ports
+        4   -> Init_Serial
+        4   -> Init_Timers
+        4   -> network
+        4   -> strcpy
+        4   -> utilities
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      11  ?<Constant "          ">
+       2  Last_Time_Sequence
+       2  _A_PCOUT_L
+       2  _A_PM5CTL0_L
+       1  change
+       1  chosen_direction
+       2  cycle_time
+       1  display_mode
+     114  main
+       1  slow_input_down
+       2  test_value
+       2  time_change
+       2  time_change2
+
+ 
+ 114 bytes in segment CODE
+   4 bytes in segment DATA16_AN
+  11 bytes in segment DATA16_C
+  14 bytes in segment DATA16_Z
+ 
+ 114 bytes of CODE  memory
+  11 bytes of CONST memory
+  14 bytes of DATA  memory (+ 4 bytes shared)
+
+Errors: none
+Warnings: none

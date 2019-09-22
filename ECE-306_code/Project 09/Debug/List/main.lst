@@ -1,0 +1,442 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           10/Apr/2019  23:59:36
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework 09 -
+#        copy\main.c
+#    Command line  =  
+#        -f C:\Users\Michael\AppData\Local\Temp\EWF22.tmp
+#        ("C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework 09 -
+#        copy\main.c" -lC "C:\Users\Michael\Documents\2019\ECE
+#        306\ECE-306_code\Homework 09 - copy\Debug\List" -o
+#        "C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework 09 -
+#        copy\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework 09 -
+#        copy\Debug\List\main.lst
+#    Object file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework 09 -
+#        copy\Debug\Obj\main.r43
+#
+###############################################################################
+
+C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework 09 - copy\main.c
+      1          //------------------------------------------------------------------------------
+      2          //
+      3          //  Description: This file contains the Main Routine - "While" Operating System
+      4          //
+      5          //
+      6          //  Jim Carlson
+      7          //  Jan 2018
+      8          //  Built with IAR Embedded Workbench Version: V4.10A/W32 (7.11.2)
+      9          //------------------------------------------------------------------------------
+     10          
+     11          #include  "functions.h"
+     12          #include  "msp430.h"
+
+   \                                 In  segment DATA16_AN, at 0x242
+   \   union <unnamed> _A_PCOUT_L
+   \                     _A_PCOUT_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x130
+   \   union <unnamed> _A_PM5CTL0_L
+   \                     _A_PM5CTL0_L:
+   \   000000                DS8 2
+     13          #include <string.h>
+     14          #include "macros.h"
+     15          
+     16            // Global Variables
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     17          volatile char slow_input_down;
+   \                     slow_input_down:
+   \   000000                DS8 1
+     18          extern char display_line[FOURTH][COUNT_ELEVEN];
+     19          extern char *display[FOURTH];
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     20          unsigned char display_mode;
+   \                     display_mode:
+   \   000000                DS8 1
+     21          extern volatile unsigned char display_changed;
+     22          extern volatile unsigned char update_display;
+     23          extern volatile unsigned int update_display_count;
+     24          extern volatile unsigned int Time_Sequence;
+     25          extern volatile char one_time;
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     26          unsigned int test_value;
+   \                     test_value:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     27          char chosen_direction;
+   \                     chosen_direction:
+   \   000000                DS8 1
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     28          char change;
+   \                     change:
+   \   000000                DS8 1
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     29          unsigned int Last_Time_Sequence;
+   \                     Last_Time_Sequence:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     30          unsigned int cycle_time;
+   \                     cycle_time:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     31          unsigned int time_change;
+   \                     time_change:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     32          unsigned int time_change2;
+   \                     time_change2:
+   \   000000                DS8 2
+     33          
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     34          unsigned int switchONE;
+   \                     switchONE:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     35          unsigned int switchTWO;
+   \                     switchTWO:
+   \   000000                DS8 2
+     36          
+     37          
+     38          extern unsigned int menu;
+     39          extern unsigned int menu_select;
+     40          
+     41          extern char Text[COUNT_ELEVEN];
+     42          
+     43          extern unsigned int send;
+     44          extern unsigned int transmit;
+     45          extern unsigned int lineFinished;
+     46          
+     47          extern volatile char USB_Char_Rx[SMALL_RING_SIZE];
+     48          extern volatile unsigned int usb_rx_ring_wr;
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     49          char command;
+   \                     command:
+   \   000000                DS8 1
+     50          extern unsigned int freq;
+     51          extern unsigned int updateIP;
+     52          
+     53          
+     54          
+     55          
+     56          
+     57          
+     58          
+     59          
+     60          
+     61          
+     62          
+     63          
+     64          
+     65          
+
+   \                                 In  segment CODE, align 2
+     66          void main(void){
+   \                     main:
+     67          //------------------------------------------------------------------------------
+     68          // Main Program
+     69          // This is the main routine for the program. Execution of code starts here.
+     70          // The operating system is Back Ground Fore Ground.
+     71          //
+     72          //------------------------------------------------------------------------------
+     73          // Disable the GPIO power-on default high-impedance mode to activate
+     74          // previously configured port settings
+     75            
+     76            PM5CTL0 &= ~LOCKLPM5;
+   \   000000   92C33001     BIC.W   #0x1, &0x130
+     77            
+     78            Init_Ports();                        // Initialize Ports
+   \   000004   ........     CALLA   #Init_Ports
+     79            Init_Clocks();                       // Initialize Clock System
+   \   000008   ........     CALLA   #Init_Clocks
+     80            Init_Conditions();                   // Initialize Variables and Initial Conditions 
+   \   00000C   ........     CALLA   #Init_Conditions
+     81            Init_Timers();                       // Initialize Timers
+   \   000010   ........     CALLA   #Init_Timers
+     82            Init_LCD();                          // Initialize LCD
+   \   000014   ........     CALLA   #Init_LCD
+     83            Init_ADC();                          // Initialize ADC
+   \   000018   ........     CALLA   #Init_ADC
+     84            Init_Serial();                       // Initialize Serial
+   \   00001C   ........     CALLA   #Init_Serial
+     85            
+     86            
+     87          
+     88          // Place the contents of what you want on the display, in between the quotes
+     89          // Limited to 10 characters per line
+     90          //
+     91          
+     92            strcpy(display_line[FIRST_LINE], "          ");
+   \   000020   3D40....     MOV.W   #`?<Constant "          ">`, R13
+   \   000024   3C40....     MOV.W   #display_line, R12
+   \   000028   ........     CALLA   #strcpy
+     93            strcpy(display_line[SECOND_LINE], "          ");
+   \   00002C   3D40....     MOV.W   #`?<Constant "          ">`, R13
+   \   000030   3C40....     MOV.W   #display_line + 11, R12
+   \   000034   ........     CALLA   #strcpy
+     94            strcpy(display_line[THIRD_LINE], "          ");
+   \   000038   3D40....     MOV.W   #`?<Constant "          ">`, R13
+   \   00003C   3C40....     MOV.W   #display_line + 22, R12
+   \   000040   ........     CALLA   #strcpy
+     95            strcpy(display_line[FOURTH_LINE], "          ");
+   \   000044   3D40....     MOV.W   #`?<Constant "          ">`, R13
+   \   000048   3C40....     MOV.W   #display_line + 33, R12
+   \   00004C   ........     CALLA   #strcpy
+     96            display_changed = HIGH;
+   \   000050   D243....     MOV.B   #0x1, &display_changed
+     97            
+     98            Display_Update(FOURTH_LINE,SECOND_LINE,FIRST_LINE,FIRST_LINE);
+   \   000054   4F43         MOV.B   #0x0, R15
+   \   000056   4E43         MOV.B   #0x0, R14
+   \   000058   5D43         MOV.B   #0x1, R13
+   \   00005A   7C400300     MOV.B   #0x3, R12
+   \   00005E   ........     CALLA   #Display_Update
+     99            P5OUT |= IOT_RESET;
+   \   000062   D2D34202     BIS.B   #0x1, &0x242
+    100          //------------------------------------------------------------------------------
+    101          // Begining of the "While" Operating System
+    102          //------------------------------------------------------------------------------
+    103            while(ALWAYS) {                      // Can the Operating system run
+    104              
+    105              //IOT_Reset();
+    106              updateNetwork();
+   \                     ??main_0:
+   \   000066   ........     CALLA   #updateNetwork
+    107              ping();
+   \   00006A   ........     CALLA   #ping
+    108              drive();
+   \   00006E   ........     CALLA   #drive
+    109              
+    110           
+    111          
+    112                
+    113              //Store_Text_A1();
+    114              if(transmit && send){
+   \   000072   8293....     CMP.W   #0x0, &transmit
+   \   000076   4924         JEQ     ??main_3
+   \   000078   8293....     CMP.W   #0x0, &send
+   \   00007C   4624         JEQ     ??main_3
+    115          
+    116                send = LOW;
+   \   00007E   8243....     MOV.W   #0x0, &send
+    117                Store_Text_A1();
+   \   000082   ........     CALLA   #Store_Text_A1
+    118          
+    119          
+    120                if(lineFinished){
+   \   000086   8293....     CMP.W   #0x0, &lineFinished
+   \   00008A   0724         JEQ     ??main_4
+    121                  lineFinished = LOW;
+   \   00008C   8243....     MOV.W   #0x0, &lineFinished
+    122                  command = USB_Char_Rx[usb_rx_ring_wr-SECOND];
+   \   000090   1F42....     MOV.W   &usb_rx_ring_wr, R15
+   \   000094   D24F........ MOV.B   LWRD(USB_Char_Rx + 65534)(R15), &command
+    123                }
+    124                  switch(command){
+   \                     ??main_4:
+   \   00009A   5E42....     MOV.B   &command, R14
+   \   00009E   7E804600     SUB.B   #0x46, R14
+   \   0000A2   1224         JEQ     ??main_5
+   \   0000A4   7E800300     SUB.B   #0x3, R14
+   \   0000A8   2924         JEQ     ??main_6
+   \   0000AA   7E800A00     SUB.B   #0xa, R14
+   \   0000AE   1724         JEQ     ??main_7
+   \   0000B0   5E83         SUB.B   #0x1, R14
+   \   0000B2   2024         JEQ     ??main_8
+   \   0000B4   7E800A00     SUB.B   #0xa, R14
+   \   0000B8   2620         JNE     ??main_1
+    125                  case '^':
+    126                    strcpy(Text, "I'm Here");
+   \   0000BA   3D40....     MOV.W   #`?<Constant "I\\'m Here">`, R13
+   \   0000BE   3C40....     MOV.W   #Text, R12
+   \   0000C2   ........     CALLA   #strcpy
+    127                    break;
+   \   0000C6   1F3C         JMP     ??main_1
+    128                  case 'F':
+    129                    freq = K115;
+   \                     ??main_5:
+   \   0000C8   8243....     MOV.W   #0x0, &freq
+    130                    Configure_Serial();
+   \   0000CC   ........     CALLA   #Configure_Serial
+    131                    strcpy(Text, "115,200");
+   \   0000D0   3D40....     MOV.W   #`?<Constant "115,200">`, R13
+   \   0000D4   3C40....     MOV.W   #Text, R12
+   \   0000D8   ........     CALLA   #strcpy
+    132                    break;
+   \   0000DC   143C         JMP     ??main_1
+    133                  case 'S':
+    134                    freq = K96;
+   \                     ??main_7:
+   \   0000DE   A243....     MOV.W   #0x2, &freq
+    135                    Configure_Serial();
+   \   0000E2   ........     CALLA   #Configure_Serial
+    136                    strcpy(Text, "9,600");
+   \   0000E6   3D40....     MOV.W   #`?<Constant "9,600">`, R13
+   \   0000EA   3C40....     MOV.W   #Text, R12
+   \   0000EE   ........     CALLA   #strcpy
+    137                    break;
+   \   0000F2   093C         JMP     ??main_1
+    138                  case 'T':
+    139                    transmit ^= transmit;
+   \                     ??main_8:
+   \   0000F4   92E2........ XOR.W   &transmit, &transmit
+    140                    break;
+   \   0000FA   053C         JMP     ??main_1
+    141                  case 'I':
+    142                    updateIP = HIGH;
+   \                     ??main_6:
+   \   0000FC   9243....     MOV.W   #0x1, &updateIP
+    143                    command = 'T';
+   \   000100   F2405400.... MOV.B   #0x54, &command
+    144                  default: break;
+    145                }
+    146              Transmit_Text_A1();
+   \                     ??main_1:
+   \   000106   ........     CALLA   #Transmit_Text_A1
+    147               }
+    148              
+    149              //IOT_Process();
+    150              //Switch_Process();
+    151              //Menu_Process();
+    152              display_changed = HIGH;
+   \                     ??main_3:
+   \   00010A   D243....     MOV.B   #0x1, &display_changed
+    153              Display_Process();
+   \   00010E   ........     CALLA   #Display_Process
+   \   000112   A93F         JMP     ??main_0
+   \   000114   0343         NOP
+   \   000116                REQUIRE _A_PM5CTL0_L
+   \   000116                REQUIRE _A_PCOUT_L
+    154            }
+    155          //------------------------------------------------------------------------------
+    156          }
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "          ">`:
+   \   000000   202020202020 DC8 "          "
+   \            2020202000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "I\\'m Here">`:
+   \   000000   49276D204865 DC8 "I'm Here"
+   \            726500      
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "115,200">`:
+   \   000000   3131352C3230 DC8 "115,200"
+   \            3000        
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "9,600">`:
+   \   000000   392C36303000 DC8 "9,600"
+    157          
+    158          
+    159          
+    160          
+    161          
+    162          
+    163          
+    164          
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      4   main
+        4   -> Configure_Serial
+        4   -> Display_Process
+        4   -> Display_Update
+        4   -> Init_ADC
+        4   -> Init_Clocks
+        4   -> Init_Conditions
+        4   -> Init_LCD
+        4   -> Init_Ports
+        4   -> Init_Serial
+        4   -> Init_Timers
+        4   -> Store_Text_A1
+        4   -> Transmit_Text_A1
+        4   -> drive
+        4   -> ping
+        4   -> strcpy
+        4   -> updateNetwork
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      11  ?<Constant "          ">
+       8  ?<Constant "115,200">
+       6  ?<Constant "9,600">
+       9  ?<Constant "I\'m Here">
+       2  Last_Time_Sequence
+       2  _A_PCOUT_L
+       2  _A_PM5CTL0_L
+       1  change
+       1  chosen_direction
+       1  command
+       2  cycle_time
+       1  display_mode
+     278  main
+       1  slow_input_down
+       2  switchONE
+       2  switchTWO
+       2  test_value
+       2  time_change
+       2  time_change2
+
+ 
+ 278 bytes in segment CODE
+   4 bytes in segment DATA16_AN
+  34 bytes in segment DATA16_C
+  19 bytes in segment DATA16_Z
+ 
+ 278 bytes of CODE  memory
+  34 bytes of CONST memory
+  19 bytes of DATA  memory (+ 4 bytes shared)
+
+Errors: none
+Warnings: none

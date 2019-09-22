@@ -1,0 +1,255 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           19/Mar/2019  22:42:21
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project 07\Line
+#        Detect.c
+#    Command line  =  
+#        -f C:\Users\Michael\AppData\Local\Temp\EWC956.tmp
+#        ("C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project 07\Line
+#        Detect.c" -lC "C:\Users\Michael\Documents\2019\ECE
+#        306\ECE-306_code\Project 07\Debug\List" -o
+#        "C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        07\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        07\Debug\List\Line Detect.lst
+#    Object file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        07\Debug\Obj\Line Detect.r43
+#
+###############################################################################
+
+C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project 07\Line Detect.c
+      1          //------------------------------------------------------------------------------
+      2          //
+      3          //  Description: This file contains the functions to initiate the ADC Registers 
+      4          //  to set pins 2, 3, and 5 to measure the V_Detect_L, V_Detece_R, and V_Thumb 
+      5          //  respectively.
+      6          //  
+      7          //
+      8          //  Michael Barilla
+      9          //  Mar 2019
+     10          //  Built with IAR Embedded Workbench Version: V4.10A/W32 (7.11.2)
+     11          //------------------------------------------------------------------------------
+     12          #include  "functions.h"
+     13          #include  "msp430.h"
+     14          #include "macros.h"
+     15          #include <string.h>
+     16          
+     17          extern volatile unsigned char display_changed;
+     18          extern char display_line[FOURTH][COUNT_ELEVEN];
+     19          extern unsigned int V_Detect_R;
+     20          extern unsigned int V_Detect_L;
+     21          extern char bcd_char [CHAR_LENGTH];
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     22          char display_number[SECOND][FOURTH];
+   \                     display_number:
+   \   000000                DS8 8
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     23          char LeftVal[COUNT_ELEVEN];
+   \                     LeftVal:
+   \   000000                DS8 11
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     24          char RightVal[COUNT_ELEVEN];
+   \                     RightVal:
+   \   000000                DS8 11
+     25          
+
+   \                                 In  segment CODE, align 2
+     26          void Line_Detect(void){
+   \                     Line_Detect:
+     27            //char display_number[SECOND][FOURTH];
+     28            HEXtoBCD(V_Detect_L);
+   \   000000   1C42....     MOV.W   &V_Detect_L, R12
+   \   000004   ........     CALLA   #HEXtoBCD
+     29            strcpy(LeftVal,"LFT:       ");
+   \   000008   3D40....     MOV.W   #`?<Constant "LFT:       ">`, R13
+   \   00000C   3C40....     MOV.W   #LeftVal, R12
+   \   000010   ........     CALLA   #strcpy
+     30            LeftVal[CHAR6] = bcd_char[CHAR0];
+   \   000014   D242........ MOV.B   &bcd_char, &LeftVal + 6
+     31            LeftVal[CHAR7] = bcd_char[CHAR1];
+   \   00001A   D242........ MOV.B   &bcd_char + 1, &LeftVal + 7
+     32            LeftVal[CHAR8] = bcd_char[CHAR2];
+   \   000020   D242........ MOV.B   &bcd_char + 2, &LeftVal + 8
+     33            LeftVal[CHAR9] = bcd_char[CHAR3];
+   \   000026   D242........ MOV.B   &bcd_char + 3, &LeftVal + 9
+     34            strcpy(display_line[THIRD_LINE],LeftVal);
+   \   00002C   3D40....     MOV.W   #LeftVal, R13
+   \   000030   3C40....     MOV.W   #display_line + 22, R12
+   \   000034   ........     CALLA   #strcpy
+     35            
+     36            HEXtoBCD(V_Detect_R);
+   \   000038   1C42....     MOV.W   &V_Detect_R, R12
+   \   00003C   ........     CALLA   #HEXtoBCD
+     37            strcpy(RightVal,"RHT:       ");
+   \   000040   3D40....     MOV.W   #`?<Constant "RHT:       ">`, R13
+   \   000044   3C40....     MOV.W   #RightVal, R12
+   \   000048   ........     CALLA   #strcpy
+     38            RightVal[CHAR6] = bcd_char[CHAR0];
+   \   00004C   D242........ MOV.B   &bcd_char, &RightVal + 6
+     39            RightVal[CHAR7] = bcd_char[CHAR1];
+   \   000052   D242........ MOV.B   &bcd_char + 1, &RightVal + 7
+     40            RightVal[CHAR8] = bcd_char[CHAR2];
+   \   000058   D242........ MOV.B   &bcd_char + 2, &RightVal + 8
+     41            RightVal[CHAR9] = bcd_char[CHAR3];
+   \   00005E   D242........ MOV.B   &bcd_char + 3, &RightVal + 9
+     42            strcpy(display_line[FOURTH_LINE],RightVal);
+   \   000064   3D40....     MOV.W   #RightVal, R13
+   \   000068   3C40....     MOV.W   #display_line + 33, R12
+   \   00006C   ........     CALLA   #strcpy
+     43            
+     44          
+     45            if(V_Detect_R > THOUSANDS && V_Detect_L > THOUSANDS)
+   \   000070   B290E903.... CMP.W   #0x3e9, &V_Detect_R
+   \   000076   0B28         JNC     ??Line_Detect_1
+   \   000078   B290E903.... CMP.W   #0x3e9, &V_Detect_L
+   \   00007E   0728         JNC     ??Line_Detect_1
+     46              strcpy(display_line[SECOND_LINE]," ON BLACK ");
+   \   000080   3D40....     MOV.W   #`?<Constant " ON BLACK ">`, R13
+   \   000084   3C40....     MOV.W   #display_line + 11, R12
+   \   000088   ........     CALLA   #strcpy
+   \   00008C   333C         JMP     ??Line_Detect_0
+     47            else if((V_Detect_R < THOUSANDS) && (V_Detect_L < THOUSANDS))
+   \                     ??Line_Detect_1:
+   \   00008E   B290E803.... CMP.W   #0x3e8, &V_Detect_R
+   \   000094   0B2C         JC      ??Line_Detect_2
+   \   000096   B290E803.... CMP.W   #0x3e8, &V_Detect_L
+   \   00009C   072C         JC      ??Line_Detect_2
+     48              strcpy(display_line[SECOND_LINE],"OFF BLACK ");
+   \   00009E   3D40....     MOV.W   #`?<Constant "OFF BLACK ">`, R13
+   \   0000A2   3C40....     MOV.W   #display_line + 11, R12
+   \   0000A6   ........     CALLA   #strcpy
+   \   0000AA   243C         JMP     ??Line_Detect_0
+     49            else if((V_Detect_R > THOUSANDS) && (V_Detect_L < THOUSANDS))
+   \                     ??Line_Detect_2:
+   \   0000AC   B290E903.... CMP.W   #0x3e9, &V_Detect_R
+   \   0000B2   0B28         JNC     ??Line_Detect_3
+   \   0000B4   B290E803.... CMP.W   #0x3e8, &V_Detect_L
+   \   0000BA   072C         JC      ??Line_Detect_3
+     50              strcpy(display_line[SECOND_LINE],"OFF 2 RHT ");
+   \   0000BC   3D40....     MOV.W   #`?<Constant "OFF 2 RHT ">`, R13
+   \   0000C0   3C40....     MOV.W   #display_line + 11, R12
+   \   0000C4   ........     CALLA   #strcpy
+   \   0000C8   153C         JMP     ??Line_Detect_0
+     51            else if((V_Detect_R < THOUSANDS) && (V_Detect_L > THOUSANDS))
+   \                     ??Line_Detect_3:
+   \   0000CA   B290E803.... CMP.W   #0x3e8, &V_Detect_R
+   \   0000D0   0B2C         JC      ??Line_Detect_4
+   \   0000D2   B290E903.... CMP.W   #0x3e9, &V_Detect_L
+   \   0000D8   0728         JNC     ??Line_Detect_4
+     52              strcpy(display_line[SECOND_LINE],"OFF 2 LFT ");
+   \   0000DA   3D40....     MOV.W   #`?<Constant "OFF 2 LFT ">`, R13
+   \   0000DE   3C40....     MOV.W   #display_line + 11, R12
+   \   0000E2   ........     CALLA   #strcpy
+   \   0000E6   063C         JMP     ??Line_Detect_0
+     53            else
+     54              strcpy(display_line[SECOND_LINE],"  ERROR  ");
+   \                     ??Line_Detect_4:
+   \   0000E8   3D40....     MOV.W   #`?<Constant "  ERROR  ">`, R13
+   \   0000EC   3C40....     MOV.W   #display_line + 11, R12
+   \   0000F0   ........     CALLA   #strcpy
+     55            
+     56            
+     57            display_changed = HIGH;
+   \                     ??Line_Detect_0:
+   \   0000F4   D243....     MOV.B   #0x1, &display_changed
+     58            
+     59          }
+   \   0000F8   1001         RETA
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "LFT:       ">`:
+   \   000000   4C46543A2020 DC8 "LFT:       "
+   \            202020202000
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "RHT:       ">`:
+   \   000000   5248543A2020 DC8 "RHT:       "
+   \            202020202000
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant " ON BLACK ">`:
+   \   000000   204F4E20424C DC8 " ON BLACK "
+   \            41434B2000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "OFF BLACK ">`:
+   \   000000   4F464620424C DC8 "OFF BLACK "
+   \            41434B2000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "OFF 2 RHT ">`:
+   \   000000   4F4646203220 DC8 "OFF 2 RHT "
+   \            5248542000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "OFF 2 LFT ">`:
+   \   000000   4F4646203220 DC8 "OFF 2 LFT "
+   \            4C46542000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "  ERROR  ">`:
+   \   000000   20204552524F DC8 "  ERROR  "
+   \            52202000    
+     60            
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      4   Line_Detect
+        4   -> HEXtoBCD
+        4   -> strcpy
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      10  ?<Constant "  ERROR  ">
+      11  ?<Constant " ON BLACK ">
+      12  ?<Constant "LFT:       ">
+      11  ?<Constant "OFF 2 LFT ">
+      11  ?<Constant "OFF 2 RHT ">
+      11  ?<Constant "OFF BLACK ">
+      12  ?<Constant "RHT:       ">
+      11  LeftVal
+     250  Line_Detect
+      11  RightVal
+       8  display_number
+
+ 
+ 250 bytes in segment CODE
+  78 bytes in segment DATA16_C
+  30 bytes in segment DATA16_Z
+ 
+ 250 bytes of CODE  memory
+  78 bytes of CONST memory
+  30 bytes of DATA  memory
+
+Errors: none
+Warnings: none

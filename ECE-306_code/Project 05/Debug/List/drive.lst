@@ -1,0 +1,345 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           25/Feb/2019  14:50:29
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        05\drive.c
+#    Command line  =  
+#        -f C:\Users\Michael\AppData\Local\Temp\EW6753.tmp
+#        ("C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        05\drive.c" -lC "C:\Users\Michael\Documents\2019\ECE
+#        306\ECE-306_code\Project 05\Debug\List" -o
+#        "C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        05\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        05\Debug\List\drive.lst
+#    Object file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        05\Debug\Obj\drive.r43
+#
+###############################################################################
+
+C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project 05\drive.c
+      1          //------------------------------------------------------------------------------
+      2          //
+      3          //  Michael Barilla
+      4          //  Feb 2019
+      5          //  Built with IAR Embedded Workbench Version: V4.10A/W32 (7.11.2)
+      6          //
+      7          //   Description: This file contains the functions used to drive the car forward
+      8          //      (1 sec), backward (2 sec), forward (1 sec), Clockwise (3 sec), Counter
+      9          //      Clockwise (3 secs) with various pauses between
+     10          //
+     11          //------------------------------------------------------------------------------
+     12          
+     13          #include  "msp430.h"
+     14          #include  "macros.h"
+     15          #include  "functions.h"
+     16          #include  <string.h>
+     17          
+     18          extern volatile unsigned int newSecond;
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     19          unsigned int driveState = NOSTATE;
+   \                     driveState:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     20          unsigned int count;
+   \                     count:
+   \   000000                DS8 2
+     21          extern unsigned int runCar;
+     22          extern volatile unsigned char display_changed;
+     23          extern char display_line[FOURTH][COUNT_ELEVEN];
+     24          
+     25          
+
+   \                                 In  segment CODE, align 2
+     26          void drive(void){
+   \                     drive:
+     27            if(newSecond){
+   \   000000   8293....     CMP.W   #0x0, &newSecond
+   \   000004   B524         JEQ     ??drive_1
+     28              newSecond = LOW;
+   \   000006   8243....     MOV.W   #0x0, &newSecond
+     29              switch(driveState){
+   \   00000A   1F42....     MOV.W   &driveState, R15
+   \   00000E   0F83         SUB.W   #0x0, R15
+   \   000010   1524         JEQ     ??drive_6
+   \   000012   1F83         SUB.W   #0x1, R15
+   \   000014   1624         JEQ     ??drive_7
+   \   000016   1F83         SUB.W   #0x1, R15
+   \   000018   1924         JEQ     ??drive_8
+   \   00001A   1F83         SUB.W   #0x1, R15
+   \   00001C   2524         JEQ     ??drive_9
+   \   00001E   1F83         SUB.W   #0x1, R15
+   \   000020   2824         JEQ     ??drive_10
+   \   000022   1F83         SUB.W   #0x1, R15
+   \   000024   3E24         JEQ     ??drive_11
+   \   000026   1F83         SUB.W   #0x1, R15
+   \   000028   4224         JEQ     ??drive_12
+   \   00002A   1F83         SUB.W   #0x1, R15
+   \   00002C   4E24         JEQ     ??drive_13
+   \   00002E   1F83         SUB.W   #0x1, R15
+   \   000030   5124         JEQ     ??drive_14
+   \   000032   1F83         SUB.W   #0x1, R15
+   \   000034   6824         JEQ     ??drive_15
+   \   000036   1F83         SUB.W   #0x1, R15
+   \   000038   7624         JEQ     ??drive_16
+   \   00003A   8E3C         JMP     ??drive_5
+     30              case NOSTATE:
+     31                driveState = WAIT1;
+   \                     ??drive_6:
+   \   00003C   9243....     MOV.W   #0x1, &driveState
+     32                break;
+   \   000040   1001         RETA
+     33              case WAIT1:
+     34                All_Wheel_Off();
+   \                     ??drive_7:
+   \   000042   ........     CALLA   #All_Wheel_Off
+     35                driveState = FORWARD1;
+   \   000046   A243....     MOV.W   #0x2, &driveState
+     36                break;
+   \   00004A   1001         RETA
+     37              case FORWARD1:
+     38                strcpy(display_line[THIRD_LINE], " FORWARD  ");
+   \                     ??drive_8:
+   \   00004C   3D40....     MOV.W   #`?<Constant " FORWARD  ">`, R13
+   \   000050   3C40....     MOV.W   #display_line + 22, R12
+   \   000054   ........     CALLA   #strcpy
+     39                display_changed = HIGH;
+   \   000058   D243....     MOV.B   #0x1, &display_changed
+     40                Forward();
+   \   00005C   ........     CALLA   #Forward
+     41                driveState = WAIT2;
+   \   000060   B2400300.... MOV.W   #0x3, &driveState
+     42                break;
+   \   000066   1001         RETA
+     43              case WAIT2:
+     44                All_Wheel_Off();
+   \                     ??drive_9:
+   \   000068   ........     CALLA   #All_Wheel_Off
+     45                driveState = BACKWARD;
+   \   00006C   A242....     MOV.W   #0x4, &driveState
+     46                break;
+   \   000070   1001         RETA
+     47              case BACKWARD:
+     48                strcpy(display_line[THIRD_LINE], " REVERSE  ");
+   \                     ??drive_10:
+   \   000072   3D40....     MOV.W   #`?<Constant " REVERSE  ">`, R13
+   \   000076   3C40....     MOV.W   #display_line + 22, R12
+   \   00007A   ........     CALLA   #strcpy
+     49                display_changed = HIGH;
+   \   00007E   D243....     MOV.B   #0x1, &display_changed
+     50                Reverse();
+   \   000082   ........     CALLA   #Reverse
+     51                if(count++ >= 2){
+   \   000086   1F42....     MOV.W   &count, R15
+   \   00008A   0E4F         MOV.W   R15, R14
+   \   00008C   1E53         ADD.W   #0x1, R14
+   \   00008E   824E....     MOV.W   R14, &count
+   \   000092   2F93         CMP.W   #0x2, R15
+   \   000094   6D28         JNC     ??drive_1
+     52                  count = RESET_STATE;
+   \   000096   8243....     MOV.W   #0x0, &count
+     53                  driveState = WAIT3;
+   \   00009A   B2400500.... MOV.W   #0x5, &driveState
+     54                }
+     55                break;
+   \   0000A0   1001         RETA
+     56              case WAIT3:
+     57                All_Wheel_Off();
+   \                     ??drive_11:
+   \   0000A2   ........     CALLA   #All_Wheel_Off
+     58                driveState = FORWARD2;
+   \   0000A6   B2400600.... MOV.W   #0x6, &driveState
+     59                break;
+   \   0000AC   1001         RETA
+     60              case FORWARD2:
+     61                strcpy(display_line[THIRD_LINE], " FORWARD  ");
+   \                     ??drive_12:
+   \   0000AE   3D40....     MOV.W   #`?<Constant " FORWARD  ">`, R13
+   \   0000B2   3C40....     MOV.W   #display_line + 22, R12
+   \   0000B6   ........     CALLA   #strcpy
+     62                display_changed = HIGH;
+   \   0000BA   D243....     MOV.B   #0x1, &display_changed
+     63                Forward();
+   \   0000BE   ........     CALLA   #Forward
+     64                driveState = WAIT4;
+   \   0000C2   B2400700.... MOV.W   #0x7, &driveState
+     65                break;
+   \   0000C8   1001         RETA
+     66              case WAIT4:
+     67                All_Wheel_Off();
+   \                     ??drive_13:
+   \   0000CA   ........     CALLA   #All_Wheel_Off
+     68                driveState = CW;
+   \   0000CE   B242....     MOV.W   #0x8, &driveState
+     69                break;
+   \   0000D2   1001         RETA
+     70              case CW:
+     71                strcpy(display_line[THIRD_LINE], " CW TURN  ");
+   \                     ??drive_14:
+   \   0000D4   3D40....     MOV.W   #`?<Constant " CW TURN  ">`, R13
+   \   0000D8   3C40....     MOV.W   #display_line + 22, R12
+   \   0000DC   ........     CALLA   #strcpy
+     72                display_changed = HIGH;
+   \   0000E0   D243....     MOV.B   #0x1, &display_changed
+     73                CW_Turn();
+   \   0000E4   ........     CALLA   #CW_Turn
+     74                if(count++ >= 3){
+   \   0000E8   1F42....     MOV.W   &count, R15
+   \   0000EC   0E4F         MOV.W   R15, R14
+   \   0000EE   1E53         ADD.W   #0x1, R14
+   \   0000F0   824E....     MOV.W   R14, &count
+   \   0000F4   3F900300     CMP.W   #0x3, R15
+   \   0000F8   3B28         JNC     ??drive_1
+     75                  count = RESET_STATE;
+   \   0000FA   8243....     MOV.W   #0x0, &count
+     76                  driveState = WAIT5;
+   \   0000FE   B2400900.... MOV.W   #0x9, &driveState
+     77                }
+     78                break;
+   \   000104   1001         RETA
+     79              case WAIT5:
+     80                All_Wheel_Off();
+   \                     ??drive_15:
+   \   000106   ........     CALLA   #All_Wheel_Off
+     81                if(count++ >=2){
+   \   00010A   1F42....     MOV.W   &count, R15
+   \   00010E   0E4F         MOV.W   R15, R14
+   \   000110   1E53         ADD.W   #0x1, R14
+   \   000112   824E....     MOV.W   R14, &count
+   \   000116   2F93         CMP.W   #0x2, R15
+   \   000118   2B28         JNC     ??drive_1
+     82                  count = RESET_STATE;
+   \   00011A   8243....     MOV.W   #0x0, &count
+     83                  driveState = CCW;
+   \   00011E   B2400A00.... MOV.W   #0xa, &driveState
+     84                }
+     85                break;
+   \   000124   1001         RETA
+     86              case CCW:
+     87                strcpy(display_line[THIRD_LINE], " CCW TURN  ");
+   \                     ??drive_16:
+   \   000126   3D40....     MOV.W   #`?<Constant " CCW TURN  ">`, R13
+   \   00012A   3C40....     MOV.W   #display_line + 22, R12
+   \   00012E   ........     CALLA   #strcpy
+     88                display_changed = HIGH;
+   \   000132   D243....     MOV.B   #0x1, &display_changed
+     89                CCW_Turn();
+   \   000136   ........     CALLA   #CCW_Turn
+     90                if(count++ >= 3){
+   \   00013A   1F42....     MOV.W   &count, R15
+   \   00013E   0E4F         MOV.W   R15, R14
+   \   000140   1E53         ADD.W   #0x1, R14
+   \   000142   824E....     MOV.W   R14, &count
+   \   000146   3F900300     CMP.W   #0x3, R15
+   \   00014A   1228         JNC     ??drive_1
+     91                  count = RESET_STATE;
+   \   00014C   8243....     MOV.W   #0x0, &count
+     92                  driveState = WAIT6;
+   \   000150   B2400B00.... MOV.W   #0xb, &driveState
+     93                }
+     94                break;
+   \   000156   1001         RETA
+     95              default:
+     96                All_Wheel_Off();
+   \                     ??drive_5:
+   \   000158   ........     CALLA   #All_Wheel_Off
+     97                driveState = NOSTATE;
+   \   00015C   8243....     MOV.W   #0x0, &driveState
+     98                runCar = LOW;
+   \   000160   8243....     MOV.W   #0x0, &runCar
+     99                strcpy(display_line[THIRD_LINE], "           ");
+   \   000164   3D40....     MOV.W   #`?<Constant "           ">`, R13
+   \   000168   3C40....     MOV.W   #display_line + 22, R12
+   \   00016C   ........     CALLA   #strcpy
+    100                break;
+    101              }
+    102            }      
+    103          }
+   \                     ??drive_1:
+   \   000170   1001         RETA
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant " FORWARD  ">`:
+   \   000000   20464F525741 DC8 " FORWARD  "
+   \            5244202000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant " REVERSE  ">`:
+   \   000000   205245564552 DC8 " REVERSE  "
+   \            5345202000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant " CW TURN  ">`:
+   \   000000   204357205455 DC8 " CW TURN  "
+   \            524E202000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant " CCW TURN  ">`:
+   \   000000   204343572054 DC8 " CCW TURN  "
+   \            55524E202000
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "           ">`:
+   \   000000   202020202020 DC8 "           "
+   \            202020202000
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      4   drive
+        4   -> All_Wheel_Off
+        4   -> CCW_Turn
+        4   -> CW_Turn
+        4   -> Forward
+        4   -> Reverse
+        4   -> strcpy
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      12  ?<Constant "           ">
+      12  ?<Constant " CCW TURN  ">
+      11  ?<Constant " CW TURN  ">
+      11  ?<Constant " FORWARD  ">
+      11  ?<Constant " REVERSE  ">
+       2  count
+     370  drive
+       2  driveState
+
+ 
+ 370 bytes in segment CODE
+  57 bytes in segment DATA16_C
+   4 bytes in segment DATA16_Z
+ 
+ 370 bytes of CODE  memory
+  57 bytes of CONST memory
+   4 bytes of DATA  memory
+
+Errors: none
+Warnings: none

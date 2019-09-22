@@ -1,0 +1,144 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           25/Feb/2019  12:59:34
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        05\interrupt_switch2.c
+#    Command line  =  
+#        -f C:\Users\Michael\AppData\Local\Temp\EWE4CE.tmp
+#        ("C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        05\interrupt_switch2.c" -lC "C:\Users\Michael\Documents\2019\ECE
+#        306\ECE-306_code\Project 05\Debug\List" -o
+#        "C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        05\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        05\Debug\List\interrupt_switch2.lst
+#    Object file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        05\Debug\Obj\interrupt_switch2.r43
+#
+###############################################################################
+
+C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project 05\interrupt_switch2.c
+      1          #include  "msp430.h"
+
+   \                                 In  segment DATA16_AN, at 0x21a
+   \   union <unnamed> _A_PAIE_L
+   \                     _A_PAIE_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x21c
+   \   union <unnamed> _A_PAIFG_L
+   \                     _A_PAIFG_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x384
+   \   union <unnamed> _A_TB0CCTL1_L
+   \                     _A_TB0CCTL1_L:
+   \   000000                DS8 2
+      2          #include  "macros.h"
+      3          
+      4          
+      5          extern unsigned volatile int debounce2;
+      6          extern unsigned volatile int debounce2_count;
+      7          extern unsigned int switchTWO;
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+      8          unsigned int oneTime2;
+   \                     oneTime2:
+   \   000000                DS8 2
+      9          
+     10          //------------------------------------------------------------------------------
+     11          //
+     12          //  Michael Barilla
+     13          //  Feb 2019
+     14          //  Built with IAR Embedded Workbench Version: V4.10A/W32 (7.11.2)
+     15          //
+     16          //   Description: This function initalizes the Interrupt Service Routines 
+     17          //      for SW2 
+     18          //
+     19          //------------------------------------------------------------------------------
+     20          
+     21          #pragma vector = PORT2_VECTOR
+
+   \                                 In  segment ISR_CODE, align 2
+     22          __interrupt void switch2_interrupt(void){
+   \                     switch2_interrupt:
+     23          
+     24            //Switch 2
+     25            if (P2IFG & SW2) {
+   \   000000   F2B21D02     BIT.B   #0x8, &0x21d
+   \   000004   0B28         JNC     ??switch2_interrupt_0
+     26              switchTWO = HIGH;                   //Set a varibale to identify the switch has been pressed.
+   \   000006   9243....     MOV.W   #0x1, &switchTWO
+     27              debounce2 = HIGH;                   //Set a variable to identify the switch si being debounced.
+   \   00000A   9243....     MOV.W   #0x1, &debounce2
+     28              //debounce1_count = RESET_STATE;      //Reset the count required of the debounce
+     29              P2IFG &= ~SW2;                    //Clear all Sw1 inerrupt flags
+   \   00000E   F2C21D02     BIC.B   #0x8, &0x21d
+     30              P2IE &= ~SW2;                     //Sw1 interrupt disabled
+   \   000012   F2C21B02     BIC.B   #0x8, &0x21b
+     31              TB0CCTL1 |= CCIE;                   //CCR1 enable interrupt
+   \   000016   B2D010008403 BIS.W   #0x10, &0x384
+     32              //P6OUT |= LCD_BACKLITE;           //LCD_BACKLITE off to indicate bootISR working
+     33            }
+     34            //use a Timer Value to control the debounce
+     35          }
+   \                     ??switch2_interrupt_0:
+   \   00001C   0013         RETI
+   \   00001E                REQUIRE _A_PAIFG_L
+   \   00001E                REQUIRE _A_PAIE_L
+   \   00001E                REQUIRE _A_TB0CCTL1_L
+
+   \                                 In  segment INTVEC, offset 0x30, root
+   \                     `??switch2_interrupt::??INTVEC 48`:
+   \   000030   ....         DC16    switch2_interrupt
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      4   switch2_interrupt
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       2  _A_PAIE_L
+       2  _A_PAIFG_L
+       2  _A_TB0CCTL1_L
+       2  oneTime2
+      30  switch2_interrupt
+       2  switch2_interrupt::??INTVEC 48
+
+ 
+  6 bytes in segment DATA16_AN
+  2 bytes in segment DATA16_Z
+  2 bytes in segment INTVEC
+ 30 bytes in segment ISR_CODE
+ 
+ 30 bytes of CODE  memory
+  0 bytes of CONST memory (+ 2 bytes shared)
+  2 bytes of DATA  memory (+ 6 bytes shared)
+
+Errors: none
+Warnings: none

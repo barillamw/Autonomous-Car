@@ -1,0 +1,712 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           07/Apr/2019  12:15:33
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project 08\main.c
+#    Command line  =  
+#        -f C:\Users\Michael\AppData\Local\Temp\EW68C3.tmp
+#        ("C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        08\main.c" -lC "C:\Users\Michael\Documents\2019\ECE
+#        306\ECE-306_code\Project 08\Debug\List" -o
+#        "C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        08\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        08\Debug\List\main.lst
+#    Object file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        08\Debug\Obj\main.r43
+#
+###############################################################################
+
+C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project 08\main.c
+      1          //------------------------------------------------------------------------------
+      2          //
+      3          //  Description: This file contains the Main Routine - "While" Operating System
+      4          //
+      5          //
+      6          //  Jim Carlson
+      7          //  Jan 2018
+      8          //  Built with IAR Embedded Workbench Version: V4.10A/W32 (7.11.2)
+      9          //------------------------------------------------------------------------------
+     10          
+     11          #include  "functions.h"
+     12          #include  "msp430.h"
+
+   \                                 In  segment DATA16_AN, at 0x130
+   \   union <unnamed> _A_PM5CTL0_L
+   \                     _A_PM5CTL0_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x386
+   \   union <unnamed> _A_TB0CCTL2_L
+   \                     _A_TB0CCTL2_L:
+   \   000000                DS8 2
+     13          #include <string.h>
+     14          #include "macros.h"
+     15          
+     16            // Global Variables
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     17          volatile char slow_input_down;
+   \                     slow_input_down:
+   \   000000                DS8 1
+     18          extern char display_line[FOURTH][COUNT_ELEVEN];
+     19          extern char *display[FOURTH];
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     20          unsigned char display_mode;
+   \                     display_mode:
+   \   000000                DS8 1
+     21          extern volatile unsigned char display_changed;
+     22          extern volatile unsigned char update_display;
+     23          extern volatile unsigned int update_display_count;
+     24          extern volatile unsigned int Time_Sequence;
+     25          extern volatile char one_time;
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     26          unsigned int test_value;
+   \                     test_value:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     27          char chosen_direction;
+   \                     chosen_direction:
+   \   000000                DS8 1
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     28          char change;
+   \                     change:
+   \   000000                DS8 1
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     29          unsigned int Last_Time_Sequence;
+   \                     Last_Time_Sequence:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     30          unsigned int cycle_time;
+   \                     cycle_time:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     31          unsigned int time_change;
+   \                     time_change:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     32          unsigned int time_change2;
+   \                     time_change2:
+   \   000000                DS8 2
+     33          
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     34          unsigned int switchONE;
+   \                     switchONE:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     35          unsigned int switchTWO;
+   \                     switchTWO:
+   \   000000                DS8 2
+     36          extern unsigned int freq;
+     37          
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     38          unsigned int capture;
+   \                     capture:
+   \   000000                DS8 2
+     39          extern volatile unsigned int newSecond;
+     40          extern char state;
+     41          extern unsigned int time_count_en;
+     42          extern unsigned int runDrive;
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     43          unsigned int testSignal;
+   \                     testSignal:
+   \   000000                DS8 2
+     44          
+     45          extern unsigned int waitTime;
+     46          extern unsigned int endWait;
+     47          
+     48          extern unsigned int lineFinished;
+     49          extern unsigned int lineStart;
+     50          
+     51          extern unsigned int menu;
+
+   \                                 In  segment DATA16_I, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_copy
+     52          char serial_state = WAITING;
+   \                     serial_state:
+   \   000000                DS8 1
+   \   000001                REQUIRE `?<Initializer for serial_state>`
+     53          
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     54          unsigned int once;
+   \                     once:
+   \   000000                DS8 2
+     55          
+     56          
+     57          
+     58          
+     59          
+     60          
+
+   \                                 In  segment CODE, align 2
+     61          void main(void){
+   \                     main:
+     62          //------------------------------------------------------------------------------
+     63          // Main Program
+     64          // This is the main routine for the program. Execution of code starts here.
+     65          // The operating system is Back Ground Fore Ground.
+     66          //
+     67          //------------------------------------------------------------------------------
+     68          // Disable the GPIO power-on default high-impedance mode to activate
+     69          // previously configured port settings
+     70            
+     71            PM5CTL0 &= ~LOCKLPM5;
+   \   000000   92C33001     BIC.W   #0x1, &0x130
+     72            
+     73            Init_Ports();                        // Initialize Ports
+   \   000004   ........     CALLA   #Init_Ports
+     74            Init_Clocks();                       // Initialize Clock System
+   \   000008   ........     CALLA   #Init_Clocks
+     75            Init_Conditions();                   // Initialize Variables and Initial Conditions
+   \   00000C   ........     CALLA   #Init_Conditions
+     76            Init_Timers();                       // Initialize Timers
+   \   000010   ........     CALLA   #Init_Timers
+     77            Init_LCD();                          // Initialize LCD
+   \   000014   ........     CALLA   #Init_LCD
+     78            //Init_ADC();
+     79            Init_Serial();
+   \   000018   ........     CALLA   #Init_Serial
+     80          
+     81          // Place the contents of what you want on the display, in between the quotes
+     82          // Limited to 10 characters per line
+     83          //
+     84          
+     85            strcpy(display_line[FIRST_LINE], "          ");
+   \   00001C   3D40....     MOV.W   #`?<Constant "          ">`, R13
+   \   000020   3C40....     MOV.W   #display_line, R12
+   \   000024   ........     CALLA   #strcpy
+     86            strcpy(display_line[SECOND_LINE], "          ");
+   \   000028   3D40....     MOV.W   #`?<Constant "          ">`, R13
+   \   00002C   3C40....     MOV.W   #display_line + 11, R12
+   \   000030   ........     CALLA   #strcpy
+     87            strcpy(display_line[THIRD_LINE], "          ");
+   \   000034   3D40....     MOV.W   #`?<Constant "          ">`, R13
+   \   000038   3C40....     MOV.W   #display_line + 22, R12
+   \   00003C   ........     CALLA   #strcpy
+     88            strcpy(display_line[FOURTH_LINE], "          ");
+   \   000040   3D40....     MOV.W   #`?<Constant "          ">`, R13
+   \   000044   3C40....     MOV.W   #display_line + 33, R12
+   \   000048   ........     CALLA   #strcpy
+     89            display_changed = HIGH;
+   \   00004C   D243....     MOV.B   #0x1, &display_changed
+     90            
+     91            Display_Update(FOURTH_LINE,SECOND_LINE,FIRST_LINE,FIRST_LINE);
+   \   000050   4F43         MOV.B   #0x0, R15
+   \   000052   4E43         MOV.B   #0x0, R14
+   \   000054   5D43         MOV.B   #0x1, R13
+   \   000056   7C400300     MOV.B   #0x3, R12
+   \   00005A   ........     CALLA   #Display_Update
+     92          //------------------------------------------------------------------------------
+     93          // Begining of the "While" Operating System
+     94          //------------------------------------------------------------------------------
+     95            while(ALWAYS) {                      // Can the Operating system run
+     96              
+     97              if(switchONE){
+   \                     ??main_0:
+   \   00005E   8293....     CMP.W   #0x0, &switchONE
+   \   000062   1724         JEQ     ??main_6
+     98                  switchONE = LOW;
+   \   000064   8243....     MOV.W   #0x0, &switchONE
+     99                  //strcpy(display_line[THIRD_LINE], " SWITCH 1  ");
+    100                  //display_changed = HIGH;
+    101                  capture = HIGH;
+   \   000068   9243....     MOV.W   #0x1, &capture
+    102          
+    103                  switch(serial_state){
+   \   00006C   5E42....     MOV.B   &serial_state, R14
+   \   000070   7E807200     SUB.B   #0x72, R14
+   \   000074   0324         JEQ     ??main_9
+   \   000076   6E83         SUB.B   #0x2, R14
+   \   000078   0724         JEQ     ??main_10
+   \   00007A   0B3C         JMP     ??main_6
+    104                    case RECIEVING:
+    105                      serial_state = TRANSMITTING;
+   \                     ??main_9:
+   \   00007C   F2407400.... MOV.B   #0x74, &serial_state
+    106                      once = HIGH;
+   \   000082   9243....     MOV.W   #0x1, &once
+    107                      break;
+   \   000086   053C         JMP     ??main_6
+    108                  case TRANSMITTING:
+    109                    serial_state = WAITING;
+   \                     ??main_10:
+   \   000088   F2407700.... MOV.B   #0x77, &serial_state
+    110                    clear();
+   \   00008E   ........     CALLA   #clear
+    111                    break;
+    112                  }
+    113                  
+    114              }
+    115              if(switchTWO){
+   \                     ??main_6:
+   \   000092   8293....     CMP.W   #0x0, &switchTWO
+   \   000096   1224         JEQ     ??main_11
+    116                  switchTWO = LOW;
+   \   000098   8243....     MOV.W   #0x0, &switchTWO
+    117                  //strcpy(display_line[FOURTH_LINE], " SWITCH 2  ");
+    118                  //display_changed = HIGH;
+    119                  //Begin_ADC();
+    120                  //testSignal = HIGH;
+    121                  switch(freq){
+   \   00009C   1F42....     MOV.W   &freq, R15
+   \   0000A0   0F83         SUB.W   #0x0, R15
+   \   0000A2   0324         JEQ     ??main_12
+   \   0000A4   1F83         SUB.W   #0x1, R15
+   \   0000A6   0424         JEQ     ??main_13
+   \   0000A8   053C         JMP     ??main_7
+    122                  case K115:
+    123                    freq = K460;
+   \                     ??main_12:
+   \   0000AA   9243....     MOV.W   #0x1, &freq
+    124                    break;
+   \   0000AE   023C         JMP     ??main_7
+    125                  case K460:
+    126                    freq = K115;
+   \                     ??main_13:
+   \   0000B0   8243....     MOV.W   #0x0, &freq
+    127                    break;
+    128                  }
+    129                  Configure_Serial();
+   \                     ??main_7:
+   \   0000B4   ........     CALLA   #Configure_Serial
+    130                  Begin_Serial();
+   \   0000B8   ........     CALLA   #Begin_Serial
+    131                  
+    132           
+    133              }
+    134          
+    135             switch(serial_state){
+   \                     ??main_11:
+   \   0000BC   5E42....     MOV.B   &serial_state, R14
+   \   0000C0   7E807200     SUB.B   #0x72, R14
+   \   0000C4   2624         JEQ     ??main_14
+   \   0000C6   6E83         SUB.B   #0x2, R14
+   \   0000C8   3024         JEQ     ??main_15
+   \   0000CA   7E800300     SUB.B   #0x3, R14
+   \   0000CE   5020         JNE     ??main_5
+    136                case WAITING:
+    137                  strcpy(display_line[FIRST_LINE],"WAITING...");
+   \   0000D0   3D40....     MOV.W   #`?<Constant "WAITING...">`, R13
+   \   0000D4   3C40....     MOV.W   #display_line, R12
+   \   0000D8   ........     CALLA   #strcpy
+    138                  switch(freq){
+   \   0000DC   1F42....     MOV.W   &freq, R15
+   \   0000E0   0F83         SUB.W   #0x0, R15
+   \   0000E2   0324         JEQ     ??main_16
+   \   0000E4   1F83         SUB.W   #0x1, R15
+   \   0000E6   0824         JEQ     ??main_17
+   \   0000E8   0D3C         JMP     ??main_8
+    139                  case K115:
+    140                    strcpy(display_line[THIRD_LINE],"BR: 115.2k");
+   \                     ??main_16:
+   \   0000EA   3D40....     MOV.W   #`?<Constant "BR: 115.2k">`, R13
+   \   0000EE   3C40....     MOV.W   #display_line + 22, R12
+   \   0000F2   ........     CALLA   #strcpy
+    141                    break;
+   \   0000F6   063C         JMP     ??main_8
+    142                  case K460:
+    143                    strcpy(display_line[THIRD_LINE],"BR: 460.8k");
+   \                     ??main_17:
+   \   0000F8   3D40....     MOV.W   #`?<Constant "BR: 460.8k">`, R13
+   \   0000FC   3C40....     MOV.W   #display_line + 22, R12
+   \   000100   ........     CALLA   #strcpy
+    144                    break;
+    145                  }
+    146                  if(lineStart) serial_state = RECIEVING;
+   \                     ??main_8:
+   \   000104   8293....     CMP.W   #0x0, &lineStart
+   \   000108   3324         JEQ     ??main_5
+   \   00010A   F2407200.... MOV.B   #0x72, &serial_state
+    147                  break;
+   \   000110   2F3C         JMP     ??main_5
+    148                case RECIEVING:
+    149                  strcpy(display_line[FIRST_LINE]," RECIEVED ");
+   \                     ??main_14:
+   \   000112   3D40....     MOV.W   #`?<Constant " RECIEVED ">`, R13
+   \   000116   3C40....     MOV.W   #display_line, R12
+   \   00011A   ........     CALLA   #strcpy
+    150                  if(lineFinished){
+   \   00011E   8293....     CMP.W   #0x0, &lineFinished
+   \   000122   2624         JEQ     ??main_5
+    151                    lineFinished = LOW;
+   \   000124   8243....     MOV.W   #0x0, &lineFinished
+    152                  }
+    153                  break;      
+   \   000128   233C         JMP     ??main_5
+    154                case TRANSMITTING:
+    155                  strcpy(display_line[FIRST_LINE]," TRANSMIT ");
+   \                     ??main_15:
+   \   00012A   3D40....     MOV.W   #`?<Constant " TRANSMIT ">`, R13
+   \   00012E   3C40....     MOV.W   #display_line, R12
+   \   000132   ........     CALLA   #strcpy
+    156                  if(once){
+   \   000136   8293....     CMP.W   #0x0, &once
+   \   00013A   0624         JEQ     ??main_18
+    157                    once = LOW;
+   \   00013C   8243....     MOV.W   #0x0, &once
+    158                    display_Text_A0();
+   \   000140   ........     CALLA   #display_Text_A0
+    159                    Transmit_Text_A0();
+   \   000144   ........     CALLA   #Transmit_Text_A0
+    160                  }
+    161                  switch(freq){
+   \                     ??main_18:
+   \   000148   1F42....     MOV.W   &freq, R15
+   \   00014C   0F83         SUB.W   #0x0, R15
+   \   00014E   0324         JEQ     ??main_19
+   \   000150   1F83         SUB.W   #0x1, R15
+   \   000152   0824         JEQ     ??main_20
+   \   000154   0D3C         JMP     ??main_5
+    162                  case K115:
+    163                    strcpy(display_line[THIRD_LINE],"BR: 115.2k");
+   \                     ??main_19:
+   \   000156   3D40....     MOV.W   #`?<Constant "BR: 115.2k">`, R13
+   \   00015A   3C40....     MOV.W   #display_line + 22, R12
+   \   00015E   ........     CALLA   #strcpy
+    164                    break;
+   \   000162   063C         JMP     ??main_5
+    165                  case K460:
+    166                    strcpy(display_line[THIRD_LINE],"BR: 460.8k");
+   \                     ??main_20:
+   \   000164   3D40....     MOV.W   #`?<Constant "BR: 460.8k">`, R13
+   \   000168   3C40....     MOV.W   #display_line + 22, R12
+   \   00016C   ........     CALLA   #strcpy
+    167                    break;
+    168                  }
+    169                  break;
+    170                default: break;
+    171              }
+    172              display_changed = HIGH;
+   \                     ??main_5:
+   \   000170   D243....     MOV.B   #0x1, &display_changed
+    173           
+    174              Transmit_NCSU_A1();
+   \   000174   ........     CALLA   #Transmit_NCSU_A1
+    175                
+    176              /*displayADC();
+    177              followCircle();*/
+    178              display_changed = HIGH;
+   \   000178   D243....     MOV.B   #0x1, &display_changed
+    179              Display_Process();
+   \   00017C   ........     CALLA   #Display_Process
+   \   000180   6E3F         JMP     ??main_0
+   \   000182   0343         NOP
+   \   000184                REQUIRE _A_PM5CTL0_L
+    180            }
+    181          //------------------------------------------------------------------------------
+    182          }
+    183          
+    184          
+
+   \                                 In  segment CODE, align 2
+    185          void blackLine(void){
+   \                     blackLine:
+    186                switch(state){
+   \   000000   5E42....     MOV.B   &state, R14
+   \   000004   7E806300     SUB.B   #0x63, R14
+   \   000008   0D24         JEQ     ??blackLine_4
+   \   00000A   5E83         SUB.B   #0x1, R14
+   \   00000C   2E24         JEQ     ??blackLine_5
+   \   00000E   7E800500     SUB.B   #0x5, R14
+   \   000012   1224         JEQ     ??blackLine_6
+   \   000014   7E800A00     SUB.B   #0xa, R14
+   \   000018   4324         JEQ     ??blackLine_7
+   \   00001A   5E83         SUB.B   #0x1, R14
+   \   00001C   1724         JEQ     ??blackLine_8
+   \   00001E   5E83         SUB.B   #0x1, R14
+   \   000020   3024         JEQ     ??blackLine_9
+   \   000022   1001         RETA
+    187              case CALIBRATE:
+    188                strcpy(display_line[SECOND_LINE],"CALIBRATE ");
+   \                     ??blackLine_4:
+   \   000024   3D40....     MOV.W   #`?<Constant "CALIBRATE ">`, R13
+   \   000028   3C40....     MOV.W   #display_line + 11, R12
+   \   00002C   ........     CALLA   #strcpy
+    189                display_changed = HIGH;
+   \   000030   D243....     MOV.B   #0x1, &display_changed
+    190                calibrate();
+   \   000034   ........     BRA     #calibrate
+    191                break;
+    192              case INTERCEPT:
+    193                strcpy(display_line[SECOND_LINE],"INTERCEPT ");
+   \                     ??blackLine_6:
+   \   000038   3D40....     MOV.W   #`?<Constant "INTERCEPT ">`, R13
+   \   00003C   3C40....     MOV.W   #display_line + 11, R12
+   \   000040   ........     CALLA   #strcpy
+    194                display_changed = HIGH;
+   \   000044   D243....     MOV.B   #0x1, &display_changed
+    195                intercept();
+   \   000048   ........     BRA     #intercept
+    196                break;
+    197              case TURN: 
+    198                strcpy(display_line[SECOND_LINE],"  TURNING ");
+   \                     ??blackLine_8:
+   \   00004C   3D40....     MOV.W   #`?<Constant "  TURNING ">`, R13
+   \   000050   3C40....     MOV.W   #display_line + 11, R12
+   \   000054   ........     CALLA   #strcpy
+    199                if(drivePivot(FIRST))state = DRIVE;
+   \   000058   1C43         MOV.W   #0x1, R12
+   \   00005A   ........     CALLA   #drivePivot
+   \   00005E   0C93         CMP.W   #0x0, R12
+   \   000060   4624         JEQ     ??blackLine_3
+   \   000062   F2406400.... MOV.B   #0x64, &state
+    200                break;
+   \   000068   1001         RETA
+    201              case DRIVE:
+    202                strcpy(display_line[SECOND_LINE],"  CIRCLING ");
+   \                     ??blackLine_5:
+   \   00006A   3D40....     MOV.W   #`?<Constant "  CIRCLING ">`, R13
+   \   00006E   3C40....     MOV.W   #display_line + 11, R12
+   \   000072   ........     CALLA   #strcpy
+    203                display_changed = HIGH;
+   \   000076   D243....     MOV.B   #0x1, &display_changed
+    204                time_count_en = HIGH;
+   \   00007A   9243....     MOV.W   #0x1, &time_count_en
+    205                followCircle();
+   \   00007E   ........     BRA     #followCircle
+    206                break;
+    207              case TURN2: 
+    208                strcpy(display_line[SECOND_LINE],"  TURNING ");
+   \                     ??blackLine_9:
+   \   000082   3D40....     MOV.W   #`?<Constant "  TURNING ">`, R13
+   \   000086   3C40....     MOV.W   #display_line + 11, R12
+   \   00008A   ........     CALLA   #strcpy
+    209                if(drivePivot(FIRST))state = STOP;
+   \   00008E   1C43         MOV.W   #0x1, R12
+   \   000090   ........     CALLA   #drivePivot
+   \   000094   0C93         CMP.W   #0x0, R12
+   \   000096   2B24         JEQ     ??blackLine_3
+   \   000098   F2407300.... MOV.B   #0x73, &state
+    210                break;
+   \   00009E   1001         RETA
+    211              case STOP:
+    212                strcpy(display_line[SECOND_LINE],"  STOP   ");
+   \                     ??blackLine_7:
+   \   0000A0   3D40....     MOV.W   #`?<Constant "  STOP   ">`, R13
+   \   0000A4   3C40....     MOV.W   #display_line + 11, R12
+   \   0000A8   ........     CALLA   #strcpy
+    213                display_changed = HIGH;
+   \   0000AC   D243....     MOV.B   #0x1, &display_changed
+    214                time_count_en = LOW;
+   \   0000B0   8243....     MOV.W   #0x0, &time_count_en
+    215                driveForward(CRUISE,CRUISE);
+   \   0000B4   3D403075     MOV.W   #0x7530, R13
+   \   0000B8   3C403075     MOV.W   #0x7530, R12
+   \   0000BC   ........     CALLA   #driveForward
+    216                waitTime = TWOSECS;
+   \   0000C0   B2402800.... MOV.W   #0x28, &waitTime
+    217                TB0CCTL2 &=~ CCIFG;
+   \   0000C6   92C38603     BIC.W   #0x1, &0x386
+    218                TB0CCTL2 |= CCIE;
+   \   0000CA   B2D010008603 BIS.W   #0x10, &0x386
+    219                if(endWait){
+   \   0000D0   8293....     CMP.W   #0x0, &endWait
+   \   0000D4   0C24         JEQ     ??blackLine_3
+    220                    TB0CCTL2 &= ~CCIE;
+   \   0000D6   B2C010008603 BIC.W   #0x10, &0x386
+    221                    state = INTERCEPT;
+   \   0000DC   F2406900.... MOV.B   #0x69, &state
+    222                    endWait = RESET;
+   \   0000E2   8243....     MOV.W   #0x0, &endWait
+    223                    capture = LOW;
+   \   0000E6   8243....     MOV.W   #0x0, &capture
+    224                    All_Wheel_Off();
+   \   0000EA   ........     CALLA   #All_Wheel_Off
+    225                }
+    226                break;
+    227              default: break;
+    228              }
+    229          }
+   \                     ??blackLine_3:
+   \   0000EE   1001         RETA
+   \   0000F0                REQUIRE _A_TB0CCTL2_L
+
+   \                                 In  segment DATA16_ID, align 1, align-sorted
+   \                     `?<Initializer for serial_state>`:
+   \   000000   77           DC8 119
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "          ">`:
+   \   000000   202020202020 DC8 "          "
+   \            2020202000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "WAITING...">`:
+   \   000000   57414954494E DC8 "WAITING..."
+   \            472E2E2E00  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "BR: 115.2k">`:
+   \   000000   42523A203131 DC8 "BR: 115.2k"
+   \            352E326B00  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "BR: 460.8k">`:
+   \   000000   42523A203436 DC8 "BR: 460.8k"
+   \            302E386B00  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant " RECIEVED ">`:
+   \   000000   205245434945 DC8 " RECIEVED "
+   \            5645442000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant " TRANSMIT ">`:
+   \   000000   205452414E53 DC8 " TRANSMIT "
+   \            4D49542000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "CALIBRATE ">`:
+   \   000000   43414C494252 DC8 "CALIBRATE "
+   \            4154452000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "INTERCEPT ">`:
+   \   000000   494E54455243 DC8 "INTERCEPT "
+   \            4550542000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "  TURNING ">`:
+   \   000000   20205455524E DC8 "  TURNING "
+   \            494E472000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "  CIRCLING ">`:
+   \   000000   202043495243 DC8 "  CIRCLING "
+   \            4C494E472000
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "  STOP   ">`:
+   \   000000   202053544F50 DC8 "  STOP   "
+   \            20202000    
+    230          
+    231          
+    232          
+    233          
+    234          
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      4   blackLine
+        4   -> All_Wheel_Off
+        0   -> calibrate
+        4   -> driveForward
+        4   -> drivePivot
+        0   -> followCircle
+        0   -> intercept
+        4   -> strcpy
+      4   main
+        4   -> Begin_Serial
+        4   -> Configure_Serial
+        4   -> Display_Process
+        4   -> Display_Update
+        4   -> Init_Clocks
+        4   -> Init_Conditions
+        4   -> Init_LCD
+        4   -> Init_Ports
+        4   -> Init_Serial
+        4   -> Init_Timers
+        4   -> Transmit_NCSU_A1
+        4   -> Transmit_Text_A0
+        4   -> clear
+        4   -> display_Text_A0
+        4   -> strcpy
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      11  ?<Constant "          ">
+      12  ?<Constant "  CIRCLING ">
+      10  ?<Constant "  STOP   ">
+      11  ?<Constant "  TURNING ">
+      11  ?<Constant " RECIEVED ">
+      11  ?<Constant " TRANSMIT ">
+      11  ?<Constant "BR: 115.2k">
+      11  ?<Constant "BR: 460.8k">
+      11  ?<Constant "CALIBRATE ">
+      11  ?<Constant "INTERCEPT ">
+      11  ?<Constant "WAITING...">
+       1  ?<Initializer for serial_state>
+       2  Last_Time_Sequence
+       2  _A_PM5CTL0_L
+       2  _A_TB0CCTL2_L
+     240  blackLine
+       2  capture
+       1  change
+       1  chosen_direction
+       2  cycle_time
+       1  display_mode
+     388  main
+       2  once
+       1  serial_state
+       1  slow_input_down
+       2  switchONE
+       2  switchTWO
+       2  testSignal
+       2  test_value
+       2  time_change
+       2  time_change2
+
+ 
+ 628 bytes in segment CODE
+   4 bytes in segment DATA16_AN
+ 121 bytes in segment DATA16_C
+   1 byte  in segment DATA16_I
+   1 byte  in segment DATA16_ID
+  24 bytes in segment DATA16_Z
+ 
+ 628 bytes of CODE  memory
+ 122 bytes of CONST memory
+  25 bytes of DATA  memory (+ 4 bytes shared)
+
+Errors: none
+Warnings: none

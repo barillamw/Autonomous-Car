@@ -1,0 +1,564 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           20/Apr/2019  14:47:52
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10\drive.c
+#    Command line  =  
+#        -f C:\Users\Michael\AppData\Local\Temp\EW7ADC.tmp
+#        ("C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10\drive.c" -lC "C:\Users\Michael\Documents\2019\ECE
+#        306\ECE-306_code\Project 10\Debug\List" -o
+#        "C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10\Debug\List\drive.lst
+#    Object file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10\Debug\Obj\drive.r43
+#
+###############################################################################
+
+C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project 10\drive.c
+      1          //------------------------------------------------------------------------------
+      2          //
+      3          //  Description: This file contains the functions to drive the car from TCP
+      4          //
+      5          //  Michael Barilla
+      6          //  Jan 2019
+      7          //  Built with IAR Embedded Workbench Version: V4.10A/W32 (7.11.2)
+      8          //------------------------------------------------------------------------------
+      9          
+     10          #include  "functions.h"
+     11          #include  "msp430.h"
+     12          #include "macros.h"
+     13          #include <string.h>
+
+   \                                 In  segment CODE, align 2
+   \   __intrinsic __nounwind __cc_version2 char *strstr(char const *, char const *)
+   \                     strstr:
+   \   000000   1B15         PUSHM.W #0x2, R11
+   \   000002   0A4C         MOV.W   R12, R10
+   \   000004   0B4D         MOV.W   R13, R11
+   \   000006   0D4B         MOV.W   R11, R13
+   \   000008   0C4A         MOV.W   R10, R12
+   \   00000A   ........     CALLA   #__iar_Strstr
+   \   00000E   1A17         POPM.W  #0x2, R11
+   \   000010   1001         RETA
+     14          
+     15          
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     16          char driveCommand[SMALL_RING_SIZE];
+   \                     driveCommand:
+   \   000000                DS8 16
+     17          extern char display_line[FOURTH][COUNT_ELEVEN];
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     18          char firstDrive[FOURTH];
+   \                     firstDrive:
+   \   000000                DS8 4
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     19          char secondDrive[FOURTH];
+   \                     secondDrive:
+   \   000000                DS8 4
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     20          unsigned int readyDrive;
+   \                     readyDrive:
+   \   000000                DS8 2
+     21          
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     22          unsigned int distance;
+   \                     distance:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     23          char direction;
+   \                     direction:
+   \   000000                DS8 1
+     24          
+
+   \                                 In  segment DATA16_I, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_copy
+     25          char driveState = LOAD;
+   \                     driveState:
+   \   000000                DS8 1
+   \   000001                REQUIRE `?<Initializer for driveState>`
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     26          unsigned int startTimer;
+   \                     startTimer:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     27          unsigned int turnTimer;
+   \                     turnTimer:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     28          unsigned int stopCount;
+   \                     stopCount:
+   \   000000                DS8 2
+     29          
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     30          unsigned int blackLineR;
+   \                     blackLineR:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     31          unsigned int blackLineL;
+   \                     blackLineL:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_I, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_copy
+     32          char stateBlackLine = CALIBRATE;
+   \                     stateBlackLine:
+   \   000000                DS8 1
+   \   000001                REQUIRE `?<Initializer for stateBlackLine>`
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     33          unsigned int capture;
+   \                     capture:
+   \   000000                DS8 2
+     34          
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     35          int pwmL;
+   \                     pwmL:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     36          int pwmR;
+   \                     pwmR:
+   \   000000                DS8 2
+     37          
+     38          
+
+   \                                 In  segment CODE, align 2
+     39          void drive(void){
+   \                     drive:
+     40            if(strstr(driveCommand,"0208") && readyDrive){
+   \   000000   3D40....     MOV.W   #`?<Constant "0208">`, R13
+   \   000004   3C40....     MOV.W   #driveCommand, R12
+   \   000008   ........     CALLA   #strstr
+   \   00000C   0C93         CMP.W   #0x0, R12
+   \   00000E   8124         JEQ     ??drive_1
+   \   000010   8293....     CMP.W   #0x0, &readyDrive
+   \   000014   7E24         JEQ     ??drive_1
+     41              readyDrive = LOW;
+   \   000016   8243....     MOV.W   #0x0, &readyDrive
+     42              switch(driveCommand[CHARC]){
+   \   00001A   5E42....     MOV.B   &driveCommand + 12, R14
+   \   00001E   7E804400     SUB.B   #0x44, R14
+   \   000022   7524         JEQ     ??drive_3
+   \   000024   7E800500     SUB.B   #0x5, R14
+   \   000028   6F24         JEQ     ??drive_4
+   \   00002A   7E800300     SUB.B   #0x3, R14
+   \   00002E   7124         JEQ     ??drive_1
+   \   000030   6E83         SUB.B   #0x2, R14
+   \   000032   0224         JEQ     ??drive_5
+   \   000034   6E82         SUB.B   #0x4, R14
+   \   000036   1001         RETA
+     43                case 'N':
+     44                  pwmL = (driveCommand[CHAR5]-ASCII_SHIFT)*HUNDREDS;
+   \                     ??drive_5:
+   \   000038   5F42....     MOV.B   &driveCommand + 5, R15
+   \   00003C   4F4F         MOV.B   R15, R15
+   \   00003E   3F50D0FF     ADD.W   #0xffd0, R15
+   \   000042   5F06         RLAM.W  #0x2, R15
+   \   000044   0E4F         MOV.W   R15, R14
+   \   000046   5F0A         RLAM.W  #0x3, R15
+   \   000048   0E5F         ADD.W   R15, R14
+   \   00004A   0F5F         RLA.W   R15
+   \   00004C   0F5E         ADD.W   R14, R15
+   \   00004E   824F....     MOV.W   R15, &pwmL
+     45                  pwmL += (driveCommand[CHAR6] - ASCII_SHIFT) * TENS;
+   \   000052   5F42....     MOV.B   &driveCommand + 6, R15
+   \   000056   4F4F         MOV.B   R15, R15
+   \   000058   3F50D0FF     ADD.W   #0xffd0, R15
+   \   00005C   0F5F         RLA.W   R15
+   \   00005E   0E4F         MOV.W   R15, R14
+   \   000060   5F06         RLAM.W  #0x2, R15
+   \   000062   0F5E         ADD.W   R14, R15
+   \   000064   825F....     ADD.W   R15, &pwmL
+     46                  pwmL += (driveCommand[CHAR7] - ASCII_SHIFT);
+   \   000068   5F42....     MOV.B   &driveCommand + 7, R15
+   \   00006C   4F4F         MOV.B   R15, R15
+   \   00006E   3F50D0FF     ADD.W   #0xffd0, R15
+   \   000072   825F....     ADD.W   R15, &pwmL
+     47                  if(driveCommand[CHAR4] == '-') pwmL *= -1;
+   \   000076   F2902D00.... CMP.B   #0x2d, &driveCommand + 4
+   \   00007C   0E20         JNE     ??drive_6
+   \   00007E   0212         PUSH.W  SR
+   \   000080   32C2         DINT
+   \   000082   0343         NOP
+   \   000084   B243....     MOV.W   #0xffff, &__iar_HWMUL          // MPY
+   \   000088   9242........ MOV.W   &pwmL, &__iar_HWMUL + 8        // OP2
+   \   00008E   9242........ MOV.W   &__iar_HWMUL + 10, &pwmL       // RESLO
+   \   000094   0343         NOP
+   \   000096   3241         POP.W   SR
+   \   000098   0343         NOP
+     48                  
+     49                  pwmR = (driveCommand[CHAR9] - ASCII_SHIFT) * HUNDREDS;
+   \                     ??drive_6:
+   \   00009A   5F42....     MOV.B   &driveCommand + 9, R15
+   \   00009E   4F4F         MOV.B   R15, R15
+   \   0000A0   3F50D0FF     ADD.W   #0xffd0, R15
+   \   0000A4   5F06         RLAM.W  #0x2, R15
+   \   0000A6   0E4F         MOV.W   R15, R14
+   \   0000A8   5F0A         RLAM.W  #0x3, R15
+   \   0000AA   0E5F         ADD.W   R15, R14
+   \   0000AC   0F5F         RLA.W   R15
+   \   0000AE   0F5E         ADD.W   R14, R15
+   \   0000B0   824F....     MOV.W   R15, &pwmR
+     50                  pwmR += (driveCommand[CHARA] - ASCII_SHIFT) * TENS;
+   \   0000B4   5F42....     MOV.B   &driveCommand + 10, R15
+   \   0000B8   4F4F         MOV.B   R15, R15
+   \   0000BA   3F50D0FF     ADD.W   #0xffd0, R15
+   \   0000BE   0F5F         RLA.W   R15
+   \   0000C0   0E4F         MOV.W   R15, R14
+   \   0000C2   5F06         RLAM.W  #0x2, R15
+   \   0000C4   0F5E         ADD.W   R14, R15
+   \   0000C6   825F....     ADD.W   R15, &pwmR
+     51                  pwmR += (driveCommand[CHARB] - ASCII_SHIFT);
+   \   0000CA   5F42....     MOV.B   &driveCommand + 11, R15
+   \   0000CE   4F4F         MOV.B   R15, R15
+   \   0000D0   3F50D0FF     ADD.W   #0xffd0, R15
+   \   0000D4   825F....     ADD.W   R15, &pwmR
+     52                  if(driveCommand[CHAR8] == '-') pwmR *= -1;
+   \   0000D8   F2902D00.... CMP.B   #0x2d, &driveCommand + 8
+   \   0000DE   0E20         JNE     ??drive_7
+   \   0000E0   0212         PUSH.W  SR
+   \   0000E2   32C2         DINT
+   \   0000E4   0343         NOP
+   \   0000E6   B243....     MOV.W   #0xffff, &__iar_HWMUL          // MPY
+   \   0000EA   9242........ MOV.W   &pwmR, &__iar_HWMUL + 8        // OP2
+   \   0000F0   9242........ MOV.W   &__iar_HWMUL + 10, &pwmR       // RESLO
+   \   0000F6   0343         NOP
+   \   0000F8   3241         POP.W   SR
+   \   0000FA   0343         NOP
+     53                  
+     54                  wheels(pwmR, pwmL);
+   \                     ??drive_7:
+   \   0000FC   1D42....     MOV.W   &pwmL, R13
+   \   000100   1C42....     MOV.W   &pwmR, R12
+   \   000104   ........     BRA     #wheels
+     55                  break;
+     56                case 'L':
+     57                  //Follow Line Left
+     58                  break;
+     59                case 'R':
+     60                  //Follow Line Right
+     61                  break;
+     62                case 'I':
+     63                  stopCount++;
+   \                     ??drive_4:
+   \   000108   9253....     ADD.W   #0x1, &stopCount
+     64                  break;
+   \   00010C   1001         RETA
+     65                case 'D':
+     66                  stopCount--;
+   \                     ??drive_3:
+   \   00010E   B253....     ADD.W   #0xffff, &stopCount
+     67                  break;
+     68              }
+     69            }
+     70          }
+   \                     ??drive_1:
+   \   000112   1001         RETA
+     71          
+
+   \                                 In  segment CODE, align 2
+     72          void blackLine(void){
+   \                     blackLine:
+     73            switch(stateBlackLine){
+   \   000000   5E42....     MOV.B   &stateBlackLine, R14
+   \   000004   7E806300     SUB.B   #0x63, R14
+   \   000008   0424         JEQ     ??blackLine_0
+   \   00000A   7E801400     SUB.B   #0x14, R14
+   \   00000E   0924         JEQ     ??blackLine_1
+   \   000010   1001         RETA
+     74              case CALIBRATE:
+     75                strcpy(display_line[SECOND_LINE],"CALIBRATE ");
+   \                     ??blackLine_0:
+   \   000012   3D40....     MOV.W   #`?<Constant "CALIBRATE ">`, R13
+   \   000016   3C40....     MOV.W   #display_line + 11, R12
+   \   00001A   ........     CALLA   #strcpy
+     76                calibrate();
+   \   00001E   ........     BRA     #calibrate
+     77                break;
+     78              case SEARCHING:  
+     79                //find white board
+     80                strcpy(display_line[SECOND_LINE]," SEARCHING ");
+   \                     ??blackLine_1:
+   \   000022   3D40....     MOV.W   #`?<Constant " SEARCHING ">`, R13
+   \   000026   3C40....     MOV.W   #display_line + 11, R12
+   \   00002A   ........     CALLA   #strcpy
+     81                whiteBoard();
+   \   00002E   ........     BRA     #whiteBoard
+     82                break;
+     83              /*case INTERCEPT:
+     84                strcpy(display_line[SECOND_LINE],"INTERCEPT ");
+     85                //display_changed = HIGH;
+     86                intercept();
+     87                break;
+     88              case TURN: 
+     89                strcpy(display_line[SECOND_LINE],"  TURNING ");
+     90                if(drivePivot(FIRST))state = DRIVE;
+     91                break;
+     92              case DRIVE:
+     93                strcpy(display_line[SECOND_LINE],"  CIRCLING ");
+     94                display_changed = HIGH;
+     95                //time_count_en = HIGH;
+     96                followCircle();
+     97                break;
+     98              case TURN2: 
+     99                strcpy(display_line[SECOND_LINE],"  TURNING ");
+    100                if(drivePivot(FIRST))state = STOP;
+    101                break;
+    102              case STOP:
+    103                strcpy(display_line[SECOND_LINE],"  STOP   ");
+    104                display_changed = HIGH;
+    105                time_count_en = LOW;
+    106                driveForward(CRUISE,CRUISE);
+    107                waitTime = TWOSECS;
+    108                TB0CCTL2 &=~ CCIFG;
+    109                TB0CCTL2 |= CCIE;
+    110                if(endWait){
+    111                    TB0CCTL2 &= ~CCIE;
+    112                    state = INTERCEPT;
+    113                    endWait = RESET;
+    114                    capture = LOW;
+    115                    All_Wheel_Off();
+    116                }
+    117                break;
+    118              default: break;*/
+    119              }
+    120          }
+
+   \                                 In  segment DATA16_ID, align 1, align-sorted
+   \                     `?<Initializer for driveState>`:
+   \   000000   6C           DC8 108
+
+   \                                 In  segment DATA16_ID, align 1, align-sorted
+   \                     `?<Initializer for stateBlackLine>`:
+   \   000000   63           DC8 99
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "0208">`:
+   \   000000   3032303800   DC8 "0208"
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "CALIBRATE ">`:
+   \   000000   43414C494252 DC8 "CALIBRATE "
+   \            4154452000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant " SEARCHING ">`:
+   \   000000   205345415243 DC8 " SEARCHING "
+   \            48494E472000
+    121              
+    122                
+    123                  
+    124              
+    125              
+    126              /*for(int i=RESET; i< NINE; i++){
+    127                if(i<FOURTH)
+    128                  firstDrive[i] = driveCommand[i+FOURTH];
+    129                else
+    130                  secondDrive[i-COUNT_FOUR] = driveCommand[i+FOURTH];
+    131              }
+    132              for(int i=RESET; i<SMALL_RING_SIZE; i++)
+    133                driveCommand[i] = '\0';
+    134            }
+    135            
+    136            if(firstDrive[CHAR0]){
+    137              switch(driveState){
+    138                case LOAD:
+    139                  direction = firstDrive[CHAR0];
+    140                  distance =  (firstDrive[CHAR1]-ASCII_SHIFT) * HUNDREDS;
+    141                  distance += (firstDrive[CHAR2]-ASCII_SHIFT) * TENS;
+    142                  distance += (firstDrive[CHAR3]-ASCII_SHIFT+COUNT_ONE);
+    143                  driveState = DRIVE;
+    144                  lcd_BIG_mid();
+    145                  strcpy(display_line[FIRST_LINE], "          ");
+    146                  strcpy(display_line[SECOND_LINE], "          ");
+    147                  strcpy(display_line[THIRD_LINE], "          ");
+    148                  strcpy(display_line[FOURTH_LINE], "          ");
+    149                  display_line[SECOND_LINE][CHAR3] = firstDrive[CHAR0];
+    150                  display_line[SECOND_LINE][CHAR4] = firstDrive[CHAR1];
+    151                  display_line[SECOND_LINE][CHAR5] = firstDrive[CHAR2];
+    152                  display_line[SECOND_LINE][CHAR6] = firstDrive[CHAR3];
+    153                  driveState = DRIVE;
+    154                case DRIVE:
+    155                  switch(direction){
+    156                    case FORWARD:
+    157                      startTimer = HIGH;
+    158                      driveForward(CRUISE, CRUISE);
+    159                      break;
+    160                    case BACKWARD:
+    161                      startTimer = HIGH;
+    162                      driveReverse();
+    163                      break;
+    164                    case RIGHT:
+    165                      turnTimer = HIGH;
+    166                      turnRight();
+    167                      break;
+    168                    case LEFT:
+    169                      turnTimer = HIGH;
+    170                      turnLeft();
+    171                      break;
+    172                    default:break;
+    173                  }
+    174                  break;
+    175                case END:
+    176                  All_Wheel_Off();
+    177                  for(int i = RESET; i<COUNT_FOUR; i++)
+    178                    firstDrive[i] = '\0';
+    179                  driveState = LOAD;
+    180                  break;
+    181                default: break;
+    182                }   
+    183          
+    184            }
+    185            else if(secondDrive[CHAR0]){
+    186              switch(driveState){
+    187                case LOAD:
+    188                  direction = secondDrive[CHAR0];
+    189                  distance =  (secondDrive[CHAR1]-ASCII_SHIFT) * HUNDREDS;
+    190                  distance += (secondDrive[CHAR2]-ASCII_SHIFT) * TENS;
+    191                  distance += (secondDrive[CHAR3]-ASCII_SHIFT+COUNT_ONE);
+    192                  strcpy(display_line[FIRST_LINE], "          ");
+    193                  strcpy(display_line[SECOND_LINE], "          ");
+    194                  strcpy(display_line[THIRD_LINE], "          ");
+    195                  strcpy(display_line[FOURTH_LINE], "          ");
+    196                  display_line[SECOND_LINE][CHAR3] = secondDrive[CHAR0];
+    197                  display_line[SECOND_LINE][CHAR4] = secondDrive[CHAR1];
+    198                  display_line[SECOND_LINE][CHAR5] = secondDrive[CHAR2];
+    199                  display_line[SECOND_LINE][CHAR6] = secondDrive[CHAR3];
+    200                  driveState = DRIVE;
+    201                case DRIVE:
+    202                  switch(direction){
+    203                    case FORWARD:
+    204                      startTimer = HIGH;
+    205                      driveForward(CRUISE, CRUISE);
+    206                      break;
+    207                    case BACKWARD:
+    208                      startTimer = HIGH;
+    209                      driveReverse();
+    210                      break;
+    211                    case RIGHT:
+    212                      turnTimer = HIGH;
+    213                      turnRight();
+    214                      break;
+    215                    case LEFT:
+    216                      turnTimer = HIGH;
+    217                      turnLeft();
+    218                      break;
+    219                    default:break;
+    220                  }
+    221                  break;
+    222                case END:
+    223                  All_Wheel_Off();
+    224                  for(int i = RESET; i<COUNT_FOUR; i++)
+    225                    secondDrive[i] = '\0';
+    226                  driveState = LOAD;
+    227                  break;
+    228                default: break;
+    229              }
+    230            }
+    231          } */   
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      4   blackLine
+        0   -> calibrate
+        4   -> strcpy
+        0   -> whiteBoard
+      6   drive
+        4   -> strstr
+        0   -> wheels
+      8   strstr
+        8   -> __iar_Strstr
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      12  ?<Constant " SEARCHING ">
+       5  ?<Constant "0208">
+      11  ?<Constant "CALIBRATE ">
+       1  ?<Initializer for driveState>
+       1  ?<Initializer for stateBlackLine>
+      50  blackLine
+       2  blackLineL
+       2  blackLineR
+       2  capture
+       1  direction
+       2  distance
+     276  drive
+      16  driveCommand
+       1  driveState
+       4  firstDrive
+       2  pwmL
+       2  pwmR
+       2  readyDrive
+       4  secondDrive
+       2  startTimer
+       1  stateBlackLine
+       2  stopCount
+      18  strstr
+       2  turnTimer
+
+ 
+ 344 bytes in segment CODE
+  28 bytes in segment DATA16_C
+   2 bytes in segment DATA16_I
+   2 bytes in segment DATA16_ID
+  45 bytes in segment DATA16_Z
+ 
+ 326 bytes of CODE  memory (+ 18 bytes shared)
+  30 bytes of CONST memory
+  47 bytes of DATA  memory
+
+Errors: none
+Warnings: none

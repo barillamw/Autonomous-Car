@@ -1,0 +1,160 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           25/Mar/2019  17:49:18
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project 07 -
+#        OLD\BCD.c
+#    Command line  =  
+#        -f C:\Users\Michael\AppData\Local\Temp\EWF62E.tmp
+#        ("C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project 07 -
+#        OLD\BCD.c" -lC "C:\Users\Michael\Documents\2019\ECE
+#        306\ECE-306_code\Project 07 - OLD\Debug\List" -o
+#        "C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project 07 -
+#        OLD\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project 07 -
+#        OLD\Debug\List\BCD.lst
+#    Object file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project 07 -
+#        OLD\Debug\Obj\BCD.r43
+#
+###############################################################################
+
+C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project 07 - OLD\BCD.c
+      1          // ------------------------------------------------------------------------------
+      2          //******************************************************************************
+      3          // Hex to BCD Conversion
+      4          // Convert a Hex number to BCD for display on an LCD or monitor
+      5          //
+      6          // ------------------------------------------------------------------------------
+      7          #include  "functions.h"
+      8          #include  "msp430.h"
+      9          #include "macros.h"
+     10          
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     11          char bcd_char [CHAR_LENGTH];
+   \                     bcd_char:
+   \   000000                DS8 4
+     12          
+
+   \                                 In  segment CODE, align 2
+     13          void HEXtoBCD (int hex_value){
+   \                     HEXtoBCD:
+     14            int value=RESET;
+   \   000000   0F43         MOV.W   #0x0, R15
+     15            bcd_char [CHAR0] = '0';
+   \   000002   F2403000.... MOV.B   #0x30, &bcd_char
+     16            bcd_char [CHAR1] = '0';
+   \   000008   F2403000.... MOV.B   #0x30, &bcd_char + 1
+     17            bcd_char [CHAR2] = '0';  
+   \   00000E   F2403000.... MOV.B   #0x30, &bcd_char + 2
+     18            bcd_char [CHAR3] = '0';
+   \   000014   F2403000.... MOV.B   #0x30, &bcd_char + 3
+     19            
+     20            while ( hex_value > NINENINENINE){
+   \                     ??HEXtoBCD_0:
+   \   00001A   3C90E803     CMP.W   #0x3e8, R12
+   \   00001E   0C38         JL      ??HEXtoBCD_3
+     21              hex_value = hex_value - THOUSANDS ;
+   \   000020   3C5018FC     ADD.W   #0xfc18, R12
+     22              value++;
+   \   000024   1F53         ADD.W   #0x1, R15
+     23              bcd_char [CHAR0] = ASCII_SHIFT + value;
+   \   000026   0E12         PUSH.W  R14
+   \   000028   C14F0000     MOV.B   R15, 0(SP)
+   \   00002C   3E41         POP.W   R14
+   \   00002E   7E503000     ADD.B   #0x30, R14
+   \   000032   C24E....     MOV.B   R14, &bcd_char
+   \   000036   F13F         JMP     ??HEXtoBCD_0
+     24            }
+     25            value = RESET;
+   \                     ??HEXtoBCD_3:
+   \   000038   0F43         MOV.W   #0x0, R15
+     26            while ( hex_value > NINENINE){
+   \                     ??HEXtoBCD_1:
+   \   00003A   3C906400     CMP.W   #0x64, R12
+   \   00003E   0C38         JL      ??HEXtoBCD_4
+     27              hex_value = hex_value -HUNDREDS;
+   \   000040   3C509CFF     ADD.W   #0xff9c, R12
+     28              value++;
+   \   000044   1F53         ADD.W   #0x1, R15
+     29              bcd_char [CHAR1] = ASCII_SHIFT + value;
+   \   000046   0E12         PUSH.W  R14
+   \   000048   C14F0000     MOV.B   R15, 0(SP)
+   \   00004C   3E41         POP.W   R14
+   \   00004E   7E503000     ADD.B   #0x30, R14
+   \   000052   C24E....     MOV.B   R14, &bcd_char + 1
+   \   000056   F13F         JMP     ??HEXtoBCD_1
+     30            }
+     31            value = RESET;
+   \                     ??HEXtoBCD_4:
+   \   000058   0F43         MOV.W   #0x0, R15
+     32              while ( hex_value > NINE){
+   \                     ??HEXtoBCD_2:
+   \   00005A   3C900A00     CMP.W   #0xa, R12
+   \   00005E   0C38         JL      ??HEXtoBCD_5
+     33              hex_value = hex_value -TENS;
+   \   000060   3C50F6FF     ADD.W   #0xfff6, R12
+     34              value++;
+   \   000064   1F53         ADD.W   #0x1, R15
+     35              bcd_char [CHAR2] = ASCII_SHIFT + value;
+   \   000066   0E12         PUSH.W  R14
+   \   000068   C14F0000     MOV.B   R15, 0(SP)
+   \   00006C   3E41         POP.W   R14
+   \   00006E   7E503000     ADD.B   #0x30, R14
+   \   000072   C24E....     MOV.B   R14, &bcd_char + 2
+   \   000076   F13F         JMP     ??HEXtoBCD_2
+     36            }
+     37            bcd_char [CHAR3] = ASCII_SHIFT + hex_value ;
+   \                     ??HEXtoBCD_5:
+   \   000078   0E12         PUSH.W  R14
+   \   00007A   C14C0000     MOV.B   R12, 0(SP)
+   \   00007E   3E41         POP.W   R14
+   \   000080   7E503000     ADD.B   #0x30, R14
+   \   000084   C24E....     MOV.B   R14, &bcd_char + 3
+     38          }
+   \   000088   1001         RETA
+     39          //******************************************************************************
+     40          // ------------------------------------------------------------------------------
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      6   HEXtoBCD
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+     138  HEXtoBCD
+       4  bcd_char
+
+ 
+ 138 bytes in segment CODE
+   4 bytes in segment DATA16_Z
+ 
+ 138 bytes of CODE memory
+   4 bytes of DATA memory
+
+Errors: none
+Warnings: none

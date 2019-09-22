@@ -1,0 +1,186 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           01/Apr/2019  15:35:01
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project 08\menu.c
+#    Command line  =  
+#        -f C:\Users\Michael\AppData\Local\Temp\EW23B4.tmp
+#        ("C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        08\menu.c" -lC "C:\Users\Michael\Documents\2019\ECE
+#        306\ECE-306_code\Project 08\Debug\List" -o
+#        "C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        08\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        08\Debug\List\menu.lst
+#    Object file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        08\Debug\Obj\menu.r43
+#
+###############################################################################
+
+C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project 08\menu.c
+      1          
+      2          #include  "functions.h"
+      3          #include  "msp430.h"
+      4          #include "macros.h"
+      5          #include <string.h>
+      6          
+      7          extern unsigned int freq;
+      8          extern char display_line[FOURTH][COUNT_ELEVEN];
+      9          extern volatile unsigned char display_changed;
+     10          extern unsigned int menu;
+     11          extern unsigned int capture;
+     12          extern char serial_state;
+     13          
+     14          
+
+   \                                 In  segment CODE, align 2
+     15          void menu_switch(void){
+   \                     menu_switch:
+     16            Begin_ADC();
+   \   000000   ........     CALLA   #Begin_ADC
+     17            if(!capture){
+   \   000004   8293....     CMP.W   #0x0, &capture
+   \   000008   3420         JNE     ??menu_switch_2
+     18              switch(menu){
+   \   00000A   1F42....     MOV.W   &menu, R15
+   \   00000E   0F83         SUB.W   #0x0, R15
+   \   000010   0F24         JEQ     ??menu_switch_3
+   \   000012   1F83         SUB.W   #0x1, R15
+   \   000014   1824         JEQ     ??menu_switch_4
+   \   000016   1F83         SUB.W   #0x1, R15
+   \   000018   1624         JEQ     ??menu_switch_4
+   \   00001A   1F83         SUB.W   #0x1, R15
+   \   00001C   1424         JEQ     ??menu_switch_4
+   \   00001E   1F83         SUB.W   #0x1, R15
+   \   000020   1D24         JEQ     ??menu_switch_5
+   \   000022   1F83         SUB.W   #0x1, R15
+   \   000024   1B24         JEQ     ??menu_switch_5
+   \   000026   1F83         SUB.W   #0x1, R15
+   \   000028   1924         JEQ     ??menu_switch_5
+   \   00002A   1F83         SUB.W   #0x1, R15
+   \   00002C   1724         JEQ     ??menu_switch_5
+   \   00002E   1001         RETA
+     19                case s0:
+     20                  strcpy(display_line[THIRD_LINE],"BR: 9.6k");
+   \                     ??menu_switch_3:
+   \   000030   3D40....     MOV.W   #`?<Constant "BR: 9.6k">`, R13
+   \   000034   3C40....     MOV.W   #display_line + 22, R12
+   \   000038   ........     CALLA   #strcpy
+     21                  display_changed = HIGH;
+   \   00003C   D243....     MOV.B   #0x1, &display_changed
+     22                  freq = K96;
+   \   000040   A243....     MOV.W   #0x2, &freq
+     23                  break;
+   \   000044   1001         RETA
+     24                case s1:
+     25                case s2:
+     26                case s3:
+     27                  strcpy(display_line[THIRD_LINE],"BR: 115.2k");
+   \                     ??menu_switch_4:
+   \   000046   3D40....     MOV.W   #`?<Constant "BR: 115.2k">`, R13
+   \   00004A   3C40....     MOV.W   #display_line + 22, R12
+   \   00004E   ........     CALLA   #strcpy
+     28                  display_changed = HIGH;
+   \   000052   D243....     MOV.B   #0x1, &display_changed
+     29                  freq = K115;
+   \   000056   8243....     MOV.W   #0x0, &freq
+     30                  break;
+   \   00005A   1001         RETA
+     31                case s4:
+     32                case s5:
+     33                case s6:
+     34                case s7:
+     35                  strcpy(display_line[THIRD_LINE],"BR: 460.8k");
+   \                     ??menu_switch_5:
+   \   00005C   3D40....     MOV.W   #`?<Constant "BR: 460.8k">`, R13
+   \   000060   3C40....     MOV.W   #display_line + 22, R12
+   \   000064   ........     CALLA   #strcpy
+     36                  display_changed = HIGH;
+   \   000068   D243....     MOV.B   #0x1, &display_changed
+     37                  freq = K460;
+   \   00006C   9243....     MOV.W   #0x1, &freq
+     38                  break;
+   \   000070   1001         RETA
+     39                default: break;
+     40                }
+     41            }
+     42            else{
+     43              capture = LOW;
+   \                     ??menu_switch_2:
+   \   000072   8243....     MOV.W   #0x0, &capture
+     44             Configure_Serial();
+   \   000076   ........     CALLA   #Configure_Serial
+     45             serial_state = WAITING;
+   \   00007A   F2407700.... MOV.B   #0x77, &serial_state
+     46             End_ADC();
+   \   000080   ........     CALLA   #End_ADC
+     47             Begin_Serial();
+   \   000084   ........     BRA     #Begin_Serial
+     48            }
+     49          }
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "BR: 9.6k">`:
+   \   000000   42523A20392E DC8 "BR: 9.6k"
+   \            366B00      
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "BR: 115.2k">`:
+   \   000000   42523A203131 DC8 "BR: 115.2k"
+   \            352E326B00  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "BR: 460.8k">`:
+   \   000000   42523A203436 DC8 "BR: 460.8k"
+   \            302E386B00  
+     50          
+     51          
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      4   menu_switch
+        4   -> Begin_ADC
+        0   -> Begin_Serial
+        4   -> Configure_Serial
+        4   -> End_ADC
+        4   -> strcpy
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      11  ?<Constant "BR: 115.2k">
+      11  ?<Constant "BR: 460.8k">
+       9  ?<Constant "BR: 9.6k">
+     136  menu_switch
+
+ 
+ 136 bytes in segment CODE
+  31 bytes in segment DATA16_C
+ 
+ 136 bytes of CODE  memory
+  31 bytes of CONST memory
+
+Errors: none
+Warnings: none

@@ -1,0 +1,407 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           31/Mar/2019  12:03:05
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        07\calibrate.c
+#    Command line  =  
+#        -f C:\Users\Michael\AppData\Local\Temp\EWF2D9.tmp
+#        ("C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        07\calibrate.c" -lC "C:\Users\Michael\Documents\2019\ECE
+#        306\ECE-306_code\Project 07\Debug\List" -o
+#        "C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        07\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        07\Debug\List\calibrate.lst
+#    Object file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        07\Debug\Obj\calibrate.r43
+#
+###############################################################################
+
+C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project 07\calibrate.c
+      1          //------------------------------------------------------------------------------
+      2          //
+      3          //  Description: This file contains the functions execute a White/Black 
+      4          //     detection calibration
+      5          //  
+      6          //
+      7          //  Michael Barilla
+      8          //  Mar 2019
+      9          //  Built with IAR Embedded Workbench Version: V4.10A/W32 (7.11.2)
+     10          //------------------------------------------------------------------------------
+     11          #include  "functions.h"
+     12          #include  "msp430.h"
+
+   \                                 In  segment DATA16_AN, at 0x202
+   \   union <unnamed> _A_PAOUT_L
+   \                     _A_PAOUT_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x242
+   \   union <unnamed> _A_PCOUT_L
+   \                     _A_PCOUT_L:
+   \   000000                DS8 2
+     13          #include "macros.h"
+     14          #include <string.h>
+     15          
+     16          extern char display_line[FOURTH][COUNT_ELEVEN];
+     17          extern volatile unsigned char display_changed;
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     18          unsigned int calibrate_count = RESET;
+   \                     calibrate_count:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     19          unsigned int white = RESET;
+   \                     white:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     20          unsigned int black = RESET;
+   \                     black:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     21          unsigned int midpoint = RESET;
+   \                     midpoint:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     22          unsigned int R_average;
+   \                     R_average:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     23          unsigned int L_average;
+   \                     L_average:
+   \   000000                DS8 2
+     24          extern unsigned int R_count;
+     25          extern unsigned int L_count;
+     26          extern unsigned int V_Detect_R[MAX_ARRAY];
+     27          extern unsigned int V_Detect_L[MAX_ARRAY];
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     28          unsigned int sumR;
+   \                     sumR:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     29          unsigned int sumL;
+   \                     sumL:
+   \   000000                DS8 2
+     30          extern unsigned int capture;
+
+   \                                 In  segment DATA16_I, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_copy
+     31          char state = CALIBRATE;
+   \                     state:
+   \   000000                DS8 1
+   \   000001                REQUIRE `?<Initializer for state>`
+     32          extern char bcd_char [CHAR_LENGTH];
+     33          
+
+   \                                 In  segment CODE, align 2
+     34          void calibrate(void){
+   \                     calibrate:
+     35            displayADC();
+   \   000000   ........     CALLA   #displayADC
+     36            if(!white){
+   \   000004   8293....     CMP.W   #0x0, &white
+   \   000008   2D20         JNE     ??calibrate_0
+     37              strcpy(display_line[FOURTH_LINE],"CALIB WHTE");
+   \   00000A   3D40....     MOV.W   #`?<Constant "CALIB WHTE">`, R13
+   \   00000E   3C40....     MOV.W   #display_line + 33, R12
+   \   000012   ........     CALLA   #strcpy
+     38              display_changed = HIGH;
+   \   000016   D243....     MOV.B   #0x1, &display_changed
+     39              if(capture){
+   \   00001A   8293....     CMP.W   #0x0, &capture
+   \   00001E   1C24         JEQ     ??calibrate_1
+     40                Read_ADC();
+   \   000020   ........     CALLA   #Read_ADC
+     41                if(calibrate_count++ == COUNT_FIFTY){
+   \   000024   1F42....     MOV.W   &calibrate_count, R15
+   \   000028   0E4F         MOV.W   R15, R14
+   \   00002A   1E53         ADD.W   #0x1, R14
+   \   00002C   824E....     MOV.W   R14, &calibrate_count
+   \   000030   3F903200     CMP.W   #0x32, R15
+   \   000034   0B20         JNE     ??calibrate_2
+     42                  white = (R_average+L_average)/SECOND;
+   \   000036   1F42....     MOV.W   &R_average, R15
+   \   00003A   1F52....     ADD.W   &L_average, R15
+   \   00003E   5F03         RRUM.W  #0x1, R15
+   \   000040   824F....     MOV.W   R15, &white
+     43                  calibrate_count = RESET;
+   \   000044   8243....     MOV.W   #0x0, &calibrate_count
+     44                  capture = RESET;
+   \   000048   8243....     MOV.W   #0x0, &capture
+     45                }
+     46                RED_LED_ON;
+   \                     ??calibrate_2:
+   \   00004C   D2D30202     BIS.B   #0x1, &0x202
+     47                GREEN_LED_OFF;
+   \   000050   F2C040004302 BIC.B   #0x40, &0x243
+   \   000056   1001         RETA
+     48              }
+     49              else{
+     50                GREEN_LED_ON;
+   \                     ??calibrate_1:
+   \   000058   F2D040004302 BIS.B   #0x40, &0x243
+     51                RED_LED_OFF;
+   \   00005E   D2C30202     BIC.B   #0x1, &0x202
+   \   000062   1001         RETA
+     52              }
+     53            }
+     54            else if(!black) {
+   \                     ??calibrate_0:
+   \   000064   8293....     CMP.W   #0x0, &black
+   \   000068   2D20         JNE     ??calibrate_3
+     55              strcpy(display_line[FOURTH_LINE],"CALIB BLCK");
+   \   00006A   3D40....     MOV.W   #`?<Constant "CALIB BLCK">`, R13
+   \   00006E   3C40....     MOV.W   #display_line + 33, R12
+   \   000072   ........     CALLA   #strcpy
+     56              display_changed = HIGH;
+   \   000076   D243....     MOV.B   #0x1, &display_changed
+     57              if(capture){
+   \   00007A   8293....     CMP.W   #0x0, &capture
+   \   00007E   1C24         JEQ     ??calibrate_4
+     58                if(calibrate_count++ == COUNT_FIFTY){
+   \   000080   1F42....     MOV.W   &calibrate_count, R15
+   \   000084   0E4F         MOV.W   R15, R14
+   \   000086   1E53         ADD.W   #0x1, R14
+   \   000088   824E....     MOV.W   R14, &calibrate_count
+   \   00008C   3F903200     CMP.W   #0x32, R15
+   \   000090   0D20         JNE     ??calibrate_5
+     59                  Read_ADC();
+   \   000092   ........     CALLA   #Read_ADC
+     60                  black = (R_average+L_average)/DIV_BY_TWO;
+   \   000096   1F42....     MOV.W   &R_average, R15
+   \   00009A   1F52....     ADD.W   &L_average, R15
+   \   00009E   5F03         RRUM.W  #0x1, R15
+   \   0000A0   824F....     MOV.W   R15, &black
+     61                  calibrate_count = RESET;
+   \   0000A4   8243....     MOV.W   #0x0, &calibrate_count
+     62                  capture = RESET;
+   \   0000A8   8243....     MOV.W   #0x0, &capture
+     63                }
+     64                RED_LED_ON;
+   \                     ??calibrate_5:
+   \   0000AC   D2D30202     BIS.B   #0x1, &0x202
+     65                GREEN_LED_OFF;
+   \   0000B0   F2C040004302 BIC.B   #0x40, &0x243
+   \   0000B6   1001         RETA
+     66              }
+     67              else{
+     68                GREEN_LED_ON;
+   \                     ??calibrate_4:
+   \   0000B8   F2D040004302 BIS.B   #0x40, &0x243
+     69                RED_LED_OFF;
+   \   0000BE   D2C30202     BIC.B   #0x1, &0x202
+   \   0000C2   1001         RETA
+     70              }
+     71            }
+     72            else{
+     73              midpoint = ((black-white)/5) + white;
+   \                     ??calibrate_3:
+   \   0000C4   1C42....     MOV.W   &black, R12
+   \   0000C8   1C82....     SUB.W   &white, R12
+   \   0000CC   3E400500     MOV.W   #0x5, R14
+   \   0000D0   ........     CALLA   #?DivMod16u
+   \   0000D4   1C52....     ADD.W   &white, R12
+   \   0000D8   824C....     MOV.W   R12, &midpoint
+     74              state = INTERCEPT;
+   \   0000DC   F2406900.... MOV.B   #0x69, &state
+     75              strcpy(display_line[FOURTH_LINE],"          ");
+   \   0000E2   3D40....     MOV.W   #`?<Constant "          ">`, R13
+   \   0000E6   3C40....     MOV.W   #display_line + 33, R12
+   \   0000EA   ........     CALLA   #strcpy
+     76              GREEN_LED_ON;
+   \   0000EE   F2D040004302 BIS.B   #0x40, &0x243
+     77              RED_LED_OFF;
+   \   0000F4   D2C30202     BIC.B   #0x1, &0x202
+     78            }
+     79          }
+   \   0000F8   1001         RETA
+   \   0000FA                REQUIRE _A_PAOUT_L
+   \   0000FA                REQUIRE _A_PCOUT_L
+     80          
+
+   \                                 In  segment CODE, align 2
+     81          void Read_ADC(void){
+   \                     Read_ADC:
+     82            int i;
+     83            sumR = RESET;
+   \   000000   8243....     MOV.W   #0x0, &sumR
+     84            sumL = RESET;
+   \   000004   8243....     MOV.W   #0x0, &sumL
+     85            for(i=BEGIN_ARRAY; i<MAX_ARRAY; i++) sumR = sumR + V_Detect_R[i];
+   \   000008   0E43         MOV.W   #0x0, R14
+   \                     ??Read_ADC_0:
+   \   00000A   3E92         CMP.W   #0x8, R14
+   \   00000C   0734         JGE     ??Read_ADC_2
+   \   00000E   0F4E         MOV.W   R14, R15
+   \   000010   0F5F         RLA.W   R15
+   \   000012   925F........ ADD.W   V_Detect_R(R15), &sumR
+   \   000018   1E53         ADD.W   #0x1, R14
+   \   00001A   F73F         JMP     ??Read_ADC_0
+     86            for(i=BEGIN_ARRAY; i<MAX_ARRAY; i++) sumL = sumL + V_Detect_L[i];
+   \                     ??Read_ADC_2:
+   \   00001C   0E43         MOV.W   #0x0, R14
+   \                     ??Read_ADC_1:
+   \   00001E   3E92         CMP.W   #0x8, R14
+   \   000020   0734         JGE     ??Read_ADC_3
+   \   000022   0F4E         MOV.W   R14, R15
+   \   000024   0F5F         RLA.W   R15
+   \   000026   925F........ ADD.W   V_Detect_L(R15), &sumL
+   \   00002C   1E53         ADD.W   #0x1, R14
+   \   00002E   F73F         JMP     ??Read_ADC_1
+     87            R_average = (sumR>>SHIFT);
+   \                     ??Read_ADC_3:
+   \   000030   1F42....     MOV.W   &sumR, R15
+   \   000034   5F0B         RRUM.W  #0x3, R15
+   \   000036   824F....     MOV.W   R15, &R_average
+     88            L_average = sumL>>SHIFT;
+   \   00003A   1F42....     MOV.W   &sumL, R15
+   \   00003E   5F0B         RRUM.W  #0x3, R15
+   \   000040   824F....     MOV.W   R15, &L_average
+     89            R_count = RESET;
+   \   000044   8243....     MOV.W   #0x0, &R_count
+     90            L_count = RESET;
+   \   000048   8243....     MOV.W   #0x0, &L_count
+     91            
+     92          }
+   \   00004C   1001         RETA
+     93          
+
+   \                                 In  segment CODE, align 2
+     94          void displayADC(void){
+   \                     displayADC:
+     95            Read_ADC();
+   \   000000   ........     CALLA   #Read_ADC
+     96            HEXtoBCD(L_average);
+   \   000004   1C42....     MOV.W   &L_average, R12
+   \   000008   ........     CALLA   #HEXtoBCD
+     97            display_line[THIRD_LINE][CHAR0] = bcd_char[CHAR0];
+   \   00000C   D242........ MOV.B   &bcd_char, &display_line + 22
+     98            display_line[THIRD_LINE][CHAR1] = bcd_char[CHAR1];
+   \   000012   D242........ MOV.B   &bcd_char + 1, &display_line + 23
+     99            display_line[THIRD_LINE][CHAR2] = bcd_char[CHAR2];
+   \   000018   D242........ MOV.B   &bcd_char + 2, &display_line + 24
+    100            display_line[THIRD_LINE][CHAR3] = bcd_char[CHAR3];
+   \   00001E   D242........ MOV.B   &bcd_char + 3, &display_line + 25
+    101            HEXtoBCD(R_average);
+   \   000024   1C42....     MOV.W   &R_average, R12
+   \   000028   ........     CALLA   #HEXtoBCD
+    102            display_line[THIRD_LINE][CHAR5] = bcd_char[CHAR0];
+   \   00002C   D242........ MOV.B   &bcd_char, &display_line + 27
+    103            display_line[THIRD_LINE][CHAR6] = bcd_char[CHAR1];
+   \   000032   D242........ MOV.B   &bcd_char + 1, &display_line + 28
+    104            display_line[THIRD_LINE][CHAR7] = bcd_char[CHAR2];
+   \   000038   D242........ MOV.B   &bcd_char + 2, &display_line + 29
+    105            display_line[THIRD_LINE][CHAR8] = bcd_char[CHAR3];
+   \   00003E   D242........ MOV.B   &bcd_char + 3, &display_line + 30
+    106            display_line[THIRD_LINE][CHAR4] = ' ';
+   \   000044   F2402000.... MOV.B   #0x20, &display_line + 26
+    107          }
+   \   00004A   1001         RETA
+
+   \                                 In  segment DATA16_ID, align 1, align-sorted
+   \                     `?<Initializer for state>`:
+   \   000000   63           DC8 99
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "CALIB WHTE">`:
+   \   000000   43414C494220 DC8 "CALIB WHTE"
+   \            5748544500  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "CALIB BLCK">`:
+   \   000000   43414C494220 DC8 "CALIB BLCK"
+   \            424C434B00  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "          ">`:
+   \   000000   202020202020 DC8 "          "
+   \            2020202000  
+    108          
+    109          
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      4   Read_ADC
+      4   calibrate
+        4   -> Read_ADC
+        4   -> displayADC
+        4   -> strcpy
+        4 ?DivMod16u
+      4   displayADC
+        4   -> HEXtoBCD
+        4   -> Read_ADC
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      11  ?<Constant "          ">
+      11  ?<Constant "CALIB BLCK">
+      11  ?<Constant "CALIB WHTE">
+       1  ?<Initializer for state>
+       2  L_average
+       2  R_average
+      78  Read_ADC
+       2  _A_PAOUT_L
+       2  _A_PCOUT_L
+       2  black
+     250  calibrate
+       2  calibrate_count
+      76  displayADC
+       2  midpoint
+       1  state
+       2  sumL
+       2  sumR
+       2  white
+
+ 
+ 404 bytes in segment CODE
+   4 bytes in segment DATA16_AN
+  33 bytes in segment DATA16_C
+   1 byte  in segment DATA16_I
+   1 byte  in segment DATA16_ID
+  16 bytes in segment DATA16_Z
+ 
+ 404 bytes of CODE  memory
+  34 bytes of CONST memory
+  17 bytes of DATA  memory (+ 4 bytes shared)
+
+Errors: none
+Warnings: none

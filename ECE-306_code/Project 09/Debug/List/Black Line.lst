@@ -1,0 +1,269 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           10/Apr/2019  23:59:35
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework 09 -
+#        copy\Black Line.c
+#    Command line  =  
+#        -f C:\Users\Michael\AppData\Local\Temp\EWA23.tmp
+#        ("C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework 09 -
+#        copy\Black Line.c" -lC "C:\Users\Michael\Documents\2019\ECE
+#        306\ECE-306_code\Homework 09 - copy\Debug\List" -o
+#        "C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework 09 -
+#        copy\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework 09 -
+#        copy\Debug\List\Black Line.lst
+#    Object file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework 09 -
+#        copy\Debug\Obj\Black Line.r43
+#
+###############################################################################
+
+C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework 09 - copy\Black Line.c
+      1          //------------------------------------------------------------------------------
+      2          //
+      3          //  Description: This file contains the function that utalizes the ADC to follow 
+      4          //               a black line that is on the ground and drive along the path.//  
+      5          //
+      6          //  Michael Barilla
+      7          //  Mar 2019
+      8          //  Built with IAR Embedded Workbench Version: V4.10A/W32 (7.11.2)
+      9          //------------------------------------------------------------------------------
+     10          #include  "functions.h"
+     11          #include  "msp430.h"
+
+   \                                 In  segment DATA16_AN, at 0x386
+   \   union <unnamed> _A_TB0CCTL2_L
+   \                     _A_TB0CCTL2_L:
+   \   000000                DS8 2
+     12          #include "macros.h"
+     13          #include <string.h>
+     14          
+     15          extern char display_line[FOURTH][COUNT_ELEVEN];
+     16          extern volatile unsigned char display_changed;
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     17          unsigned int capture;
+   \                     capture:
+   \   000000                DS8 2
+     18          extern volatile unsigned int newSecond;
+     19          extern char state;
+     20          extern unsigned int time_count_en;
+     21          extern unsigned int runDrive;
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     22          unsigned int testSignal;
+   \                     testSignal:
+   \   000000                DS8 2
+     23          
+     24          extern unsigned int waitTime;
+     25          extern unsigned int endWait;
+     26          
+
+   \                                 In  segment CODE, align 2
+     27          void blackLine(void){
+   \                     blackLine:
+     28              switch(state){
+   \   000000   5E42....     MOV.B   &state, R14
+   \   000004   7E806300     SUB.B   #0x63, R14
+   \   000008   0D24         JEQ     ??blackLine_4
+   \   00000A   5E83         SUB.B   #0x1, R14
+   \   00000C   2E24         JEQ     ??blackLine_5
+   \   00000E   7E800500     SUB.B   #0x5, R14
+   \   000012   1224         JEQ     ??blackLine_6
+   \   000014   7E800A00     SUB.B   #0xa, R14
+   \   000018   4324         JEQ     ??blackLine_7
+   \   00001A   5E83         SUB.B   #0x1, R14
+   \   00001C   1724         JEQ     ??blackLine_8
+   \   00001E   5E83         SUB.B   #0x1, R14
+   \   000020   3024         JEQ     ??blackLine_9
+   \   000022   1001         RETA
+     29              case CALIBRATE:
+     30                strcpy(display_line[SECOND_LINE],"CALIBRATE ");
+   \                     ??blackLine_4:
+   \   000024   3D40....     MOV.W   #`?<Constant "CALIBRATE ">`, R13
+   \   000028   3C40....     MOV.W   #display_line + 11, R12
+   \   00002C   ........     CALLA   #strcpy
+     31                display_changed = HIGH;
+   \   000030   D243....     MOV.B   #0x1, &display_changed
+     32                calibrate();
+   \   000034   ........     BRA     #calibrate
+     33                break;
+     34              case INTERCEPT:
+     35                strcpy(display_line[SECOND_LINE],"INTERCEPT ");
+   \                     ??blackLine_6:
+   \   000038   3D40....     MOV.W   #`?<Constant "INTERCEPT ">`, R13
+   \   00003C   3C40....     MOV.W   #display_line + 11, R12
+   \   000040   ........     CALLA   #strcpy
+     36                display_changed = HIGH;
+   \   000044   D243....     MOV.B   #0x1, &display_changed
+     37                intercept();
+   \   000048   ........     BRA     #intercept
+     38                break;
+     39              case TURN: 
+     40                strcpy(display_line[SECOND_LINE],"  TURNING ");
+   \                     ??blackLine_8:
+   \   00004C   3D40....     MOV.W   #`?<Constant "  TURNING ">`, R13
+   \   000050   3C40....     MOV.W   #display_line + 11, R12
+   \   000054   ........     CALLA   #strcpy
+     41                if(drivePivot(FIRST))state = DRIVE;
+   \   000058   1C43         MOV.W   #0x1, R12
+   \   00005A   ........     CALLA   #drivePivot
+   \   00005E   0C93         CMP.W   #0x0, R12
+   \   000060   4624         JEQ     ??blackLine_3
+   \   000062   F2406400.... MOV.B   #0x64, &state
+     42                break;
+   \   000068   1001         RETA
+     43              case DRIVE:
+     44                strcpy(display_line[SECOND_LINE],"  CIRCLING ");
+   \                     ??blackLine_5:
+   \   00006A   3D40....     MOV.W   #`?<Constant "  CIRCLING ">`, R13
+   \   00006E   3C40....     MOV.W   #display_line + 11, R12
+   \   000072   ........     CALLA   #strcpy
+     45                display_changed = HIGH;
+   \   000076   D243....     MOV.B   #0x1, &display_changed
+     46                time_count_en = HIGH;
+   \   00007A   9243....     MOV.W   #0x1, &time_count_en
+     47                followCircle();
+   \   00007E   ........     BRA     #followCircle
+     48                break;
+     49              case TURN2: 
+     50                strcpy(display_line[SECOND_LINE],"  TURNING ");
+   \                     ??blackLine_9:
+   \   000082   3D40....     MOV.W   #`?<Constant "  TURNING ">`, R13
+   \   000086   3C40....     MOV.W   #display_line + 11, R12
+   \   00008A   ........     CALLA   #strcpy
+     51                if(drivePivot(FIRST))state = STOP;
+   \   00008E   1C43         MOV.W   #0x1, R12
+   \   000090   ........     CALLA   #drivePivot
+   \   000094   0C93         CMP.W   #0x0, R12
+   \   000096   2B24         JEQ     ??blackLine_3
+   \   000098   F2407300.... MOV.B   #0x73, &state
+     52                break;
+   \   00009E   1001         RETA
+     53              case STOP:
+     54                strcpy(display_line[SECOND_LINE],"  STOP   ");
+   \                     ??blackLine_7:
+   \   0000A0   3D40....     MOV.W   #`?<Constant "  STOP   ">`, R13
+   \   0000A4   3C40....     MOV.W   #display_line + 11, R12
+   \   0000A8   ........     CALLA   #strcpy
+     55                display_changed = HIGH;
+   \   0000AC   D243....     MOV.B   #0x1, &display_changed
+     56                time_count_en = LOW;
+   \   0000B0   8243....     MOV.W   #0x0, &time_count_en
+     57                driveForward(CRUISE,CRUISE);
+   \   0000B4   3D40409C     MOV.W   #0x9c40, R13
+   \   0000B8   3C40409C     MOV.W   #0x9c40, R12
+   \   0000BC   ........     CALLA   #driveForward
+     58                waitTime = TWOSECS;
+   \   0000C0   B2402800.... MOV.W   #0x28, &waitTime
+     59                TB0CCTL2 &=~ CCIFG;
+   \   0000C6   92C38603     BIC.W   #0x1, &0x386
+     60                TB0CCTL2 |= CCIE;
+   \   0000CA   B2D010008603 BIS.W   #0x10, &0x386
+     61                if(endWait){
+   \   0000D0   8293....     CMP.W   #0x0, &endWait
+   \   0000D4   0C24         JEQ     ??blackLine_3
+     62                    TB0CCTL2 &= ~CCIE;
+   \   0000D6   B2C010008603 BIC.W   #0x10, &0x386
+     63                    state = INTERCEPT;
+   \   0000DC   F2406900.... MOV.B   #0x69, &state
+     64                    endWait = RESET;
+   \   0000E2   8243....     MOV.W   #0x0, &endWait
+     65                    capture = LOW;
+   \   0000E6   8243....     MOV.W   #0x0, &capture
+     66                    All_Wheel_Off();
+   \   0000EA   ........     CALLA   #All_Wheel_Off
+     67                }
+     68                break;
+     69              default: break;
+     70              }
+     71          }
+   \                     ??blackLine_3:
+   \   0000EE   1001         RETA
+   \   0000F0                REQUIRE _A_TB0CCTL2_L
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "CALIBRATE ">`:
+   \   000000   43414C494252 DC8 "CALIBRATE "
+   \            4154452000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "INTERCEPT ">`:
+   \   000000   494E54455243 DC8 "INTERCEPT "
+   \            4550542000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "  TURNING ">`:
+   \   000000   20205455524E DC8 "  TURNING "
+   \            494E472000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "  CIRCLING ">`:
+   \   000000   202043495243 DC8 "  CIRCLING "
+   \            4C494E472000
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "  STOP   ">`:
+   \   000000   202053544F50 DC8 "  STOP   "
+   \            20202000    
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      4   blackLine
+        4   -> All_Wheel_Off
+        0   -> calibrate
+        4   -> driveForward
+        4   -> drivePivot
+        0   -> followCircle
+        0   -> intercept
+        4   -> strcpy
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      12  ?<Constant "  CIRCLING ">
+      10  ?<Constant "  STOP   ">
+      11  ?<Constant "  TURNING ">
+      11  ?<Constant "CALIBRATE ">
+      11  ?<Constant "INTERCEPT ">
+       2  _A_TB0CCTL2_L
+     240  blackLine
+       2  capture
+       2  testSignal
+
+ 
+ 240 bytes in segment CODE
+   2 bytes in segment DATA16_AN
+  55 bytes in segment DATA16_C
+   4 bytes in segment DATA16_Z
+ 
+ 240 bytes of CODE  memory
+  55 bytes of CONST memory
+   4 bytes of DATA  memory (+ 2 bytes shared)
+
+Errors: none
+Warnings: none

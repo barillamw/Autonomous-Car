@@ -1,0 +1,182 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           22/Feb/2019  00:56:24
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework
+#        06\timers.c
+#    Command line  =  
+#        -f C:\Users\Michael\AppData\Local\Temp\EWDCB3.tmp
+#        ("C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework
+#        06\timers.c" -lC "C:\Users\Michael\Documents\2019\ECE
+#        306\ECE-306_code\Homework 06\Debug\List" -o
+#        "C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework
+#        06\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework
+#        06\Debug\List\timers.lst
+#    Object file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework
+#        06\Debug\Obj\timers.r43
+#
+###############################################################################
+
+C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework 06\timers.c
+      1          #include  "msp430.h"
+
+   \                                 In  segment DATA16_AN, at 0x380
+   \   union <unnamed> _A_TB0CTL_L
+   \                     _A_TB0CTL_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x382
+   \   union <unnamed> _A_TB0CCTL0_L
+   \                     _A_TB0CCTL0_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x384
+   \   union <unnamed> _A_TB0CCTL1_L
+   \                     _A_TB0CCTL1_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x392
+   \   union <unnamed> _A_TB0CCR0_L
+   \                     _A_TB0CCR0_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x394
+   \   union <unnamed> _A_TB0CCR1_L
+   \                     _A_TB0CCR1_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x3a0
+   \   union <unnamed> _A_TB0EX0_L
+   \                     _A_TB0EX0_L:
+   \   000000                DS8 2
+      2          #include  "macros.h"
+      3          #include  "functions.h"
+      4          
+      5          
+
+   \                                 In  segment CODE, align 2
+      6          void Init_Timers(void){
+   \                     Init_Timers:
+      7            Init_Timer_B0();
+   \   000000   ........     BRA     #Init_Timer_B0
+      8          }
+      9          
+     10          
+     11          //-----------------------------------------------------------------------------
+     12          // Timer B0 initialization sets up both B0_0, B0_1-B0_2 and overflow
+     13          //-----------------------------------------------------------------------------
+
+   \                                 In  segment CODE, align 2
+     14          void Init_Timer_B0(void){
+   \                     Init_Timer_B0:
+     15          
+     16            TB0CTL = RESET;               // Clear TB0 Control Register
+   \   000000   82438003     MOV.W   #0x0, &0x380
+     17            TB0EX0 = RESET;               // Clear TBIDEX Register
+   \   000004   8243A003     MOV.W   #0x0, &0x3a0
+     18            TB0CTL |= TBSSEL__SMCLK;      // SMCLK source
+   \   000008   B2D000028003 BIS.W   #0x200, &0x380
+     19            TB0CTL |= MC__CONTINOUS;      // Continuous up to 0xFFFF and overflow
+   \   00000E   B2D020008003 BIS.W   #0x20, &0x380
+     20            TB0CTL |= ID__2;              // Divide clock by 2
+   \   000014   B2D040008003 BIS.W   #0x40, &0x380
+     21            TB0EX0 |= TBIDEX__8;          // Divide clock by an additional 8
+   \   00001A   B2D00700A003 BIS.W   #0x7, &0x3a0
+     22            TB0CTL |= TBCLR;              // Resets TB0R,
+   \   000020   A2D28003     BIS.W   #0x4, &0x380
+     23            
+     24            // Capture Compare 0
+     25            // #pragma vector = TIMER0_B0_VECTOR
+     26            
+     27            // Capture Compare 0 - LCD Flash
+     28            TB0CCR0 = TB0CCR0_INTERVAL;   // CCR0
+   \   000024   B240A8619203 MOV.W   #0x61a8, &0x392
+     29            TB0CCTL0 |= CCIE;             // CCR0 enable interrupt
+   \   00002A   B2D010008203 BIS.W   #0x10, &0x382
+     30            
+     31            // Capture Compare 1,2, Overflow
+     32            // #pragma vector = TIMER0_B1_VECTOR
+     33            
+     34            // Capture compare 1 - Switch Debounce
+     35            TB0CCR1 = TB0CCR1_INTERVAL;// CCR1
+   \   000030   B240409C9403 MOV.W   #0x9c40, &0x394
+     36            TB0CCTL1 &= ~CCIFG; // CCR1 clear interrupt flag
+   \   000036   92C38403     BIC.W   #0x1, &0x384
+     37            TB0CCTL1 &= ~CCIE; // CCR1 disable interrupt
+   \   00003A   B2C010008403 BIC.W   #0x10, &0x384
+     38            
+     39            // Capture compare 2 - LCD Update
+     40           //TB0CCR2 = TB0CCR2_INTERVAL;// CCR2
+     41           //TB0CCTL2 |= CCIE; // CCR2 enable interrupt
+     42            
+     43          
+     44            
+     45            // Overflow
+     46            TB0CTL &= ~TBIE; // Disable Overflow Interrupt
+   \   000040   A2C38003     BIC.W   #0x2, &0x380
+     47            TB0CTL &= ~TBIFG; // Clear Overflow Interrupt flag
+   \   000044   92C38003     BIC.W   #0x1, &0x380
+     48          }
+   \   000048   1001         RETA
+   \   00004A                REQUIRE _A_TB0CTL_L
+   \   00004A                REQUIRE _A_TB0EX0_L
+   \   00004A                REQUIRE _A_TB0CCR0_L
+   \   00004A                REQUIRE _A_TB0CCTL0_L
+   \   00004A                REQUIRE _A_TB0CCR1_L
+   \   00004A                REQUIRE _A_TB0CCTL1_L
+     49          
+     50          
+     51          
+     52          
+     53          
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      4   Init_Timer_B0
+      4   Init_Timers
+        0   -> Init_Timer_B0
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      74  Init_Timer_B0
+       4  Init_Timers
+       2  _A_TB0CCR0_L
+       2  _A_TB0CCR1_L
+       2  _A_TB0CCTL0_L
+       2  _A_TB0CCTL1_L
+       2  _A_TB0CTL_L
+       2  _A_TB0EX0_L
+
+ 
+ 78 bytes in segment CODE
+ 12 bytes in segment DATA16_AN
+ 
+ 78 bytes of CODE memory
+  0 bytes of DATA memory (+ 12 bytes shared)
+
+Errors: none
+Warnings: none

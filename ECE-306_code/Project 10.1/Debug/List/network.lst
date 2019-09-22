@@ -1,0 +1,418 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           25/Apr/2019  15:00:55
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10.1\network.c
+#    Command line  =  
+#        -f C:\Users\Michael\AppData\Local\Temp\EWBD7C.tmp
+#        ("C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10.1\network.c" -lC "C:\Users\Michael\Documents\2019\ECE
+#        306\ECE-306_code\Project 10.1\Debug\List" -o
+#        "C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10.1\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10.1\Debug\List\network.lst
+#    Object file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10.1\Debug\Obj\network.r43
+#
+###############################################################################
+
+C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project 10.1\network.c
+      1          //------------------------------------------------------------------------------
+      2          //
+      3          //  Description: This file contains the functions to update the network 
+      4          //   and maintain it during the code operation
+      5          //  
+      6          //
+      7          //  Michael Barilla
+      8          //  Apr 2019
+      9          //  Built with IAR Embedded Workbench Version: V4.10A/W32 (7.11.2)
+     10          //------------------------------------------------------------------------------
+     11          
+     12          #include  "functions.h"
+     13          #include  "msp430.h"
+
+   \                                 In  segment DATA16_AN, at 0x242
+   \   union <unnamed> _A_PCOUT_L
+   \                     _A_PCOUT_L:
+   \   000000                DS8 2
+     14          #include  "macros.h"
+     15          #include  <string.h>
+     16          #include  <stdio.h>
+     17          #include  <stdlib.h>
+     18          
+     19          
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     20          char statusNTWK;
+   \                     statusNTWK:
+   \   000000                DS8 1
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     21          char IOTcommand[SMALL_RING_SIZE];
+   \                     IOTcommand:
+   \   000000                DS8 16
+
+   \                                 In  segment DATA16_I, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_copy
+     22          char IP[SMALL_RING_SIZE] = "                ";
+   \                     IP:
+   \   000000                DS8 16
+   \   000010                REQUIRE `?<Initializer for IP>`
+
+   \                                 In  segment DATA16_I, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_copy
+     23          char SSID[COUNT_ELEVEN] = "          ";
+   \                     SSID:
+   \   000000                DS8 11
+   \   00000B                REQUIRE `?<Initializer for SSID>`
+     24          
+     25          extern char display_line[FOURTH][COUNT_ELEVEN];
+     26          
+
+   \                                 In  segment DATA16_I, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_copy
+     27          unsigned int sendPing = HIGH;
+   \                     sendPing:
+   \   000000                DS8 2
+   \   000002                REQUIRE `?<Initializer for sendPing>`
+
+   \                                 In  segment DATA16_I, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_copy
+     28          char PING[LARGE_RING_SIZE] = "AT+PING=www.pixar.com,3\r";
+   \                     PING:
+   \   000000                DS8 32
+   \   000020                REQUIRE `?<Initializer for PING>`
+     29          
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     30          int dotCount = RESET;
+   \                     dotCount:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     31          int firstDot=RESET;
+   \                     firstDot:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     32          int secondDot=RESET;
+   \                     secondDot:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     33          int thirdDot=RESET;
+   \                     thirdDot:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     34          int offset1 = RESET;
+   \                     offset1:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     35          int offset3 = RESET;
+   \                     offset3:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     36          int offset4 = RESET;
+   \                     offset4:
+   \   000000                DS8 2
+     37          
+
+   \                                 In  segment CODE, align 2
+     38          void network(void){
+   \                     network:
+     39              //IOT_Reset();
+     40              updateNetwork();
+   \   000000   ........     CALLA   #updateNetwork
+     41              ping();
+   \   000004   ........     BRA     #ping
+     42          }
+     43          
+
+   \                                 In  segment CODE, align 2
+     44          void updateNetwork(void){
+   \                     updateNetwork:
+   \   000000   0A12         PUSH.W  R10
+     45            int i = RESET;
+   \   000002   0A43         MOV.W   #0x0, R10
+     46          
+     47            
+     48            
+     49            switch(statusNTWK){
+   \   000004   5E42....     MOV.B   &statusNTWK, R14
+   \   000008   7E806400     SUB.B   #0x64, R14
+   \   00000C   1324         JEQ     ??updateNetwork_4
+   \   00000E   7E800A00     SUB.B   #0xa, R14
+   \   000012   0424         JEQ     ??updateNetwork_5
+   \   000014   7E800600     SUB.B   #0x6, R14
+   \   000018   5424         JEQ     ??updateNetwork_6
+   \   00001A   613C         JMP     ??updateNetwork_2
+     50            case NEW:
+     51                statusNTWK = UPDATE;
+   \                     ??updateNetwork_5:
+   \   00001C   F2407500.... MOV.B   #0x75, &statusNTWK
+     52                strcpy(IOTcommand,"AT+NSTAT=?\r");
+   \   000022   3D40....     MOV.W   #`?<Constant "AT+NSTAT=?\\r">`, R13
+   \   000026   3C40....     MOV.W   #IOTcommand, R12
+   \   00002A   ........     CALLA   #strcpy
+     53                Transmit_Command_A0();
+   \   00002E   ........     CALLA   #Transmit_Command_A0
+     54                break;    
+   \   000032   553C         JMP     ??updateNetwork_2
+     55            case DISPLAY:
+     56              for(i=COUNT_ELEVEN; i > RESET; i--){
+   \                     ??updateNetwork_4:
+   \   000034   3A400B00     MOV.W   #0xb, R10
+   \                     ??updateNetwork_0:
+   \   000038   1A93         CMP.W   #0x1, R10
+   \   00003A   0738         JL      ??updateNetwork_7
+     57                if(SSID[i] == '\0') offset1++;
+   \   00003C   CA93....     CMP.B   #0x0, SSID(R10)
+   \   000040   0220         JNE     ??updateNetwork_8
+   \   000042   9253....     ADD.W   #0x1, &offset1
+     58              }
+   \                     ??updateNetwork_8:
+   \   000046   3A53         ADD.W   #0xffff, R10
+   \   000048   F73F         JMP     ??updateNetwork_0
+     59              SSID[COUNT_TEN] = '\0';
+   \                     ??updateNetwork_7:
+   \   00004A   C243....     MOV.B   #0x0, &SSID + 10
+     60              IP[COUNT_FIFTEEN] = '\0';
+   \   00004E   C243....     MOV.B   #0x0, &IP + 15
+     61              
+     62              dotCount = RESET;
+   \   000052   8243....     MOV.W   #0x0, &dotCount
+     63              for(i=RESET; i<sizeof(IP); i++){
+   \   000056   0A43         MOV.W   #0x0, R10
+   \                     ??updateNetwork_1:
+   \   000058   3A901000     CMP.W   #0x10, R10
+   \   00005C   232C         JC      ??updateNetwork_9
+     64                if(IP[i] == '.') dotCount++;
+   \   00005E   FA902E00.... CMP.B   #0x2e, IP(R10)
+   \   000064   0220         JNE     ??updateNetwork_10
+   \   000066   9253....     ADD.W   #0x1, &dotCount
+     65                if(dotCount == FIRST && !firstDot) firstDot = i;
+   \                     ??updateNetwork_10:
+   \   00006A   9293....     CMP.W   #0x1, &dotCount
+   \   00006E   0620         JNE     ??updateNetwork_11
+   \   000070   8293....     CMP.W   #0x0, &firstDot
+   \   000074   0320         JNE     ??updateNetwork_11
+   \   000076   824A....     MOV.W   R10, &firstDot
+   \   00007A   123C         JMP     ??updateNetwork_3
+     66                else if(dotCount == SECOND && !secondDot) secondDot = i;
+   \                     ??updateNetwork_11:
+   \   00007C   A293....     CMP.W   #0x2, &dotCount
+   \   000080   0620         JNE     ??updateNetwork_12
+   \   000082   8293....     CMP.W   #0x0, &secondDot
+   \   000086   0320         JNE     ??updateNetwork_12
+   \   000088   824A....     MOV.W   R10, &secondDot
+   \   00008C   093C         JMP     ??updateNetwork_3
+     67                else if(dotCount == THIRD && !thirdDot) thirdDot = i;
+   \                     ??updateNetwork_12:
+   \   00008E   B2900300.... CMP.W   #0x3, &dotCount
+   \   000094   0520         JNE     ??updateNetwork_3
+   \   000096   8293....     CMP.W   #0x0, &thirdDot
+   \   00009A   0220         JNE     ??updateNetwork_3
+   \   00009C   824A....     MOV.W   R10, &thirdDot
+     68              }
+   \                     ??updateNetwork_3:
+   \   0000A0   1A53         ADD.W   #0x1, R10
+   \   0000A2   DA3F         JMP     ??updateNetwork_1
+     69              offset3 = MIDPOINT-firstDot;
+   \                     ??updateNetwork_9:
+   \   0000A4   3F400500     MOV.W   #0x5, R15
+   \   0000A8   1F82....     SUB.W   &firstDot, R15
+   \   0000AC   824F....     MOV.W   R15, &offset3
+     70              offset4 = thirdDot - MIDPOINT;
+   \   0000B0   1F42....     MOV.W   &thirdDot, R15
+   \   0000B4   3F50FBFF     ADD.W   #0xfffb, R15
+   \   0000B8   824F....     MOV.W   R15, &offset4
+     71              
+     72              /*strcpy(display_line[FIRST_LINE],"          ");
+     73              strcpy(display_line[SECOND_LINE],"IP address");
+     74              strcpy(display_line[THIRD_LINE],"          ");
+     75              strcpy(display_line[FOURTH_LINE],"          ");
+     76              
+     77              for(i=RESET; i<COUNT_ELEVEN; i++){
+     78                display_line[FIRST_LINE][i+(offset1>>FIRST)] = SSID[i];
+     79              }
+     80              for(i=RESET; i<SMALL_RING_SIZE; i++){
+     81                if(i<secondDot) display_line[THIRD_LINE][i+offset3] = IP[i];
+     82                if(i>secondDot) display_line[FOURTH_LINE][i-offset4] = IP[i];
+     83              }*/
+     84              statusNTWK = TCP;
+   \   0000BC   F2407400.... MOV.B   #0x74, &statusNTWK
+     85            case TCP:
+     86              strcpy(IOTcommand, "AT+NSTCP=7898,1\r");
+   \                     ??updateNetwork_6:
+   \   0000C2   3D40....     MOV.W   #`?<Constant "AT+NSTCP=7898,1\\r">`, R13
+   \   0000C6   3C40....     MOV.W   #IOTcommand, R12
+   \   0000CA   ........     CALLA   #strcpy
+     87              Transmit_Command_A0();
+   \   0000CE   ........     CALLA   #Transmit_Command_A0
+     88              statusNTWK=WAIT;
+   \   0000D2   F2407700.... MOV.B   #0x77, &statusNTWK
+     89              GREEN_LED_ON;
+   \   0000D8   F2D040004302 BIS.B   #0x40, &0x243
+     90              
+     91              
+     92            default: break;
+     93            }
+     94          }
+   \                     ??updateNetwork_2:
+   \   0000DE   3A41         POP.W   R10
+   \   0000E0   1001         RETA
+   \   0000E2                REQUIRE _A_PCOUT_L
+     95          
+
+   \                                 In  segment CODE, align 2
+     96          void ping(void){
+   \                     ping:
+   \   000000   0A12         PUSH.W  R10
+     97            if(sendPing && (statusNTWK == WAIT)){
+   \   000002   8293....     CMP.W   #0x0, &sendPing
+   \   000006   1024         JEQ     ??ping_1
+   \   000008   F2907700.... CMP.B   #0x77, &statusNTWK
+   \   00000E   0C20         JNE     ??ping_1
+     98              sendPing = LOW;
+   \   000010   8243....     MOV.W   #0x0, &sendPing
+     99                for(int i=RESET; i<LARGE_RING_SIZE; i++)
+   \   000014   0A43         MOV.W   #0x0, R10
+   \                     ??ping_0:
+   \   000016   3A902000     CMP.W   #0x20, R10
+   \   00001A   0634         JGE     ??ping_1
+    100                  out_character_A0(PING[i]);
+   \   00001C   5C4A....     MOV.B   PING(R10), R12
+   \   000020   ........     CALLA   #out_character_A0
+   \   000024   1A53         ADD.W   #0x1, R10
+   \   000026   F73F         JMP     ??ping_0
+    101            }
+    102          }
+   \                     ??ping_1:
+   \   000028   3A41         POP.W   R10
+   \   00002A   1001         RETA
+
+   \                                 In  segment DATA16_ID, align 1, align-sorted
+   \                     `?<Initializer for IP>`:
+   \   000000   202020202020 DC8 20H, 20H, 20H, 20H, 20H, 20H, 20H, 20H
+   \            2020        
+   \   000008   202020202020 DC8 20H, 20H, 20H, 20H, 20H, 20H, 20H, 20H
+   \            2020        
+
+   \                                 In  segment DATA16_ID, align 1, align-sorted
+   \                     `?<Initializer for SSID>`:
+   \   000000   202020202020 DC8 "          "
+   \            2020202000  
+
+   \                                 In  segment DATA16_ID, align 2, align-sorted
+   \                     `?<Initializer for sendPing>`:
+   \   000000   0100         DC16 1
+
+   \                                 In  segment DATA16_ID, align 1, align-sorted
+   \                     `?<Initializer for PING>`:
+   \   000000   41542B50494E DC8 "AT+PING=www.pixar.com,3\015"
+   \            473D7777772E
+   \            70697861722E
+   \            636F6D2C330D
+   \            00          
+   \   000019   000000000000 DC8 0, 0, 0, 0, 0, 0, 0
+   \            00          
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "AT+NSTAT=?\\r">`:
+   \   000000   41542B4E5354 DC8 "AT+NSTAT=?\015"
+   \            41543D3F0D00
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "AT+NSTCP=7898,1\\r">`:
+   \   000000   41542B4E5354 DC8 "AT+NSTCP=7898,1\015"
+   \            43503D373839
+   \            382C310D00  
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      4   network
+        0   -> ping
+        4   -> updateNetwork
+      6   ping
+        6   -> out_character_A0
+      6   updateNetwork
+        6   -> Transmit_Command_A0
+        6   -> strcpy
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      12  ?<Constant "AT+NSTAT=?\r">
+      17  ?<Constant "AT+NSTCP=7898,1\r">
+      16  ?<Initializer for IP>
+      32  ?<Initializer for PING>
+      11  ?<Initializer for SSID>
+       2  ?<Initializer for sendPing>
+      16  IOTcommand
+      16  IP
+      32  PING
+      11  SSID
+       2  _A_PCOUT_L
+       2  dotCount
+       2  firstDot
+       8  network
+       2  offset1
+       2  offset3
+       2  offset4
+      44  ping
+       2  secondDot
+       2  sendPing
+       1  statusNTWK
+       2  thirdDot
+     226  updateNetwork
+
+ 
+ 278 bytes in segment CODE
+   2 bytes in segment DATA16_AN
+  29 bytes in segment DATA16_C
+  61 bytes in segment DATA16_I
+  61 bytes in segment DATA16_ID
+  31 bytes in segment DATA16_Z
+ 
+ 278 bytes of CODE  memory
+  90 bytes of CONST memory
+  92 bytes of DATA  memory (+ 2 bytes shared)
+
+Errors: none
+Warnings: none

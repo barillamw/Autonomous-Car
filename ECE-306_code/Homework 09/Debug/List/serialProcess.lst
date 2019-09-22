@@ -1,0 +1,249 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           03/Apr/2019  00:22:55
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework
+#        09\serialProcess.c
+#    Command line  =  
+#        -f C:\Users\Michael\AppData\Local\Temp\EWAB8A.tmp
+#        ("C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework
+#        09\serialProcess.c" -lC "C:\Users\Michael\Documents\2019\ECE
+#        306\ECE-306_code\Homework 09\Debug\List" -o
+#        "C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework
+#        09\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework
+#        09\Debug\List\serialProcess.lst
+#    Object file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework
+#        09\Debug\Obj\serialProcess.r43
+#
+###############################################################################
+
+C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Homework 09\serialProcess.c
+      1          //------------------------------------------------------------------------------
+      2          //
+      3          //  Description: This file contains the implementation of sending and recieving
+      4          //               a UART serial communication message from one MSP430 to another
+      5          //  
+      6          //
+      7          //  Michael Barilla
+      8          //  Mar 2019
+      9          //  Built with IAR Embedded Workbench Version: V4.10A/W32 (7.11.2)
+     10          //------------------------------------------------------------------------------
+     11          #include  "functions.h"
+     12          #include  "msp430.h"
+     13          #include "macros.h"
+     14          #include <string.h>
+     15          
+     16          extern char display_line[FOURTH][COUNT_ELEVEN];
+     17          extern volatile unsigned char display_changed;
+     18          
+
+   \                                 In  segment DATA16_I, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_copy
+     19          char serial_state = WAITING;
+   \                     serial_state:
+   \   000000                DS8 1
+   \   000001                REQUIRE `?<Initializer for serial_state>`
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     20          unsigned int once;
+   \                     once:
+   \   000000                DS8 2
+     21          extern unsigned int freq;
+     22          
+     23          extern unsigned int lineFinished;
+     24          extern unsigned int lineStart;
+     25          
+
+   \                                 In  segment CODE, align 2
+     26          void serialProcess(void){
+   \                     serialProcess:
+     27             switch(serial_state){
+   \   000000   5E42....     MOV.B   &serial_state, R14
+   \   000004   7E807200     SUB.B   #0x72, R14
+   \   000008   2624         JEQ     ??serialProcess_6
+   \   00000A   6E83         SUB.B   #0x2, R14
+   \   00000C   3024         JEQ     ??serialProcess_7
+   \   00000E   7E800300     SUB.B   #0x3, R14
+   \   000012   4F20         JNE     ??serialProcess_4
+     28                case WAITING:
+     29                  strcpy(display_line[FIRST_LINE],"WAITING...");
+   \   000014   3D40....     MOV.W   #`?<Constant "WAITING...">`, R13
+   \   000018   3C40....     MOV.W   #display_line, R12
+   \   00001C   ........     CALLA   #strcpy
+     30                  switch(freq){
+   \   000020   1F42....     MOV.W   &freq, R15
+   \   000024   0F83         SUB.W   #0x0, R15
+   \   000026   0324         JEQ     ??serialProcess_8
+   \   000028   1F83         SUB.W   #0x1, R15
+   \   00002A   0824         JEQ     ??serialProcess_9
+   \   00002C   0D3C         JMP     ??serialProcess_5
+     31                  case K115:
+     32                    strcpy(display_line[THIRD_LINE],"BR: 115.2k");
+   \                     ??serialProcess_8:
+   \   00002E   3D40....     MOV.W   #`?<Constant "BR: 115.2k">`, R13
+   \   000032   3C40....     MOV.W   #display_line + 22, R12
+   \   000036   ........     CALLA   #strcpy
+     33                    break;
+   \   00003A   063C         JMP     ??serialProcess_5
+     34                  case K460:
+     35                    strcpy(display_line[THIRD_LINE],"BR: 460.8k");
+   \                     ??serialProcess_9:
+   \   00003C   3D40....     MOV.W   #`?<Constant "BR: 460.8k">`, R13
+   \   000040   3C40....     MOV.W   #display_line + 22, R12
+   \   000044   ........     CALLA   #strcpy
+     36                    break;
+     37                  }
+     38                  if(lineStart) serial_state = RECIEVING;
+   \                     ??serialProcess_5:
+   \   000048   8293....     CMP.W   #0x0, &lineStart
+   \   00004C   3224         JEQ     ??serialProcess_4
+   \   00004E   F2407200.... MOV.B   #0x72, &serial_state
+     39                  break;
+   \   000054   1001         RETA
+     40                case RECIEVING:
+     41                  strcpy(display_line[FIRST_LINE]," RECIEVED ");
+   \                     ??serialProcess_6:
+   \   000056   3D40....     MOV.W   #`?<Constant " RECIEVED ">`, R13
+   \   00005A   3C40....     MOV.W   #display_line, R12
+   \   00005E   ........     CALLA   #strcpy
+     42                  if(lineFinished){
+   \   000062   8293....     CMP.W   #0x0, &lineFinished
+   \   000066   2524         JEQ     ??serialProcess_4
+     43                    lineFinished = LOW;
+   \   000068   8243....     MOV.W   #0x0, &lineFinished
+     44                  }
+     45                  break;      
+   \   00006C   1001         RETA
+     46                case TRANSMITTING:
+     47                  strcpy(display_line[FIRST_LINE]," TRANSMIT ");
+   \                     ??serialProcess_7:
+   \   00006E   3D40....     MOV.W   #`?<Constant " TRANSMIT ">`, R13
+   \   000072   3C40....     MOV.W   #display_line, R12
+   \   000076   ........     CALLA   #strcpy
+     48                  if(once){
+   \   00007A   8293....     CMP.W   #0x0, &once
+   \   00007E   0624         JEQ     ??serialProcess_10
+     49                    once = LOW;
+   \   000080   8243....     MOV.W   #0x0, &once
+     50                    display_Text_A0();
+   \   000084   ........     CALLA   #display_Text_A0
+     51                    Transmit_Text_A0();
+   \   000088   ........     CALLA   #Transmit_Text_A0
+     52                  }
+     53                  switch(freq){
+   \                     ??serialProcess_10:
+   \   00008C   1F42....     MOV.W   &freq, R15
+   \   000090   0F83         SUB.W   #0x0, R15
+   \   000092   0324         JEQ     ??serialProcess_11
+   \   000094   1F83         SUB.W   #0x1, R15
+   \   000096   0724         JEQ     ??serialProcess_12
+   \   000098   1001         RETA
+     54                  case K115:
+     55                    strcpy(display_line[THIRD_LINE],"BR: 115.2k");
+   \                     ??serialProcess_11:
+   \   00009A   3D40....     MOV.W   #`?<Constant "BR: 115.2k">`, R13
+   \   00009E   3C40....     MOV.W   #display_line + 22, R12
+   \   0000A2   ........     BRA     #strcpy
+     56                    break;
+     57                  case K460:
+     58                    strcpy(display_line[THIRD_LINE],"BR: 460.8k");
+   \                     ??serialProcess_12:
+   \   0000A6   3D40....     MOV.W   #`?<Constant "BR: 460.8k">`, R13
+   \   0000AA   3C40....     MOV.W   #display_line + 22, R12
+   \   0000AE   ........     CALLA   #strcpy
+     59                    break;
+     60                  }
+     61                  break;
+     62                default: break;
+     63              }
+     64          }
+   \                     ??serialProcess_4:
+   \   0000B2   1001         RETA
+
+   \                                 In  segment DATA16_ID, align 1, align-sorted
+   \                     `?<Initializer for serial_state>`:
+   \   000000   77           DC8 119
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "WAITING...">`:
+   \   000000   57414954494E DC8 "WAITING..."
+   \            472E2E2E00  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "BR: 115.2k">`:
+   \   000000   42523A203131 DC8 "BR: 115.2k"
+   \            352E326B00  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "BR: 460.8k">`:
+   \   000000   42523A203436 DC8 "BR: 460.8k"
+   \            302E386B00  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant " RECIEVED ">`:
+   \   000000   205245434945 DC8 " RECIEVED "
+   \            5645442000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant " TRANSMIT ">`:
+   \   000000   205452414E53 DC8 " TRANSMIT "
+   \            4D49542000  
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      4   serialProcess
+        4   -> Transmit_Text_A0
+        4   -> display_Text_A0
+        0   -> strcpy
+        4   -> strcpy
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      11  ?<Constant " RECIEVED ">
+      11  ?<Constant " TRANSMIT ">
+      11  ?<Constant "BR: 115.2k">
+      11  ?<Constant "BR: 460.8k">
+      11  ?<Constant "WAITING...">
+       1  ?<Initializer for serial_state>
+       2  once
+     180  serialProcess
+       1  serial_state
+
+ 
+ 180 bytes in segment CODE
+  55 bytes in segment DATA16_C
+   1 byte  in segment DATA16_I
+   1 byte  in segment DATA16_ID
+   2 bytes in segment DATA16_Z
+ 
+ 180 bytes of CODE  memory
+  56 bytes of CONST memory
+   3 bytes of DATA  memory
+
+Errors: none
+Warnings: none

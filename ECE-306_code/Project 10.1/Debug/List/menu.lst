@@ -1,0 +1,503 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           25/Apr/2019  15:00:55
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10.1\menu.c
+#    Command line  =  
+#        -f C:\Users\Michael\AppData\Local\Temp\EWBCEE.tmp
+#        ("C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10.1\menu.c" -lC "C:\Users\Michael\Documents\2019\ECE
+#        306\ECE-306_code\Project 10.1\Debug\List" -o
+#        "C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10.1\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10.1\Debug\List\menu.lst
+#    Object file   =  
+#        C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project
+#        10.1\Debug\Obj\menu.r43
+#
+###############################################################################
+
+C:\Users\Michael\Documents\2019\ECE 306\ECE-306_code\Project 10.1\menu.c
+      1          
+      2          #include  "functions.h"
+      3          #include  "msp430.h"
+      4          #include "macros.h"
+      5          #include <string.h>
+      6          
+      7          extern unsigned int freq;
+      8          extern char display_line[FOURTH][COUNT_ELEVEN];
+      9          extern char bcd_char [COUNT_ELEVEN]; 
+     10          extern volatile unsigned char display_changed;
+     11          extern unsigned int ADC_Thumb;
+     12          extern unsigned int capture;
+     13          extern char serial_state;
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     14          unsigned int menu_select;
+   \                     menu_select:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     15          unsigned int menu;
+   \                     menu:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     16          unsigned int resistor;
+   \                     resistor:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     17          unsigned int shapes;
+   \                     shapes:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     18          unsigned int lyrics;
+   \                     lyrics:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     19          unsigned int counter;
+   \                     counter:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     20          unsigned int previous;
+   \                     previous:
+   \   000000                DS8 2
+     21          extern unsigned int scroll;
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     22          unsigned int action;
+   \                     action:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     23          unsigned int setting;
+   \                     setting:
+   \   000000                DS8 2
+     24          extern unsigned int white;
+     25          extern unsigned int black;
+     26          extern char SSID[COUNT_ELEVEN];
+     27          extern char IP[SMALL_RING_SIZE];
+     28          
+     29          
+     30          
+
+   \                                 In  segment CODE, align 2
+     31          void Menu_Process(void){
+   \                     Menu_Process:
+     32            Begin_ADC();
+   \   000000   ........     CALLA   #Begin_ADC
+     33            menu = ADC_Thumb >> COUNT_TEN;
+   \   000004   1F42....     MOV.W   &ADC_Thumb, R15
+   \   000008   8F10         SWPB    R15
+   \   00000A   3FF0FF00     AND.W   #0xff, R15
+   \   00000E   0F11         RRA.W   R15
+   \   000010   0F11         RRA.W   R15
+   \   000012   824F....     MOV.W   R15, &menu
+     34            
+     35            if(menu_select){
+   \   000016   8293....     CMP.W   #0x0, &menu_select
+   \   00001A   0E24         JEQ     ??Menu_Process_3
+     36              switch(menu_select){
+   \   00001C   1F42....     MOV.W   &menu_select, R15
+   \   000020   1F83         SUB.W   #0x1, R15
+   \   000022   0424         JEQ     ??Menu_Process_4
+   \   000024   1F83         SUB.W   #0x1, R15
+   \   000026   0524         JEQ     ??Menu_Process_5
+   \   000028   1F83         SUB.W   #0x1, R15
+   \   00002A   403C         JMP     ??Menu_Process_1
+     37              case S1:
+     38                settings();
+   \                     ??Menu_Process_4:
+   \   00002C   ........     CALLA   #settings
+     39                break;
+   \   000030   3D3C         JMP     ??Menu_Process_1
+     40              case S2:
+     41                program();
+   \                     ??Menu_Process_5:
+   \   000032   ........     CALLA   #`program`
+     42                break;
+   \   000036   3A3C         JMP     ??Menu_Process_1
+     43              case S3:
+     44                //PowerSave();
+     45                break;
+     46              default: 
+     47                break;
+     48              }
+     49            }
+     50            else{
+     51              lcd_BIG_mid();
+   \                     ??Menu_Process_3:
+   \   000038   ........     CALLA   #lcd_BIG_mid
+     52              strcpy(display_line[FIRST_LINE],"---MAIN---");
+   \   00003C   3D40....     MOV.W   #`?<Constant "---MAIN---">`, R13
+   \   000040   3C40....     MOV.W   #display_line, R12
+   \   000044   ........     CALLA   #strcpy
+     53              strcpy(display_line[THIRD_LINE],"---MENU---");
+   \   000048   3D40....     MOV.W   #`?<Constant "---MENU---">`, R13
+   \   00004C   3C40....     MOV.W   #display_line + 22, R12
+   \   000050   ........     CALLA   #strcpy
+     54              strcpy(display_line[FOURTH_LINE],"          ");
+   \   000054   3D40....     MOV.W   #`?<Constant "          ">`, R13
+   \   000058   3C40....     MOV.W   #display_line + 33, R12
+   \   00005C   ........     CALLA   #strcpy
+     55              switch(menu){
+   \   000060   1F42....     MOV.W   &menu, R15
+   \   000064   0F83         SUB.W   #0x0, R15
+   \   000066   0724         JEQ     ??Menu_Process_6
+   \   000068   1F83         SUB.W   #0x1, R15
+   \   00006A   0C24         JEQ     ??Menu_Process_7
+   \   00006C   1F83         SUB.W   #0x1, R15
+   \   00006E   1124         JEQ     ??Menu_Process_8
+   \   000070   1F83         SUB.W   #0x1, R15
+   \   000072   1624         JEQ     ??Menu_Process_9
+   \   000074   1B3C         JMP     ??Menu_Process_1
+     56                case S0:
+     57                  strcpy(display_line[SECOND_LINE],"<<---------");
+   \                     ??Menu_Process_6:
+   \   000076   3D40....     MOV.W   #`?<Constant "<<---------">`, R13
+   \   00007A   3C40....     MOV.W   #display_line + 11, R12
+   \   00007E   ........     CALLA   #strcpy
+     58                  break;
+   \   000082   143C         JMP     ??Menu_Process_1
+     59                case S1:
+     60                  strcpy(display_line[SECOND_LINE]," SETTINGS ");
+   \                     ??Menu_Process_7:
+   \   000084   3D40....     MOV.W   #`?<Constant " SETTINGS ">`, R13
+   \   000088   3C40....     MOV.W   #display_line + 11, R12
+   \   00008C   ........     CALLA   #strcpy
+     61                  break;
+   \   000090   0D3C         JMP     ??Menu_Process_1
+     62                case S2:
+     63                  strcpy(display_line[SECOND_LINE],"PROJECT 10");
+   \                     ??Menu_Process_8:
+   \   000092   3D40....     MOV.W   #`?<Constant "PROJECT 10">`, R13
+   \   000096   3C40....     MOV.W   #display_line + 11, R12
+   \   00009A   ........     CALLA   #strcpy
+     64                  break;
+   \   00009E   063C         JMP     ??Menu_Process_1
+     65                case S3:
+     66                  strcpy(display_line[SECOND_LINE], " PWR SAVE ");
+   \                     ??Menu_Process_9:
+   \   0000A0   3D40....     MOV.W   #`?<Constant " PWR SAVE ">`, R13
+   \   0000A4   3C40....     MOV.W   #display_line + 11, R12
+   \   0000A8   ........     CALLA   #strcpy
+     67                  break;
+     68               }
+     69            }
+     70            End_ADC();
+   \                     ??Menu_Process_1:
+   \   0000AC   ........     BRA     #End_ADC
+     71          }
+     72               
+
+   \                                 In  segment CODE, align 2
+     73          void settings(void){
+   \                     settings:
+     74            lcd_4line();
+   \   000000   ........     CALLA   #lcd_4line
+     75            setting = ADC_Thumb >> COUNT_TEN;
+   \   000004   1F42....     MOV.W   &ADC_Thumb, R15
+   \   000008   8F10         SWPB    R15
+   \   00000A   3FF0FF00     AND.W   #0xff, R15
+   \   00000E   0F11         RRA.W   R15
+   \   000010   0F11         RRA.W   R15
+   \   000012   824F....     MOV.W   R15, &setting
+     76            
+     77            if(!action){
+   \   000016   8293....     CMP.W   #0x0, &action
+   \   00001A   7520         JNE     ??settings_7
+     78            
+     79              strcpy(display_line[FIRST_LINE]," SETTINGS ");
+   \   00001C   3D40....     MOV.W   #`?<Constant " SETTINGS ">`, R13
+   \   000020   3C40....     MOV.W   #display_line, R12
+   \   000024   ........     CALLA   #strcpy
+     80             
+     81              
+     82              switch(setting){
+   \   000028   1F42....     MOV.W   &setting, R15
+   \   00002C   0F83         SUB.W   #0x0, R15
+   \   00002E   5B24         JEQ     ??settings_8
+   \   000030   1F83         SUB.W   #0x1, R15
+   \   000032   3C24         JEQ     ??settings_9
+   \   000034   1F83         SUB.W   #0x1, R15
+   \   000036   1E24         JEQ     ??settings_10
+   \   000038   1F83         SUB.W   #0x1, R15
+   \   00003A   6420         JNE     ??settings_3
+     83              case S3:
+     84                strcpy(display_line[SECOND_LINE], "White:    ");
+   \   00003C   3D40....     MOV.W   #`?<Constant "White:    ">`, R13
+   \   000040   3C40....     MOV.W   #display_line + 11, R12
+   \   000044   ........     CALLA   #strcpy
+     85                HEXtoBCD(white);
+   \   000048   1C42....     MOV.W   &white, R12
+   \   00004C   ........     CALLA   #HEXtoBCD
+     86                strcpy(display_line[THIRD_LINE],"          ");
+   \   000050   3D40....     MOV.W   #`?<Constant "          ">`, R13
+   \   000054   3C40....     MOV.W   #display_line + 22, R12
+   \   000058   ........     CALLA   #strcpy
+     87                strcpy(display_line[FOURTH_LINE],"          ");
+   \   00005C   3D40....     MOV.W   #`?<Constant "          ">`, R13
+   \   000060   3C40....     MOV.W   #display_line + 33, R12
+   \   000064   ........     CALLA   #strcpy
+     88                strcpy(display_line[THIRD_LINE], bcd_char);
+   \   000068   3D40....     MOV.W   #bcd_char, R13
+   \   00006C   3C40....     MOV.W   #display_line + 22, R12
+   \   000070   ........     BRA     #strcpy
+     89                break;
+     90              case S2:
+     91                strcpy(display_line[SECOND_LINE], "Black:    ");
+   \                     ??settings_10:
+   \   000074   3D40....     MOV.W   #`?<Constant "Black:    ">`, R13
+   \   000078   3C40....     MOV.W   #display_line + 11, R12
+   \   00007C   ........     CALLA   #strcpy
+     92                HEXtoBCD(black);
+   \   000080   1C42....     MOV.W   &black, R12
+   \   000084   ........     CALLA   #HEXtoBCD
+     93                strcpy(display_line[THIRD_LINE],"          ");
+   \   000088   3D40....     MOV.W   #`?<Constant "          ">`, R13
+   \   00008C   3C40....     MOV.W   #display_line + 22, R12
+   \   000090   ........     CALLA   #strcpy
+     94                strcpy(display_line[FOURTH_LINE],"          ");
+   \   000094   3D40....     MOV.W   #`?<Constant "          ">`, R13
+   \   000098   3C40....     MOV.W   #display_line + 33, R12
+   \   00009C   ........     CALLA   #strcpy
+     95                strcpy(display_line[THIRD_LINE], bcd_char);
+   \   0000A0   3D40....     MOV.W   #bcd_char, R13
+   \   0000A4   3C40....     MOV.W   #display_line + 22, R12
+   \   0000A8   ........     BRA     #strcpy
+     96                break;    
+     97              case S1:
+     98                strcpy(display_line[SECOND_LINE], "Network: ");
+   \                     ??settings_9:
+   \   0000AC   3D40....     MOV.W   #`?<Constant "Network: ">`, R13
+   \   0000B0   3C40....     MOV.W   #display_line + 11, R12
+   \   0000B4   ........     CALLA   #strcpy
+     99                strcpy(display_line[THIRD_LINE], SSID);
+   \   0000B8   3D40....     MOV.W   #SSID, R13
+   \   0000BC   3C40....     MOV.W   #display_line + 22, R12
+   \   0000C0   ........     CALLA   #strcpy
+    100                for(int i=RESET; i<COUNT_ELEVEN;i++){
+   \   0000C4   0F43         MOV.W   #0x0, R15
+   \                     ??settings_0:
+   \   0000C6   3F900B00     CMP.W   #0xb, R15
+   \   0000CA   0A34         JGE     ??settings_11
+    101                  display_line[FOURTH_LINE][i] = IP[(i+scroll)%SMALL_RING_SIZE];
+   \   0000CC   0E4F         MOV.W   R15, R14
+   \   0000CE   1E52....     ADD.W   &scroll, R14
+   \   0000D2   3EF00F00     AND.W   #0xf, R14
+   \   0000D6   DF4E........ MOV.B   IP(R14), display_line + 33(R15)
+    102                }
+   \   0000DC   1F53         ADD.W   #0x1, R15
+   \   0000DE   F33F         JMP     ??settings_0
+    103                display_line[FOURTH_LINE][COUNT_TEN] = '\0';
+   \                     ??settings_11:
+   \   0000E0   C243....     MOV.B   #0x0, &display_line + 43
+    104                break;
+   \   0000E4   1001         RETA
+    105              case S0:
+    106                strcpy(display_line[SECOND_LINE], " Read ADC ");
+   \                     ??settings_8:
+   \   0000E6   3D40....     MOV.W   #`?<Constant " Read ADC ">`, R13
+   \   0000EA   3C40....     MOV.W   #display_line + 11, R12
+   \   0000EE   ........     CALLA   #strcpy
+    107                displayADC(THIRD_LINE);
+   \   0000F2   2C43         MOV.W   #0x2, R12
+   \   0000F4   ........     CALLA   #displayADC
+    108                strcpy(display_line[FOURTH_LINE],"          ");
+   \   0000F8   3D40....     MOV.W   #`?<Constant "          ">`, R13
+   \   0000FC   3C40....     MOV.W   #display_line + 33, R12
+   \   000100   ........     BRA     #strcpy
+    109                break;
+    110              default: break;
+   \                     ??settings_3:
+   \   000104   1001         RETA
+    111              }
+    112            }
+    113            else{
+    114              End_ADC();
+   \                     ??settings_7:
+   \   000106   ........     CALLA   #End_ADC
+    115              switch(action){
+   \   00010A   1F42....     MOV.W   &action, R15
+   \   00010E   0F83         SUB.W   #0x0, R15
+   \   000110   0E24         JEQ     ??settings_6
+   \   000112   1F83         SUB.W   #0x1, R15
+   \   000114   0C24         JEQ     ??settings_6
+   \   000116   1F83         SUB.W   #0x1, R15
+   \   000118   0624         JEQ     ??settings_12
+   \   00011A   1F83         SUB.W   #0x1, R15
+   \   00011C   0820         JNE     ??settings_6
+    116              case S3:
+    117                white = RESET;
+   \   00011E   8243....     MOV.W   #0x0, &white
+    118                calibrateWhite();
+   \   000122   ........     BRA     #calibrateWhite
+    119                break;
+    120              case S2:
+    121                black = RESET;
+   \                     ??settings_12:
+   \   000126   8243....     MOV.W   #0x0, &black
+    122                calibrateBlack();
+   \   00012A   ........     CALLA   #calibrateBlack
+    123                //Configure Black
+    124                break;
+    125              case S1:
+    126                //Network State = New
+    127                break;
+    128              case S0:
+    129                //Reset Module
+    130                break;
+    131              default: break;
+    132              }
+    133            }
+    134          }
+   \                     ??settings_6:
+   \   00012E   1001         RETA
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "---MAIN---">`:
+   \   000000   2D2D2D4D4149 DC8 "---MAIN---"
+   \            4E2D2D2D00  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "---MENU---">`:
+   \   000000   2D2D2D4D454E DC8 "---MENU---"
+   \            552D2D2D00  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "          ">`:
+   \   000000   202020202020 DC8 "          "
+   \            2020202000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "<<---------">`:
+   \   000000   3C3C2D2D2D2D DC8 "<<---------"
+   \            2D2D2D2D2D00
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant " SETTINGS ">`:
+   \   000000   205345545449 DC8 " SETTINGS "
+   \            4E47532000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "PROJECT 10">`:
+   \   000000   50524F4A4543 DC8 "PROJECT 10"
+   \            5420313000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant " PWR SAVE ">`:
+   \   000000   205057522053 DC8 " PWR SAVE "
+   \            4156452000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "White:    ">`:
+   \   000000   57686974653A DC8 "White:    "
+   \            2020202000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "Black:    ">`:
+   \   000000   426C61636B3A DC8 "Black:    "
+   \            2020202000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "Network: ">`:
+   \   000000   4E6574776F72 DC8 "Network: "
+   \            6B3A2000    
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant " Read ADC ">`:
+   \   000000   205265616420 DC8 " Read ADC "
+   \            4144432000  
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      4   Menu_Process
+        4   -> Begin_ADC
+        0   -> End_ADC
+        4   -> lcd_BIG_mid
+        4   -> program
+        4   -> settings
+        4   -> strcpy
+      4   settings
+        4   -> End_ADC
+        4   -> HEXtoBCD
+        4   -> calibrateBlack
+        0   -> calibrateWhite
+        4   -> displayADC
+        4   -> lcd_4line
+        0   -> strcpy
+        4   -> strcpy
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      11  ?<Constant "          ">
+      11  ?<Constant " PWR SAVE ">
+      11  ?<Constant " Read ADC ">
+      11  ?<Constant " SETTINGS ">
+      11  ?<Constant "---MAIN---">
+      11  ?<Constant "---MENU---">
+      12  ?<Constant "<<---------">
+      11  ?<Constant "Black:    ">
+      10  ?<Constant "Network: ">
+      11  ?<Constant "PROJECT 10">
+      11  ?<Constant "White:    ">
+     176  Menu_Process
+       2  action
+       2  counter
+       2  lyrics
+       2  menu
+       2  menu_select
+       2  previous
+       2  resistor
+       2  setting
+     304  settings
+       2  shapes
+
+ 
+ 480 bytes in segment CODE
+ 121 bytes in segment DATA16_C
+  18 bytes in segment DATA16_Z
+ 
+ 480 bytes of CODE  memory
+ 121 bytes of CONST memory
+  18 bytes of DATA  memory
+
+Errors: none
+Warnings: none
