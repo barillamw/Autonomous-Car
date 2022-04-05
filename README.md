@@ -10,7 +10,7 @@
 -->
 
 
-<h3 align="center">Embedded System Car</h3>
+<h1 align="center">Embedded System Car</h1>
 
   <p align="center">
     Design, build and program a car to complete basic tasks including driving autonomously.
